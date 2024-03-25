@@ -4,5 +4,17 @@
 "3": "karma2",
 "4": "karma3",
 "5": "karma4",
-"R": "Misc_KarmaR"
+"R": "Misc_KarmaR",
+
+"6": "karma5-9",
+"7": "karma6-9",
+"8": "karma7-9",
+"9": "karma8-9",
+"10": "karma9-9",
+"Open": "karma5-6",
+"Forbidden": "karma-Forbidden",
+"TenReinforced": "karma-10Reinforced",
+"CommsMark": "karma-Comsmark",
+"uwu": "karma-Uwu",
+"Glow": "karma-Glow"
 }

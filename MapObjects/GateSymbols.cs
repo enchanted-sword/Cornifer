@@ -47,6 +47,7 @@ namespace Cornifer.MapObjects
 
         static AtlasSprite? GetSprite(string symbol)
         {
+            if (symbol.EndsWith("alt")) symbol.Replace("alt", "");
             string? name = null;
             if (StaticData.GateSymbols.ContainsKey(symbol))
             { name = StaticData.GateSymbols[symbol]; }
