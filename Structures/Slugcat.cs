@@ -51,14 +51,14 @@ namespace Cornifer.Structures
             {
                 Color? color = ColorDatabase.ParseColor(colorString);
                 if (color.HasValue)
-                    this.Color = (Color)color);
+                    this.Color = (Color)color;
             }
 
             if (dict.TryGet("eyeColor", out string? eyeColor))
             {
                 Color? color = ColorDatabase.ParseColor(eyeColor);
                 if (color.HasValue)
-                    this.Color = (Color)color);
+                    this.Color = (Color)color;
             }
             if (dict.TryGet("startRoom", out string? startRoom))
                 this.PossibleStartingRooms = new[] { startRoom };

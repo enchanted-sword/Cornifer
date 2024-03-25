@@ -20,7 +20,7 @@ namespace Cornifer.MapObjects
         static Point[] Directions = new Point[] { new Point(0, -1), new Point(1, 0), new Point(0, 1), new Point(-1, 0) };
         public static HashSet<string> NonPickupObjectsWhitelist = new()
         {
-            "GhostSpot", "BlueToken", "GoldToken",
+            "GhostSpot", "BlueToken", "GoldToken", "PurpleToken",
             "RedToken", "WhiteToken", "DevToken", "GreenToken",
             "DataPearl", "UniqueDataPearl", "ScavengerOutpost",
             "HRGuard", "TempleGuard", "MoonCloak"

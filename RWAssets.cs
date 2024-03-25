@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -427,6 +428,13 @@ namespace Cornifer
         }
         static void LoadMod(RWMod mod)
         {
+            LoadSlugbaseMod(mod);
+            if (mod.Id == "mergedmods")
+                LoadCRSData(mod);
+        }
+
+        static void LoadSlugbaseMod(RWMod mod)
+        {
             string slugbaseDir = Path.Combine(mod.Path, "slugbase");
             if (Directory.Exists(slugbaseDir))
             {
@@ -497,6 +505,25 @@ namespace Cornifer
                     {
                         Main.LoadErrors.Add($"Cannot load {Path.GetFileNameWithoutExtension(slugcatFile)} slugcat: {ex.Message}");
                     }
+                }
+            }
+        }
+
+        static void LoadCRSData(RWMod mod)
+        {
+            string filepath = Path.Combine(mod.Path, "custompearls.txt");
+            if (File.Exists(filepath))
+            {
+                foreach (string line in File.ReadAllLines(filepath))
+                {
+                    string[] split = Regex.Split(line, " : ");
+                    if (split.Length < 4) continue;
+
+                    Color? color = ColorDatabase.ParseColor(split[1]);
+                    if (color.HasValue)
+                        StaticData.PearlMainColors[split[0]] = (Color)color;
+
+                    StaticData.PearlHighlightColors[split[0]] = ColorDatabase.ParseColor(split[2]);
                 }
             }
         }
