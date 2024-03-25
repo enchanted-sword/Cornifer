@@ -17,6 +17,8 @@ namespace Cornifer.MapObjects
 {
     public class Room : MapObject
     {
+        public string? replaceRoomName = null;
+
         static Point[] Directions = new Point[] { new Point(0, -1), new Point(1, 0), new Point(0, 1), new Point(-1, 0) };
         public static HashSet<string> NonPickupObjectsWhitelist = new()
         {
