@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Cornifer.Input
 {
@@ -7,7 +8,7 @@ namespace Cornifer.Input
         public string Name { get; }
 
         // KeyA & KeyB, KeyA & KeyC
-        public List<List<KeybindInput>> Inputs = new();
+        public List<ComboInput> Inputs = new();
 
         public KeybindState State
         {
@@ -15,9 +16,9 @@ namespace Cornifer.Input
             {
                 KeybindState state = KeybindState.Released;
 
-                foreach (List<KeybindInput> combo in Inputs)
+                foreach (ComboInput combo in Inputs)
                 {
-                    KeybindState comboState = GetComboState(combo);
+                    KeybindState comboState = combo.State;
                     if (comboState == KeybindState.Pressed)
                         return KeybindState.Pressed;
 
@@ -41,8 +42,8 @@ namespace Cornifer.Input
         {
             get
             {
-                foreach (List<KeybindInput> combo in Inputs)
-                    foreach (KeybindInput input in combo)
+                foreach (ComboInput combo in Inputs)
+                    foreach (KeybindInput input in combo.Inputs)
                         if (input.CurrentState)
                             return true;
                 return false;
@@ -52,8 +53,8 @@ namespace Cornifer.Input
         {
             get
             {
-                foreach (List<KeybindInput> combo in Inputs)
-                    foreach (KeybindInput input in combo)
+                foreach (ComboInput combo in Inputs)
+                    foreach (KeybindInput input in combo.Inputs)
                         if (input.OldState)
                             return true;
                 return false;
@@ -83,7 +84,7 @@ namespace Cornifer.Input
         public Keybind(string name, IEnumerable<KeybindInput> defaults)
         {
             Name = name;
-            Inputs.Add(new(defaults));
+            Inputs.Add(new(defaults.ToList()));
         }
 
         public Keybind(string name, IEnumerable<IEnumerable<KeybindInput>> defaults)
@@ -91,7 +92,7 @@ namespace Cornifer.Input
             Name = name;
 
             foreach (var keyCombo in defaults)
-                Inputs.Add(new(keyCombo));
+                Inputs.Add(new(keyCombo.ToList()));
         }
 
         public Keybind(string name, params KeybindInput[][] @default) : this(name, (IEnumerable<KeybindInput[]>)@default) { }

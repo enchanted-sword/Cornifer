@@ -14,5 +14,7 @@ namespace Cornifer.Input
         public static implicit operator KeybindInput(Keys key) => new KeyboardInput(key);
         public static implicit operator KeybindInput(ModifierKeys key) => new ModifierInput(key);
         public static implicit operator KeybindInput(MouseKeys key) => new MouseInput(key);
+
+        public virtual bool InputEquality(KeybindInput other) => KeyName == other.KeyName;
     }
 }

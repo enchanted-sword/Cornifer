@@ -112,12 +112,12 @@ namespace Cornifer.Input
                     continue;
                 }
 
-                foreach (List<KeybindInput> keyCombo in keybind.Inputs)
+                foreach (ComboInput keyCombo in keybind.Inputs)
                 {
                     Profile.Keybind keybindInfo = new()
                     {
                         Name = name,
-                        Keys = keyCombo.Select(k => k.KeyName).ToArray()
+                        Keys = keyCombo.Inputs.Select(k => k.KeyName).ToArray()
                     };
                     Profile.Current.Keybinds.Add(keybindInfo);
                 }
@@ -167,7 +167,29 @@ namespace Cornifer.Input
                         inputs.Add(key);
                     }
                 }
-                keybind.Inputs.Add(inputs);
+                keybind.Inputs.Add(new(inputs));
+            }
+            RefreshEncapsulatedBinds();
+        }
+
+        public static void RefreshEncapsulatedBinds()
+        {
+            //probably the worst way to do this... but it works so
+            List<ComboInput> combos = new();
+            foreach (Keybind keybind in Keybinds.Values)
+            {
+                foreach (ComboInput combo in keybind.Inputs) combos.Add(combo);
+            }
+            foreach (ComboInput combo in combos)
+            {
+                combo.EncapsulatingCombos.Clear();
+                foreach (ComboInput combo2 in combos)
+                {
+                    if (combo.ComboEncapsulates(combo2) && !combo.EncapsulatingCombos.Any(x => x.InputEquality(combo2)))
+                    {
+                        combo.EncapsulatingCombos.Add(combo2);
+                    }
+                }
             }
         }
 
@@ -229,7 +251,7 @@ namespace Cornifer.Input
                             inputs.Add(key);
                         }
                     }
-                    keybind.Inputs.Add(inputs);
+                    keybind.Inputs.Add(new(inputs));
                 }
             }
             catch (Exception ex)
