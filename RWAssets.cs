@@ -178,7 +178,7 @@ namespace Cornifer
                 if (File.Exists(rwVersionPath))
                     rwVersion = File.ReadAllText(rwVersionPath).TrimStart('v');
 
-                InsertMod(new("rainworld", "Rain World", installation.AssetsPath, int.MaxValue, true)
+                InsertMod(new("rainworld", "Rain World", installation.AssetsPath, int.MinValue, true)
                 {
                     Version = rwVersion
                 });
@@ -188,7 +188,7 @@ namespace Cornifer
             {
                 string mergedmods = Path.Combine(installation.AssetsPath, "mergedmods");
                 if (Directory.Exists(mergedmods))
-                    InsertMod(new("mergedmods", "Rain World", mergedmods, int.MinValue, true));
+                    InsertMod(new("mergedmods", "Rain World", mergedmods, int.MaxValue, true));
 
                 string mods = Path.Combine(installation.AssetsPath, "mods");
                 if (Directory.Exists(mods))
@@ -565,7 +565,7 @@ namespace Cornifer
 
         public static string? ResolveFile(string path)
         {
-            foreach (var mod in Mods)
+            foreach (var mod in Mods.OrderByDescending(x => x.LoadOrder))
             {
                 if (!mod.Active)
                     continue;
@@ -664,8 +664,9 @@ namespace Cornifer
                     continue;
 
                 string? displayname = ResolveFile($"world/{id}/displayname.txt");
-                if (displayname is null)
-                    continue;
+                if (displayname is not null)
+                    displayname = File.ReadAllText(displayname);
+                else displayname = id;
 
                 if (slugcat is not null)
                 {
@@ -674,7 +675,7 @@ namespace Cornifer
                         displayname = slugcatDisplayName;
                 }
 
-                yield return new RegionInfo($"world/{id}", $"world/{id}-rooms", id, File.ReadAllText(displayname), mod);
+                yield return new RegionInfo($"world/{id}", $"world/{id}-rooms", id, displayname, mod);
             }
         }
 
