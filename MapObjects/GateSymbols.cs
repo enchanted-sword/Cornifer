@@ -47,16 +47,9 @@ namespace Cornifer.MapObjects
 
         static AtlasSprite? GetSprite(string symbol)
         {
-            string? name = symbol switch
-            {
-                "1" => "karma0",
-                "2" => "karma1",
-                "3" => "karma2",
-                "4" => "karma3",
-                "5" => "karma4",
-                "R" => "Misc_KarmaR",
-                _ => null
-            };
+            string? name = null;
+            if (StaticData.GateSymbols.ContainsKey(symbol))
+            { name = StaticData.GateSymbols[symbol]; }
 
             if (name is null)
                 return null;

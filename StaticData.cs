@@ -3,72 +3,27 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Text.Json.Nodes;
+using System.Text.Json;
 using System.Windows.Forms;
+using Cornifer.Json;
 
 namespace Cornifer
 {
     public static class StaticData
     {
         public static Dictionary<string, Color> PearlMainColors = new()
-        {
-            ["SI_west"] = new(0.01f, 0.01f, 0.01f),
-            ["SI_top"] = new(0.01f, 0.01f, 0.01f),
-            ["SI_chat3"] = new(0.01f, 0.01f, 0.01f),
-            ["SI_chat4"] = new(0.01f, 0.01f, 0.01f),
-            ["SI_chat5"] = new(0.01f, 0.01f, 0.01f),
-            ["Spearmasterpearl"] = new(0.04f, 0.01f, 0.04f),
-            ["SU_filt"] = new(1f, 0.75f, 0.9f),
-            ["DM"] = new(0.95686275f, 0.92156863f, 0.20784314f),
-            ["LC"] = new(0f, 0.4f, 0.01569f),
-            ["LC_second"] = new(0.6f, 0f, 0f),
-            ["OE"] = new(0.54901963f, 0.36862746f, 0.8f),
-            ["MS"] = new(0.8156863f, 0.89411765f, 0.27058825f),
-            ["RM"] = new(0.38431373f, 0.18431373f, 0.9843137f),
-            ["Rivulet_stomach"] = new(0.5882353f, 0.87058824f, 0.627451f),
-            ["CL"] = new(0.48431373f, 0.28431374f, 1f),
-            ["VS"] = new(0.53f, 0.05f, 0.92f),
-            ["BroadcastMisc"] = new(0.9f, 0.7f, 0.8f),
-            ["CC"] = new(0.9f, 0.6f, 0.1f),
-            ["LF_west"] = new(1f, 0f, 0.3f),
-            ["LF_bottom"] = new(1f, 0.1f, 0.1f),
-            ["HI"] = new(0.007843138f, 0.19607843f, 1f),
-            ["SH"] = new(0.2f, 0f, 0.1f),
-            ["DS"] = new(0f, 0.7f, 0.1f),
-            ["SB_filtration"] = new(0.1f, 0.5f, 0.5f),
-            ["SB_ravine"] = new(0.01f, 0.01f, 0.01f),
-            ["GW"] = new(0f, 0.7f, 0.5f),
-            ["SL_bridge"] = new(0.4f, 0.1f, 0.9f),
-            ["SL_moon"] = new(0.9f, 0.95f, 0.2f),
-            ["SU"] = new(0.5f, 0.6f, 0.9f),
-            ["UW"] = new(0.4f, 0.6f, 0.4f),
-            ["SL_chimney"] = new(1f, 0f, 0.55f),
-            ["Red_stomach"] = new(0.6f, 1f, 0.9f),
+        { 
             [""] = new(0.7f, 0.7f, 0.7f),
         };
-        public static Dictionary<string, Color?> PearlHighlightColors = new()
-        {
-            ["SI_chat3"] = new(0.4f, 0.1f, 0.6f),
-            ["SI_chat4"] = new(0.4f, 0.6f, 0.1f),
-            ["SI_chat5"] = new(0.6f, 0.1f, 0.4f),
-            ["Spearmasterpearl"] = new(0.95f, 0f, 0f),
-            ["RM"] = new(1f, 0f, 0f),
-            ["LC_second"] = new(0.8f, 0.8f, 0f),
-            ["CL"] = new(1f, 0f, 0f),
-            ["VS"] = new(1f, 0f, 1f),
-            ["CC"] = new(1f, 1f, 0f),
-            ["GW"] = new(0.5f, 1f, 0.5f),
-            ["HI"] = new(0.5f, 0.8f, 1f),
-            ["SH"] = new(1f, 0.2f, 0.6f),
-            ["SI_top"] = new(0.1f, 0.4f, 0.6f),
-            ["SI_west"] = new(0.1f, 0.6f, 0.4f),
-            ["SL_bridge"] = new(1f, 0.4f, 1f),
-            ["SB_ravine"] = new(0.6f, 0.1f, 0.4f),
-            ["UW"] = new(1f, 0.7f, 1f),
-            ["SL_chimney"] = new(0.8f, 0.3f, 1f),
-            ["Red_stomach"] = new(1f, 1f, 1f),
-        };
+        public static Dictionary<string, Color?> PearlHighlightColors = new();
+
+        public static Dictionary<string, Vector2> VistaRooms = new();
 
         public static List<Slugcat> Slugcats = new();
+
+        public static Dictionary<string, string> GateSymbols = new();
 
         public static List<string> PlacedObjectTypes = new()
         {
@@ -153,6 +108,37 @@ namespace Cornifer
 
         public static void Init()
         {
+            InitSlugcats();
+            InitPearls();
+            InitVistas();
+            InitGateSymbols();
+        }
+
+        private static void InitSlugcats()
+        {
+            string filename = Path.Combine(Main.MainDir, "Assets\\Settings\\Slugcats.json");
+            if (File.Exists(filename))
+            {
+
+                using FileStream fs = File.OpenRead(filename);
+                JsonObject? obj = JsonSerializer.Deserialize<JsonObject>(fs, new JsonSerializerOptions() { AllowTrailingCommas = true });
+                if (obj is not null)
+                {
+                    Slugcats = new();
+                    foreach (KeyValuePair<string, JsonNode> entry in obj)
+                    {
+                        if (entry.Value is not JsonObject dict) continue;
+                        Slugcats.Add(new(entry.Key, dict));
+                    }
+                    return;
+                }
+            }
+            //runs if loading the json fails
+            InitOldSlugcats();
+        }
+
+        private static void InitOldSlugcats()
+        {
             Slugcats = new()
             {
                 new("Yellow",    "Monk",        true,  new(255, 255, 115), Color.Black, "SU_C04"),
@@ -169,6 +155,72 @@ namespace Cornifer
                 Slugcats.Add(new("Spear", "Spearmaster", true, new(79, 46, 105), Color.White, "GATE_OE_SU"));
                 Slugcats.Add(new("Saint", "Saint", true, new(170, 241, 86), Color.Black, "SI_SAINTINTRO"));
                 Slugcats.Add(new("Inv", "Inv", false, new(0, 19, 58), Color.White, "SH_E01"));
+            }
+        }
+
+        private static void InitPearls()
+        {
+            string filename = Path.Combine(Main.MainDir, "Assets\\Settings\\PearlColors.json");
+            if (!File.Exists(filename)) return;
+
+            using FileStream fs = File.OpenRead(filename);
+            JsonObject? obj = JsonSerializer.Deserialize<JsonObject>(fs, new JsonSerializerOptions() { AllowTrailingCommas = true });
+
+            if (obj is null) return;
+
+            foreach (KeyValuePair<string, JsonNode> entry in obj)
+            {
+                if (!obj.TryGet(entry.Key, out JsonArray? colors)) continue;
+
+                string[]? colorArray = colors.Deserialize<string[]>();
+                if (colorArray is not null)
+                {
+                    if (colorArray.Length >= 1)
+                    {
+                        Color? color = ColorDatabase.ParseColor(colorArray[0]);
+                        if (color.HasValue)
+                            PearlMainColors[entry.Key] = (Color)color;
+                    }
+                    if (colorArray.Length >= 2)
+                    {
+                        Color? color = ColorDatabase.ParseColor(colorArray[1]);
+                        if (color.HasValue)
+                            PearlHighlightColors[entry.Key] = (Color)color;
+                    }
+                }
+            }
+        }
+
+        private static void InitVistas()
+        {
+            string filename = Path.Combine(Main.MainDir, "Assets\\Settings\\VistaRooms.json");
+            if (!File.Exists(filename)) return;
+
+            using FileStream fs = File.OpenRead(filename);
+            JsonObject? obj = JsonSerializer.Deserialize<JsonObject>(fs, new JsonSerializerOptions() { AllowTrailingCommas = true });
+
+            if (obj is null) return;
+
+            foreach (KeyValuePair<string, JsonNode> entry in obj)
+            {
+                if (obj.TryGet(entry.Key, out JsonNode? node) && node != null)
+                    VistaRooms[entry.Key] = JsonTypes.LoadVector2(node);
+            }
+        }
+        private static void InitGateSymbols()
+        {
+            string filename = Path.Combine(Main.MainDir, "Assets\\Settings\\GateSprites.json");
+            if (!File.Exists(filename)) return;
+
+            using FileStream fs = File.OpenRead(filename);
+            JsonObject? obj = JsonSerializer.Deserialize<JsonObject>(fs, new JsonSerializerOptions() { AllowTrailingCommas = true });
+
+            if (obj is null) return;
+
+            foreach (KeyValuePair<string, JsonNode> entry in obj)
+            {
+                if (obj.TryGet(entry.Key, out string? symbol))
+                    GateSymbols[entry.Key] = symbol;
             }
         }
 
