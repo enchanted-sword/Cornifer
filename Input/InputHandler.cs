@@ -69,20 +69,10 @@ namespace Cornifer.Input
                 Keybinds[field.Name] = (Keybind)field.GetValue(null)!;
             }
 
-            string oldKeybindsFile = OldKeybindsFile;
-            if (File.Exists(oldKeybindsFile))
-            {
-                LoadOldKeybinds();
+            if (Profile.Current.Keybinds is null)
                 SaveKeybinds();
-                File.Delete(oldKeybindsFile);
-            }
             else
-            {
-                if (Profile.Current.Keybinds is null)
-                    SaveKeybinds();
-                else
-                    LoadKeybinds();
-            }
+                LoadKeybinds();
         }
 
         public static void Update()
@@ -190,74 +180,6 @@ namespace Cornifer.Input
                         combo.EncapsulatingCombos.Add(combo2);
                     }
                 }
-            }
-        }
-
-        public static void LoadOldKeybinds()
-        {
-            HashSet<string> keybindsReset = new();
-
-            try
-            {
-                string[] lines = File.ReadAllLines(OldKeybindsFile);
-                foreach (string line in lines)
-                {
-                    if (line.StartsWith("//"))
-                        continue;
-
-                    // Split the line into keybind name and key list parts
-                    string[] parts = line.Split('=');
-                    if (parts.Length != 2)
-                    {
-                        // Ignore the line if it doesn't contain exactly one equals sign
-                        continue;
-                    }
-                    string keybindNameString = parts[0].Trim();
-                    string[] keyStrings = parts[1].Split('&');
-
-                    // Convert the input type string to an enum value
-                    if (!Keybinds.TryGetValue(keybindNameString, out Keybind? keybind))
-                    {
-                        // Ignore the line if the keybind name string is not a valid name
-                        continue;
-                    }
-
-                    if (!keybindsReset.Contains(keybindNameString))
-                    {
-                        keybind.Inputs.Clear();
-                        keybindsReset.Add(keybindNameString);
-                    }
-                    if (parts[1].Length == 0)
-                        continue;
-
-                    List<KeybindInput> inputs = new();
-                    // Convert the key strings to inputs and add them to the dictionary
-                    foreach (string keyString in keyStrings)
-                    {
-                        string trimmedKey = keyString.Trim();
-
-                        if (Enum.TryParse(trimmedKey, out ModifierKeys modifierKey))
-                        {
-                            inputs.Add(modifierKey);
-                        }
-
-                        if (Enum.TryParse(trimmedKey, out MouseKeys mouseKey))
-                        {
-                            inputs.Add(mouseKey);
-                        }
-
-                        else if (Enum.TryParse(trimmedKey, out Keys key))
-                        {
-                            inputs.Add(key);
-                        }
-                    }
-                    keybind.Inputs.Add(new(inputs));
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle any file I/O errors by logging an error message and returning an empty list
-                Debug.WriteLine($"Error loading key bindings from file: {ex.Message}");
             }
         }
 

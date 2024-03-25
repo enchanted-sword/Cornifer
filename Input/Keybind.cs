@@ -61,26 +61,6 @@ namespace Cornifer.Input
             }
         }
 
-        KeybindState GetComboState(List<KeybindInput> inputs)
-        {
-            KeybindState state = KeybindState.Pressed;
-
-            foreach (KeybindInput input in inputs)
-            {
-                KeybindState keyState = input.State;
-                if (keyState == KeybindState.Released)
-                    return KeybindState.Released;
-
-                if (keyState == KeybindState.JustReleased && state >= KeybindState.JustPressed)
-                    state = KeybindState.JustReleased;
-
-                if (keyState == KeybindState.JustPressed && state > KeybindState.JustPressed)
-                    state = KeybindState.JustPressed;
-            }
-
-            return state;
-        }
-
         public Keybind(string name, IEnumerable<KeybindInput> defaults)
         {
             Name = name;
