@@ -77,7 +77,7 @@ namespace Cornifer
                 {
                     Room r = Rooms[i];
                     string roomFileName = (r.replaceRoomName ?? r.Name)!;
-                    string roomPath = r.IsGate ? $"world/gates/{roomFileName}" : $"{info.RoomsPath}/{roomFileName}";
+                    string roomPath = r.Name.StartsWith("GATE") ? $"world/gates/{roomFileName}" : $"{info.RoomsPath}/{roomFileName}";
 
                     string? settings = RWAssets.ResolveSlugcatFile(roomPath + "_settings.txt");
                     string? data = RWAssets.ResolveFile(roomPath + ".txt");
