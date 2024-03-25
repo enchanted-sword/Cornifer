@@ -531,7 +531,7 @@ namespace Cornifer
         public static List<string>? ResolveUnmergedFiles(string path)
         {
             List<string> paths = new();
-            foreach (var mod in Mods)
+            foreach (var mod in Mods.OrderByDescending(x => x.LoadOrder))
             {
                 if (!mod.Active || mod.NeedsManualMerging)
                     continue;
@@ -544,7 +544,7 @@ namespace Cornifer
                 }
             }
 
-            for (int i = Mods.Count - 1; i >= 0; i--)
+            for (int i = 0; i < Mods.Count; i++)
             {
                 RWMod? mod = Mods[i];
                 if (!mod.Active || !mod.NeedsManualMerging)
@@ -609,7 +609,7 @@ namespace Cornifer
         {
             HashSet<string> enumerated = new();
 
-            foreach (var mod in Mods)
+            foreach (var mod in Mods.OrderByDescending(x => x.LoadOrder))
             {
                 if (!mod.Active)
                     continue;
@@ -658,6 +658,9 @@ namespace Cornifer
             foreach (var (dir, mod) in EnumerateDirectories("world"))
             {
                 string id = System.IO.Path.GetFileName(dir)!.ToUpper();
+
+                if (!File.Exists(Path.Combine(dir, $"world_{id}.txt")))
+                    continue;
 
                 string? properties = ResolveFile($"world/{id}/properties.txt");
                 if (properties is null)

@@ -40,6 +40,7 @@ namespace Cornifer.Structures
         public Slugcat(string id, JsonObject dict)
         {
             Id = id;
+            Color = Color.White;
 
             if (dict.TryGet("name", out string? name))
                 this.Name = name;
@@ -51,14 +52,14 @@ namespace Cornifer.Structures
             {
                 Color? color = ColorDatabase.ParseColor(colorString);
                 if (color.HasValue)
-                    this.Color = (Color)color;
+                    this.Color = color.Value;
             }
 
             if (dict.TryGet("eyeColor", out string? eyeColor))
             {
                 Color? color = ColorDatabase.ParseColor(eyeColor);
                 if (color.HasValue)
-                    this.Color = (Color)color;
+                    this.EyeColor = color.Value;
             }
             if (dict.TryGet("startRoom", out string? startRoom))
                 this.PossibleStartingRooms = new[] { startRoom };
