@@ -52,10 +52,10 @@ namespace Cornifer
             {
                 HttpClient client = new();
 
-                HttpRequestMessage request = new(HttpMethod.Get, $"https://api.github.com/repos/Ved-s/Cornifer/compare/master...{Commit}");
+                HttpRequestMessage request = new(HttpMethod.Get, $"https://api.github.com/repos/enchanted-sword/Cornifer/compare/master...{Commit}");
 
                 request.Headers.TryAddWithoutValidation("Accept", "application/vnd.github+json");
-                request.Headers.TryAddWithoutValidation("User-Agent", "Cornifer HttpClient (https://github.com/Ved-s/Cornifer)");
+                request.Headers.TryAddWithoutValidation("User-Agent", "Cornifer HttpClient (https://github.com/enchanted-sword/Cornifer)");
 
                 HttpResponseMessage response = await client.SendAsync(request);
 
