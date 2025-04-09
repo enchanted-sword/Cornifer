@@ -108,7 +108,38 @@ namespace Cornifer
 
             {"HRGuard", ("Object_KarmaFlower", new(255, 0, 0))},
             {"TempleGuard", ("Object_KarmaFlower", new(255, 0, 0))},
-        };
+
+			{"Barnacle", ("Kill_Barnacle", new(217, 166, 153)) },
+			{"BigMoth", ("Kill_BigMoth", new(255, 255, 255)) },
+			{"BigSandGrub", ("Kill_BigSandGrub", new(169, 164, 178)) },
+			{"BlizzardLizard", ("Kill_BlizzardLizard", new(140, 153, 178)) },
+			{"BoxWorm", ("Kill_BoxWorm", new(0, 127, 127)) },
+			{"PlacedBoxWorm", ("Kill_BoxWorm", new(0, 127, 127)) },
+			{"DrillCrab", ("Kill_DrillCrab", new(169, 164, 178)) },
+			{"FireSprite", ("Kill_FireSprite", new(0, 255, 255)) },
+			{"Frog", ("Kill_Frog", new(205, 127, 51)) },
+			{"IndigoLizard", ("Kill_IndigoLizard", new(76, 0, 204)) },
+			{"BasiliskLizard", ("Kill_IndigoLizard", new(178, 76, 0)) },
+			{"Loach", ("Kill_Loach", new(255, 255, 255)) },
+			{"Locust", ("Kill_Locust", new(255, 255, 255)) },
+			{"ProtoLizard", ("Kill_ProtoLizard", new(76, 0, 255)) },
+			{"Rat", ("Kill_Rat", new(127, 71, 46)) },
+			{"Rattler", ("Kill_Rattler", new(209, 178, 189)) },
+			{"RotLizard", ("Kill_RotLizard", new(76, 0, 255)) },
+			{"RotLoach", ("Kill_RotLoach", new(76, 0, 255)) },
+			{"SandGrub", ("Kill_SandGrub", new(169, 164, 178)) },
+			{"ScavengerDisciple", ("Kill_ScavengerDisciple", new(255, 204, 76)) },
+			{"ScavengerTemplar", ("Kill_ScavengerTemplar", new(255, 204, 76)) },
+			{"SkyWhale", ("Kill_SkyWhale", new(255, 255, 255)) },
+			{"SmallMoth", ("Kill_SmallMoth", new(127, 127, 127)) },
+			{"Tardigrade", ("Kill_Tardigrade", new(0, 255, 255)) },
+
+			{"Boomerang", ("Symbol_Boomerang", new(255, 204, 76)) },
+			{"FireSpriteLarva", ("Symbol_FireSpriteLarva", new(255, 255, 255)) },
+			{"Pomegranate", ("Symbol_Pomegranate", new(0, 170, 14)) },
+			{"RotcornPlant", ("Symbol_RotcornPlant", new(76, 0, 255)) },
+			{"RotFruit", ("Symbol_RotFruit", new(76, 0, 255)) }
+		};
 
         static Dictionary<string, (Rectangle Frame, Color Color)> ObjectSpriteFrames = new()
         {
@@ -126,7 +157,10 @@ namespace Cornifer
             { "ScavengerOutpost", (new(109, 21, 11, 15), new(255, 255, 255, 255)) },
             { "KarmaShrine",      (new(72, 45,  17, 17), new(255, 255, 255, 255)) },
             { "MoonCloak",        (new(1, 49,   21, 25), new(255, 255, 255, 255)) },
-        };
+
+			{ "SpinningTopSpot",  (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
+			{ "WarpPoint",        (new(0, 84,  39, 37), new(178, 0, 255, 255)) }
+		};
 
         static Dictionary<string, (Rectangle Frame, Color Color)> MiscSpriteFrames = new()
         {
@@ -135,7 +169,7 @@ namespace Cornifer
             { "KarmaR",        (new(23, 0, 36, 36), new(255, 255, 255, 255)) },
         };
 
-        static List<string> SlugcatIconOrder = new() { "White", "Yellow", "Red", "Night", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint", "Inv" };
+        static List<string> SlugcatIconOrder = new() { "White", "Yellow", "Red", "Night", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint", "Inv", "Watcher" };
 
         public static void Load()
         {

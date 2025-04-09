@@ -43,7 +43,10 @@ namespace Cornifer.Structures
         [JsonIgnore]
         public bool IsDownpour => HasFeature(RainWorldFeatures.Downpour);
 
-        [JsonIgnore]
+		[JsonIgnore]
+		public bool IsWatcher => HasFeature(RainWorldFeatures.Watcher);
+
+		[JsonIgnore]
         public bool HasCRS => HasFeature(RainWorldFeatures.CRS);
 
         public static RainWorldFeatures StateEssentialFeatures => RainWorldFeatures.Legacy | RainWorldFeatures.Remix | RainWorldFeatures.Downpour;
@@ -75,7 +78,10 @@ namespace Cornifer.Structures
 
                 if (Directory.Exists(System.IO.Path.Combine(path, "RainWorld_Data/StreamingAssets/mods/moreslugcats")))
                     install.Features |= RainWorldFeatures.Downpour;
-            }
+
+				if (Directory.Exists(System.IO.Path.Combine(path, "RainWorld_Data/StreamingAssets/mods/watcher")))
+					install.Features |= RainWorldFeatures.Watcher;
+			}
             else if (Directory.Exists(System.IO.Path.Combine(path, "World")) && Directory.Exists(System.IO.Path.Combine(path, "Assets")))
             {
                 install.Features |= RainWorldFeatures.Legacy;
@@ -95,7 +101,7 @@ namespace Cornifer.Structures
 
             List<RainWorldFeatures> featureList = new();
 
-            for (int i = 0; i < 32; i++)
+            for (int i = 0; i < 64; i++)
             {
                 if ((int)RainWorldFeatures.All >> i == 0)
                     break;

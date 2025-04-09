@@ -23,7 +23,7 @@ namespace Cornifer.MapObjects
             "GhostSpot", "BlueToken", "GoldToken",
             "RedToken", "WhiteToken", "DevToken", "GreenToken",
             "DataPearl", "UniqueDataPearl", "ScavengerOutpost",
-            "HRGuard", "TempleGuard", "MoonCloak"
+            "HRGuard", "TempleGuard", "MoonCloak", "SpinningTopSpot", "WarpPoint", "PlacedBoxWorm"
         };
         public static Dictionary<string, Vector2> VistaRooms = new()
         {

@@ -87,8 +87,8 @@ namespace Cornifer
             "ReliableIggyDirection","Hazer","DeadHazer","Rainbow","LightBeam","NoLeviathanStrandingZone",
             "FairyParticleSettings","DayNightSettings","EnergySwirl","LightningMachine","SteamPipe","WallSteamer",
             "Vine","VultureMask","SnowSource","DeathFallFocus","CellDistortion","LocalBlizzard","NeuronSpawner",
-            "HangingPearls","Lantern","ExitSymbolAncientShelter","BlinkingFlower"
-        };
+            "HangingPearls","Lantern","ExitSymbolAncientShelter","BlinkingFlower", "SpinningTopSpot", "WarpPoint", "Pomegranate", "PlacedBoxWorm"
+		};
 
         public static HashSet<string> VanillaRegions = new() { "CC", "DS", "HI", "GW", "SI", "SU", "SH", "SL", "LF", "UW", "SB", "SS" };
 
@@ -148,7 +148,8 @@ namespace Cornifer
             ["Saint"] = new() { "SU", "HI", "UG", "CC", "GW", "VS", "CL", "SL", "SI", "LF", "SB", "HR" },
             ["Spear"] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "LM", "SI", "LF", "UW", "SS", "SB", "DM" },
             ["Gourmand"] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "SL", "SI", "LF", "UW", "SS", "SB", "OE" },
-            [""] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "SL", "SI", "LF", "UW", "SS", "SB" },
+			["Watcher"] = new() { "SU", "HI", "CC", "SH", "VS", "LF", "WARA", "WARB", "WARC", "WARD", "WARE", "WARF", "WARG", "WAUA", "WBLA", "WDSR", "WGWR", "WHIR", "WORA", "WPTA", "WRFA", "WRFB", "WRRA", "WRSA", "WSKA", "WSKB", "WSKC", "WSKD", "WSSR", "WSUR", "WTDA", "WTDB", "WVWA" },
+			[""] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "SL", "SI", "LF", "UW", "SS", "SB" },
         };
 
         public static void Init()
@@ -170,6 +171,11 @@ namespace Cornifer
                 Slugcats.Add(new("Saint", "Saint", true, new(170, 241, 86), Color.Black, "SI_SAINTINTRO"));
                 Slugcats.Add(new("Inv", "Inv", false, new(0, 19, 58), Color.White, "SH_E01"));
             }
+
+			if (RWAssets.CurrentInstallation?.IsWatcher is true)
+			{
+				Slugcats.Add(new("Watcher", "Watcher", true, new(25, 15, 48), Color.White, "HI_W14"));
+			}
         }
 
         [return: NotNullIfNotNull(nameof(acronym))]
