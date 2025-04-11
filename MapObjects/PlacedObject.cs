@@ -22,6 +22,9 @@ namespace Cornifer.MapObjects
         public bool RemoveByAvailability = true;
         public string? DebugDisplay = null;
 
+		public string? TargetRegion = null;
+		public string? TargetRoom = null;
+
         public override bool SkipTextureSave => true;
 
         public override Vector2 Size => Frame.Size.ToVector2();
@@ -159,6 +162,12 @@ namespace Cornifer.MapObjects
                         break;
                 }
             }
+
+			if (objName == "WarpPoint")
+			{
+				obj.TargetRegion = subsplit[4];
+				obj.TargetRoom = subsplit[5];
+			}
 
             if (objName == "Filter" && subsplit.Length >= 5)
             {
