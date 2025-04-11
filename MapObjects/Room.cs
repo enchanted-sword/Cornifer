@@ -472,15 +472,13 @@ namespace Cornifer.MapObjects
                                     IsScavengerTreasury = true;
                                     TreasuryPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
                                 }
-                                else
-                                    objects.Add(obj);
 
 								if (obj.Type == "ScavengerOutpost")
 									OutpostPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
 								else if (obj.Type == "WarpPoint")
 								{
 									isWarpRoom = true;
-									WarpPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
+									WarpPos = new(obj.RoomPos.X, obj.RoomPos.Y);
 									WarpTarget = obj.TargetRegion;
 								}
                             }
@@ -583,7 +581,10 @@ namespace Cornifer.MapObjects
 				{
 					if (Region.Id == "WARA") WarpTarget = "WAUA";
 					else WarpTarget = "WRSA";
-				}
+					if (SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var warpIcon))
+						Children.Add(new SimpleIcon("WarpPointIcon", warpIcon));
+				} else if (SpriteAtlases.Sprites.TryGetValue("Object_WarpPoint", out var warpIcon))
+					Children.Add(new SimpleIcon("WarpPointIcon", warpIcon));
 
 				Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {WarpMap[WarpTarget]}"));
 			}

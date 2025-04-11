@@ -159,7 +159,8 @@ namespace Cornifer
             { "MoonCloak",        (new(1, 49,   21, 25), new(255, 255, 255, 255)) },
 
 			{ "SpinningTopSpot",  (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
-			{ "WarpPoint",        (new(0, 84,  39, 37), new(178, 0, 255, 255)) }
+			{ "WarpPoint",        (new(0, 84,  39, 37), new(178, 0, 255, 150)) },
+			{ "RippleWarpPoint",  (new(39, 78,  40, 43), new(178, 0, 255, 150)) },
 		};
 
         static Dictionary<string, (Rectangle Frame, Color Color)> MiscSpriteFrames = new()
