@@ -1,8 +1,5 @@
 # Cornifer
 
-> [!important]
-> This tool is not being maintained or updated
-
 Rain World mapping tool
 
 ### Usage
@@ -16,5 +13,5 @@ Move around with right click.
 Zoom with mouse wheel.
 
 ### Download
+See releases for latest build.
 
-Latest archive can be downloaded from archival release at https://github.com/Ved-s/Cornifer/releases/download/archive1/Build.zip
