@@ -1,8 +1,24 @@
 {"frames": {
 
+"echoRing.png":
+{
+	"frame": {"x":2,"y":2,"w":137,"h":137},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":2,"y":2,"w":137,"h":137},
+	"sourceSize": {"w":140,"h":140}
+},
+"echoRingHalf.png":
+{
+	"frame": {"x":2,"y":283,"w":137,"h":77},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":2,"y":2,"w":137,"h":77},
+	"sourceSize": {"w":140,"h":140}
+},
 "Kill_Barnacle.png":
 {
-	"frame": {"x":355,"y":96,"w":30,"h":28},
+	"frame": {"x":190,"y":424,"w":30,"h":28},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":3,"w":30,"h":28},
@@ -10,7 +26,7 @@
 },
 "Kill_BigMoth.png":
 {
-	"frame": {"x":478,"y":72,"w":29,"h":33},
+	"frame": {"x":180,"y":456,"w":29,"h":33},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":2,"w":29,"h":33},
@@ -18,7 +34,7 @@
 },
 "Kill_BigSandGrub.png":
 {
-	"frame": {"x":292,"y":96,"w":30,"h":30},
+	"frame": {"x":214,"y":359,"w":30,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":2,"w":30,"h":30},
@@ -26,7 +42,7 @@
 },
 "Kill_BlizzardLizard.png":
 {
-	"frame": {"x":139,"y":104,"w":35,"h":21},
+	"frame": {"x":2,"y":544,"w":35,"h":21},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":7,"w":35,"h":21},
@@ -34,7 +50,7 @@
 },
 "Kill_BoxWorm.png":
 {
-	"frame": {"x":510,"y":37,"w":29,"h":32},
+	"frame": {"x":183,"y":357,"w":29,"h":32},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":1,"w":29,"h":32},
@@ -42,7 +58,7 @@
 },
 "Kill_DrillCrab.png":
 {
-	"frame": {"x":443,"y":78,"w":33,"h":34},
+	"frame": {"x":185,"y":216,"w":33,"h":34},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":33,"h":34},
@@ -50,7 +66,7 @@
 },
 "Kill_FireSprite.png":
 {
-	"frame": {"x":477,"y":37,"w":31,"h":33},
+	"frame": {"x":188,"y":252,"w":31,"h":33},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":1,"w":31,"h":33},
@@ -58,7 +74,7 @@
 },
 "Kill_Frog.png":
 {
-	"frame": {"x":542,"y":70,"w":33,"h":27},
+	"frame": {"x":145,"y":538,"w":33,"h":27},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":8,"w":33,"h":27},
@@ -66,7 +82,7 @@
 },
 "Kill_IndigoLizard.png":
 {
-	"frame": {"x":478,"y":107,"w":31,"h":18},
+	"frame": {"x":93,"y":544,"w":31,"h":18},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":9,"w":31,"h":18},
@@ -74,7 +90,7 @@
 },
 "Kill_Loach.png":
 {
-	"frame": {"x":509,"y":72,"w":31,"h":32},
+	"frame": {"x":188,"y":322,"w":31,"h":32},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":2,"w":31,"h":32},
@@ -82,7 +98,7 @@
 },
 "Kill_Locust.png":
 {
-	"frame": {"x":255,"y":96,"w":35,"h":30},
+	"frame": {"x":192,"y":129,"w":35,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":3,"w":35,"h":30},
@@ -90,7 +106,7 @@
 },
 "Kill_ProtoLizard.png":
 {
-	"frame": {"x":546,"y":2,"w":33,"h":31},
+	"frame": {"x":190,"y":391,"w":33,"h":31},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":2,"w":33,"h":31},
@@ -98,7 +114,7 @@
 },
 "Kill_Rat.png":
 {
-	"frame": {"x":421,"y":41,"w":21,"h":35},
+	"frame": {"x":221,"y":322,"w":21,"h":35},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":7,"y":0,"w":21,"h":35},
@@ -106,7 +122,7 @@
 },
 "Kill_Rattler.png":
 {
-	"frame": {"x":387,"y":96,"w":27,"h":28},
+	"frame": {"x":221,"y":250,"w":27,"h":28},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":4,"y":4,"w":27,"h":28},
@@ -114,7 +130,7 @@
 },
 "Kill_RotLizard.png":
 {
-	"frame": {"x":542,"y":99,"w":33,"h":23},
+	"frame": {"x":180,"y":538,"w":33,"h":23},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":6,"w":33,"h":23},
@@ -122,7 +138,7 @@
 },
 "Kill_RotLoach.png":
 {
-	"frame": {"x":486,"y":2,"w":31,"h":33},
+	"frame": {"x":188,"y":287,"w":31,"h":33},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":1,"w":31,"h":33},
@@ -130,7 +146,7 @@
 },
 "Kill_SandGrub.png":
 {
-	"frame": {"x":176,"y":104,"w":29,"h":21},
+	"frame": {"x":39,"y":544,"w":29,"h":21},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":11,"w":29,"h":21},
@@ -138,7 +154,7 @@
 },
 "Kill_ScavengerDisciple.png":
 {
-	"frame": {"x":519,"y":2,"w":25,"h":32},
+	"frame": {"x":220,"y":216,"w":25,"h":32},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":5,"y":1,"w":25,"h":32},
@@ -146,7 +162,7 @@
 },
 "Kill_ScavengerTemplar.png":
 {
-	"frame": {"x":541,"y":36,"w":23,"h":32},
+	"frame": {"x":225,"y":391,"w":23,"h":32},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":6,"y":1,"w":23,"h":32},
@@ -154,7 +170,7 @@
 },
 "Kill_SkyWhale.png":
 {
-	"frame": {"x":449,"y":2,"w":35,"h":33},
+	"frame": {"x":143,"y":456,"w":35,"h":33},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":1,"w":35,"h":33},
@@ -162,7 +178,7 @@
 },
 "Kill_SmallMoth.png":
 {
-	"frame": {"x":416,"y":96,"w":25,"h":28},
+	"frame": {"x":222,"y":425,"w":25,"h":28},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":5,"y":3,"w":25,"h":28},
@@ -170,7 +186,7 @@
 },
 "Kill_Tardigrade.png":
 {
-	"frame": {"x":444,"y":41,"w":31,"h":34},
+	"frame": {"x":216,"y":2,"w":31,"h":34},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":0,"w":31,"h":34},
@@ -178,7 +194,7 @@
 },
 "ripple1.0.png":
 {
-	"frame": {"x":400,"y":2,"w":47,"h":37},
+	"frame": {"x":141,"y":130,"w":47,"h":37},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":5,"y":13,"w":47,"h":37},
@@ -186,7 +202,7 @@
 },
 "ripple1.5.png":
 {
-	"frame": {"x":139,"y":53,"w":45,"h":49},
+	"frame": {"x":54,"y":493,"w":45,"h":49},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":9,"y":5,"w":45,"h":49},
@@ -194,7 +210,7 @@
 },
 "ripple2.0.png":
 {
-	"frame": {"x":2,"y":2,"w":49,"h":59},
+	"frame": {"x":141,"y":69,"w":49,"h":59},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":7,"y":3,"w":49,"h":59},
@@ -202,7 +218,7 @@
 },
 "ripple2.5.png":
 {
-	"frame": {"x":53,"y":2,"w":35,"h":54},
+	"frame": {"x":106,"y":435,"w":35,"h":54},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":13,"y":7,"w":35,"h":54},
@@ -210,7 +226,7 @@
 },
 "ripple3.0.png":
 {
-	"frame": {"x":2,"y":63,"w":36,"h":58},
+	"frame": {"x":192,"y":69,"w":36,"h":58},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":14,"y":3,"w":36,"h":58},
@@ -218,7 +234,7 @@
 },
 "ripple3.5.png":
 {
-	"frame": {"x":139,"y":2,"w":50,"h":49},
+	"frame": {"x":2,"y":493,"w":50,"h":49},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":7,"y":7,"w":50,"h":49},
@@ -226,7 +242,7 @@
 },
 "ripple4.0.png":
 {
-	"frame": {"x":90,"y":2,"w":47,"h":52},
+	"frame": {"x":57,"y":435,"w":47,"h":52},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":8,"y":9,"w":47,"h":52},
@@ -234,7 +250,7 @@
 },
 "ripple4.5.png":
 {
-	"frame": {"x":95,"y":56,"w":42,"h":51},
+	"frame": {"x":101,"y":491,"w":42,"h":51},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":10,"y":3,"w":42,"h":51},
@@ -242,15 +258,31 @@
 },
 "ripple5.0.png":
 {
-	"frame": {"x":40,"y":63,"w":53,"h":56},
+	"frame": {"x":2,"y":435,"w":53,"h":56},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":5,"y":2,"w":53,"h":56},
 	"sourceSize": {"w":63,"h":63}
 },
+"rotRing.png":
+{
+	"frame": {"x":2,"y":141,"w":134,"h":140},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":0,"w":134,"h":140},
+	"sourceSize": {"w":140,"h":140}
+},
+"rotRingHalf.png":
+{
+	"frame": {"x":2,"y":362,"w":132,"h":71},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":69,"w":132,"h":71},
+	"sourceSize": {"w":140,"h":140}
+},
 "smallRipple1.0.png":
 {
-	"frame": {"x":186,"y":53,"w":45,"h":45},
+	"frame": {"x":138,"y":169,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -258,7 +290,7 @@
 },
 "smallRipple1.5.png":
 {
-	"frame": {"x":191,"y":2,"w":45,"h":45},
+	"frame": {"x":138,"y":216,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -266,7 +298,7 @@
 },
 "smallRipple2.0.png":
 {
-	"frame": {"x":233,"y":49,"w":45,"h":45},
+	"frame": {"x":141,"y":263,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -274,7 +306,7 @@
 },
 "smallRipple2.5.png":
 {
-	"frame": {"x":238,"y":2,"w":45,"h":45},
+	"frame": {"x":141,"y":310,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -282,7 +314,7 @@
 },
 "smallRipple3.0.png":
 {
-	"frame": {"x":280,"y":49,"w":45,"h":45},
+	"frame": {"x":136,"y":362,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -290,7 +322,7 @@
 },
 "smallRipple3.5.png":
 {
-	"frame": {"x":285,"y":2,"w":45,"h":45},
+	"frame": {"x":143,"y":409,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -298,7 +330,7 @@
 },
 "smallRipple4.0.png":
 {
-	"frame": {"x":327,"y":49,"w":45,"h":45},
+	"frame": {"x":145,"y":491,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -306,7 +338,7 @@
 },
 "smallRipple4.5.png":
 {
-	"frame": {"x":332,"y":2,"w":45,"h":45},
+	"frame": {"x":192,"y":491,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -314,7 +346,7 @@
 },
 "smallRipple5.0.png":
 {
-	"frame": {"x":374,"y":49,"w":45,"h":45},
+	"frame": {"x":185,"y":169,"w":45,"h":45},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
@@ -322,7 +354,7 @@
 },
 "Symbol_Boomerang.png":
 {
-	"frame": {"x":228,"y":100,"w":25,"h":25},
+	"frame": {"x":215,"y":538,"w":25,"h":25},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":6,"w":25,"h":25},
@@ -330,7 +362,7 @@
 },
 "Symbol_FireSpriteLarva.png":
 {
-	"frame": {"x":324,"y":96,"w":29,"h":29},
+	"frame": {"x":216,"y":38,"w":29,"h":29},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":3,"y":3,"w":29,"h":29},
@@ -338,7 +370,7 @@
 },
 "Symbol_Pomegranate.png":
 {
-	"frame": {"x":566,"y":35,"w":21,"h":21},
+	"frame": {"x":70,"y":544,"w":21,"h":21},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":7,"y":7,"w":21,"h":21},
@@ -346,7 +378,7 @@
 },
 "Symbol_RotcornPlant.png":
 {
-	"frame": {"x":379,"y":2,"w":19,"h":40},
+	"frame": {"x":221,"y":280,"w":19,"h":40},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":9,"y":0,"w":19,"h":40},
@@ -354,19 +386,27 @@
 },
 "Symbol_RotFruit.png":
 {
-	"frame": {"x":207,"y":100,"w":19,"h":26},
+	"frame": {"x":229,"y":129,"w":19,"h":26},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":7,"y":3,"w":19,"h":26},
 	"sourceSize": {"w":35,"h":35}
+},
+"warpIcon.png":
+{
+	"frame": {"x":141,"y":2,"w":73,"h":65},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":5,"w":73,"h":65},
+	"sourceSize": {"w":82,"h":70}
 }},
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",
 	"version": "1.0",
 	"image": "uiSpritesWatcher.png",
 	"format": "RGBA8888",
-	"size": {"w":589,"h":128},
+	"size": {"w":250,"h":567},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:55e3d159563d510ec16289d0680fe320:dca4faf7979cd1e3eee8e1e066d80bbd:3bf13f80871600b224962cc5511803ac$"
+	"smartupdate": "$TexturePacker:SmartUpdate:817c9358eadeeee1659e64f297a7a8d0:0cbfab087373f6f4941c73a0981916dc:3bf13f80871600b224962cc5511803ac$"
 }
 }
