@@ -143,6 +143,36 @@ namespace Cornifer.MapObjects
 
         private UIList? ConfigChildrenList;
         private UIList? ConfigLayerList;
+		public static Dictionary<string, string> WarpMap = new()
+		{
+			["WARA"] = "Shattered Terrace",
+			["WARB"] = "Salination",
+			["WARC"] = "Fetid Glen",
+			["WARD"] = "Cold Storage",
+			["WARE"] = "Heat Ducts",
+			["WARF"] = "Aether Ridge",
+			["WARG"] = "The Surface",
+			["WAUA"] = "Ancient Urban",
+			["WBLA"] = "Badlands",
+			["WDSR"] = "Decaying Tunnels",
+			["WGWR"] = "Infested Wastes",
+			["WHIR"] = "Corrupted Factories",
+			["WORA"] = "Outer Rim",
+			["WPTA"] = "Signal Spires",
+			["WRFA"] = "Coral Caves",
+			["WRFB"] = "Turbulent Pump",
+			["WRRA"] = "Rusted Wrecks",
+			["WRSA"] = "Daemon",
+			["WSKA"] = "Torrential Railways",
+			["WSKB"] = "Sunlit Port",
+			["WSKC"] = "Stormy Coast",
+			["WSKD"] = "Shrouded Coast",
+			["WSSR"] = "Unfortunate Evolution",
+			["WSUR"] = "Crumbling Fringes",
+			["WTDA"] = "Torrid Desert",
+			["WTDB"] = "Desolate Tract",
+			["WVWA"] = "Verdant Waterways"
+		};
 
         private UIElement? BuildConfig()
         {

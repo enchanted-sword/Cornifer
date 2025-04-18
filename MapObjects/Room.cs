@@ -94,38 +94,9 @@ namespace Cornifer.MapObjects
 
 		public Vector2? WarpPos;
 		public string? WarpTarget;
-		public static Dictionary<string, string> WarpMap = new()
-		{
-			["WARA"] = "Shattered Terrace",
-			["WARB"] = "Salination",
-			["WARC"] = "Fetid Glen",
-			["WARD"] = "Cold Storage",
-			["WARE"] = "Heat Ducts",
-			["WARF"] = "Aether Ridge",
-			["WARG"] = "The Surface",
-			["WAUA"] = "Ancient Urban",
-			["WBLA"] = "Badlands",
-			["WDSR"] = "Decaying Tunnels",
-			["WGWR"] = "Infested Wastes",
-			["WHIR"] = "Corrupted Factories",
-			["WORA"] = "Outer Rim",
-			["WPTA"] = "Signal Spires",
-			["WRFA"] = "Coral Caves",
-			["WRFB"] = "Turbulent Pump",
-			["WRRA"] = "Rusted Wrecks",
-			["WRSA"] = "Daemon",
-			["WSKA"] = "Torrential Railways",
-			["WSKB"] = "Sunlit Port",
-			["WSKC"] = "Stormy Coast",
-			["WSKD"] = "Shrouded Coast",
-			["WSSR"] = "Unfortunate Evolution",
-			["WSUR"] = "Crumbling Fringes",
-			["WTDA"] = "Torrid Desert",
-			["WTDB"] = "Desolate Tract",
-			["WVWA"] = "Verdant Waterways"
-		};
+		public PlacedObject? SpinningTopObj;
 
-        public Point TileSize;
+		public Point TileSize;
         public bool WaterInFrontOfTerrain;
         public Tile[,] Tiles = null!;
 
@@ -466,20 +437,32 @@ namespace Cornifer.MapObjects
                             PlacedObject? obj = PlacedObject.Load(str);
                             if (obj is not null)
                             {
-								if (obj.Type == "Filter")
-									filters.Add(obj);
-								else if (obj.Type == "ScavengerTreasury") {
-									IsScavengerTreasury = true;
-									TreasuryPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
-								} else if (obj.Type == "TerrainHandle") {
-									terrainHandles.Add(obj);
-								} else if (obj.Type == "ScavengerOutpost")
-									OutpostPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
-								else if (obj.Type == "WarpPoint") {
-									isWarpRoom = true;
-									WarpPos = new(obj.RoomPos.X, obj.RoomPos.Y);
-									WarpTarget = obj.TargetRegion;
-								} else objects.Add(obj);
+								switch (obj.Type) {
+									case "Filter":
+										filters.Add(obj);
+										break;
+									case "ScavengerTreasury":
+										IsScavengerTreasury = true;
+										TreasuryPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
+										break;
+									case "TerrainHandle":
+										terrainHandles.Add(obj);
+										break;
+									case "ScavengerOutpost":
+										OutpostPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
+										break;
+									case "WarpPoint":
+									case "SpinningTopSpot":
+										isWarpRoom = true;
+										WarpPos = new(obj.RoomPos.X, obj.RoomPos.Y);
+										WarpTarget = obj.TargetRegion;
+
+										if (obj.Type == "SpinningTopSpot") objects.Add(obj);
+										break;
+									default:
+										objects.Add(obj);
+										break;
+								}
                             }
                         }
                         List<PlacedObject> remove = new();
@@ -517,8 +500,14 @@ namespace Cornifer.MapObjects
 
                         foreach (PlacedObject obj in objects)
                         {
-                            obj.AddAvailabilityIcons();
-                            Children.Add(obj);
+							if (isWarpRoom && obj.Type == "SpinningTopSpot") {
+								SpinningTopObj = obj;
+							}
+							else 
+							{
+								obj.AddAvailabilityIcons();
+								Children.Add(obj);
+							}
                         }
                     }
                     else if (split[0] == "Effects")
@@ -528,14 +517,16 @@ namespace Cornifer.MapObjects
                         foreach (string effectStr in split[1].Split(',', StringSplitOptions.TrimEntries))
                         {
                             string[] effectSplit = effectStr.Split('-');
-                            if (effectSplit.Length == 4)
+							
+							if (effectSplit.Length == 4)
                             {
-                                string name = effectSplit[0];
-                                if (!float.TryParse(effectSplit[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float amount))
-                                    amount = 0;
+								string name = effectSplit[0];
 
-                                effects.Add(new(name, amount));
-                            }
+								if (!float.TryParse(effectSplit[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float amount))
+									amount = 0;
+
+								effects.Add(new(name, amount));
+							}
                         }
 
                         Effects = effects.ToArray();
@@ -584,6 +575,8 @@ namespace Cornifer.MapObjects
 
 			if (isWarpRoom) 
 			{
+				Vector2 align = WarpPos.HasValue ? WarpPos.Value / TileSize.ToVector2() : new Vector2(.5f);
+
 				if (WarpTarget == "NULL" || WarpTarget == null)
 				{
 					WarpTarget = Region.Id switch {
@@ -593,12 +586,22 @@ namespace Cornifer.MapObjects
 					};
 				}
 				if ((WarpTarget == "WAUA" || WarpTarget == "WRSA") && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
-					Children.Add(new SimpleIcon("WarpPointIcon", rippleWarpIcon));
+					Children.Add(new SimpleIcon("WarpPointIcon", rippleWarpIcon)
+					{
+						ParentPosAlign = align
+					});
 				else if (SpriteAtlases.Sprites.TryGetValue("Object_WarpPoint", out var warpIcon))
-					Children.Add(new SimpleIcon("WarpPointIcon", warpIcon));
+					Children.Add(new SimpleIcon("WarpPointIcon", warpIcon)
+					{
+						ParentPosAlign = align
+					});
 
-				if (this.Name == "WORA_DESERT6") Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, "To starting region"));
-				else Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {WarpMap[WarpTarget]}"));
+				if (this.Name != "WORA_DESERT6") Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {WarpMap[WarpTarget]}")
+				{
+					ParentPosAlign = align
+				});
+
+				if (SpinningTopObj is not null) Children.Add(SpinningTopObj);
 			}
 
             if (GateData is not null && IsGate)

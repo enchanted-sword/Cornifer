@@ -171,10 +171,13 @@ namespace Cornifer.MapObjects
 			{
 				obj.TargetRegion = subsplit[4];
 				obj.TargetRoom = subsplit[5];
+			} else if (objName == "SpinningTopSpot")
+			{
+				obj.TargetRegion = subsplit[3];
+				obj.TargetRoom = subsplit[4];
 			}
 
-			if (objName == "TerrainHandle")
-			{
+			if (objName == "TerrainHandle") {
 				obj.TerrainHandleLeftOffset = new(float.Parse(subsplit[0], CultureInfo.InvariantCulture) / 20, float.Parse(subsplit[1], CultureInfo.InvariantCulture) / 20);
 				obj.TerrainHandleRightOffset = new(float.Parse(subsplit[2], CultureInfo.InvariantCulture) / 20, float.Parse(subsplit[3], CultureInfo.InvariantCulture) / 20);
 				obj.TerrainHandleBackHeight = float.Parse(subsplit[4], CultureInfo.InvariantCulture) / 20;
