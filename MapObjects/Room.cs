@@ -215,7 +215,7 @@ namespace Cornifer.MapObjects
             Region = region;
             Name = id;
         }
-        public Point TraceShotrcut(Point pos, List<Point>? turns = null)
+        public Point TraceShortcut(Point pos, List<Point>? turns = null)
         {
             Point lastPos = pos;
             int? dir = null;
@@ -291,7 +291,7 @@ namespace Cornifer.MapObjects
 
             string[] lines = data.Split('\n');
 
-            if (lines.TryGet(1, out string sizeWater))
+			if (lines.TryGet(1, out string sizeWater))
             {
                 string[] swArray = sizeWater.Split('|');
                 if (swArray.TryGet(0, out string size))
@@ -407,14 +407,14 @@ namespace Cornifer.MapObjects
 
                 for (int i = 0; i < exits.Count; i++)
                 {
-                    exitEntrances[i] = TraceShotrcut(exits[i]);
+                    exitEntrances[i] = TraceShortcut(exits[i]);
                 }
 
                 List<Shortcut> tracedShortcuts = new();
 
                 foreach (Point shortcutIn in shortcuts)
                 {
-                    Point target = TraceShotrcut(shortcutIn);
+                    Point target = TraceShortcut(shortcutIn);
                     Tile targetTile = GetTile(target.X, target.Y);
 
                     Tile.ShortcutType type = targetTile.Shortcut;
@@ -459,28 +459,27 @@ namespace Cornifer.MapObjects
                     {
                         HashSet<PlacedObject> objects = new();
                         List<PlacedObject> filters = new();
+						HashSet<PlacedObject> terrainHandles = new();
                         string[] objectStrings = split[1].Split(',', StringSplitOptions.TrimEntries);
-                        foreach (string str in objectStrings)
+						foreach (string str in objectStrings)
                         {
                             PlacedObject? obj = PlacedObject.Load(str);
                             if (obj is not null)
                             {
-                                if (obj.Type == "Filter")
-                                    filters.Add(obj);
-                                else if (obj.Type == "ScavengerTreasury")
-                                {
-                                    IsScavengerTreasury = true;
-                                    TreasuryPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
-                                }
-
-								if (obj.Type == "ScavengerOutpost")
+								if (obj.Type == "Filter")
+									filters.Add(obj);
+								else if (obj.Type == "ScavengerTreasury") {
+									IsScavengerTreasury = true;
+									TreasuryPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
+								} else if (obj.Type == "TerrainHandle") {
+									terrainHandles.Add(obj);
+								} else if (obj.Type == "ScavengerOutpost")
 									OutpostPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
-								else if (obj.Type == "WarpPoint")
-								{
+								else if (obj.Type == "WarpPoint") {
 									isWarpRoom = true;
 									WarpPos = new(obj.RoomPos.X, obj.RoomPos.Y);
 									WarpTarget = obj.TargetRegion;
-								}
+								} else objects.Add(obj);
                             }
                         }
                         List<PlacedObject> remove = new();
@@ -505,6 +504,14 @@ namespace Cornifer.MapObjects
                                     remove.Add(obj);
                             }
                         }
+
+						foreach (PlacedObject terrainHandle in terrainHandles)
+						{
+							Vector2 handleOrigin = terrainHandle.RoomPos;
+							Vector2 P0 = handleOrigin + terrainHandle.TerrainHandleLeftOffset;
+							Vector2 P1 = new(handleOrigin.X, handleOrigin.Y + terrainHandle.TerrainHandleBackHeight);
+							Vector2 P2 = handleOrigin + terrainHandle.TerrainHandleRightOffset;
+						}
 
                         objects.ExceptWith(remove);
 
@@ -579,14 +586,19 @@ namespace Cornifer.MapObjects
 			{
 				if (WarpTarget == "NULL" || WarpTarget == null)
 				{
-					if (Region.Id == "WARA") WarpTarget = "WAUA";
-					else WarpTarget = "WRSA";
-					if (SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var warpIcon))
-						Children.Add(new SimpleIcon("WarpPointIcon", warpIcon));
-				} else if (SpriteAtlases.Sprites.TryGetValue("Object_WarpPoint", out var warpIcon))
+					WarpTarget = Region.Id switch {
+						"WARA" => "WAUA",
+						"WDSR" or "WGWR" or "WHIR" or "WSUR" => "WORA",
+						_ => "WRSA",
+					};
+				}
+				if ((WarpTarget == "WAUA" || WarpTarget == "WRSA") && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
+					Children.Add(new SimpleIcon("WarpPointIcon", rippleWarpIcon));
+				else if (SpriteAtlases.Sprites.TryGetValue("Object_WarpPoint", out var warpIcon))
 					Children.Add(new SimpleIcon("WarpPointIcon", warpIcon));
 
-				Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {WarpMap[WarpTarget]}"));
+				if (this.Name == "WORA_DESERT6") Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, "To starting region"));
+				else Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {WarpMap[WarpTarget]}"));
 			}
 
             if (GateData is not null && IsGate)

@@ -25,6 +25,10 @@ namespace Cornifer.MapObjects
 		public string? TargetRegion = null;
 		public string? TargetRoom = null;
 
+		public Vector2 TerrainHandleLeftOffset;
+		public Vector2 TerrainHandleRightOffset;
+		public float TerrainHandleBackHeight;
+
         public override bool SkipTextureSave => true;
 
         public override Vector2 Size => Frame.Size.ToVector2();
@@ -62,7 +66,7 @@ namespace Cornifer.MapObjects
         {
             string[] split = data.Split("><", 4);
 
-            if (split.Length < 3)
+				if (split.Length < 3)
                 return null;
 
             string objName = split[0];
@@ -169,6 +173,13 @@ namespace Cornifer.MapObjects
 				obj.TargetRoom = subsplit[5];
 			}
 
+			if (objName == "TerrainHandle")
+			{
+				obj.TerrainHandleLeftOffset = new(float.Parse(subsplit[0], CultureInfo.InvariantCulture) / 20, float.Parse(subsplit[1], CultureInfo.InvariantCulture) / 20);
+				obj.TerrainHandleRightOffset = new(float.Parse(subsplit[2], CultureInfo.InvariantCulture) / 20, float.Parse(subsplit[3], CultureInfo.InvariantCulture) / 20);
+				obj.TerrainHandleBackHeight = float.Parse(subsplit[4], CultureInfo.InvariantCulture) / 20;
+			}
+
             if (objName == "Filter" && subsplit.Length >= 5)
             {
                 float x = float.Parse(subsplit[0], NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -220,7 +231,7 @@ namespace Cornifer.MapObjects
 
         public static PlacedObject? Load(string name, Vector2 pos)
         {
-            if (name == "Filter" || name == "ScavengerTreasury")
+            if (name == "Filter" || name == "ScavengerTreasury" || name == "TerrainHandle")
                 return new()
                 {
                     Type = name,
