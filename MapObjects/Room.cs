@@ -11,76 +11,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json.Nodes;
 
 namespace Cornifer.MapObjects
 {
 	public class Room : MapObject {
-		static Point[] Directions = new Point[] { new Point(0, -1), new Point(1, 0), new Point(0, 1), new Point(-1, 0) };
-		public static HashSet<string> NonPickupObjectsWhitelist = new()
-		{
-			"GhostSpot", "BlueToken", "GoldToken",
-			"RedToken", "WhiteToken", "DevToken", "GreenToken",
-			"DataPearl", "UniqueDataPearl", "ScavengerOutpost",
-			"HRGuard", "TempleGuard", "MoonCloak", "SpinningTopSpot", "WarpPoint",
-		};
-		public static Dictionary<string, Vector2> VistaRooms = new() {
-			["HI_B04"] = new(214f, 615f),
-			["HI_D01"] = new(1765f, 655f),
-			["HI_C04"] = new(800f, 768f),
-			["SU_B12"] = new(1180f, 382f),
-			["SU_A04"] = new(265f, 415f),
-			["SU_C01"] = new(450f, 1811f),
-			["GW_D01"] = new(1603f, 595f),
-			["GW_E02"] = new(2608f, 621f),
-			["GW_C09"] = new(607f, 595f),
-			["UW_A07"] = new(805f, 616f),
-			["UW_J01"] = new(860f, 1534f),
-			["UW_C02"] = new(493f, 490f),
-			["CC_B12"] = new(455f, 1383f),
-			["CC_A10"] = new(734f, 506f),
-			["CC_C05"] = new(449f, 2330f),
-			["DS_A19"] = new(467f, 545f),
-			["DS_A05"] = new(172f, 490f),
-			["DS_C02"] = new(541f, 1305f),
-			["SI_C07"] = new(539f, 2354f),
-			["SI_D07"] = new(200f, 400f),
-			["SI_D05"] = new(1045f, 1258f),
-			["SH_A14"] = new(273f, 556f),
-			["SH_C08"] = new(2159f, 481f),
-			["SH_B05"] = new(733f, 453f),
-			["SL_B04"] = new(390f, 2258f),
-			["SL_B01"] = new(389f, 1448f),
-			["SL_C04"] = new(542f, 1295f),
-			["LF_C01"] = new(2792f, 423f),
-			["LF_A10"] = new(421f, 412f),
-			["LF_D02"] = new(1220f, 631f),
-			["SB_H02"] = new(1559f, 472f),
-			["SB_E04"] = new(1668f, 567f),
-			["SB_D04"] = new(483f, 1045f),
-			["VS_H02"] = new(603f, 3265f),
-			["VS_C03"] = new(82f, 983f),
-			["VS_F02"] = new(1348f, 533f),
-			["OE_RUINCourtYard"] = new(2133f, 1397f),
-			["OE_TREETOP"] = new(468f, 1782f),
-			["OE_RAIL01"] = new(2420f, 1378f),
-			["LC_FINAL"] = new(2700f, 500f),
-			["LC_SUBWAY01"] = new(1693f, 564f),
-			["LC_tallestconnection"] = new(153f, 242f),
-			["RM_CONVERGENCE"] = new(1860f, 670f),
-			["RM_I03"] = new(276f, 2270f),
-			["RM_ASSEMBLY"] = new(1550f, 586f),
-			["DM_LEG06"] = new(400f, 388f),
-			["DM_O06"] = new(2178f, 2159f),
-			["DM_LAB1"] = new(486f, 324f),
-			["UG_GUTTER02"] = new(163f, 241f),
-			["UG_A16"] = new(640f, 354f),
-			["UG_D03"] = new(857f, 1826f),
-			["CL_C05"] = new(540f, 1213f),
-			["CL_H02"] = new(2407f, 1649f),
-			["CL_CORE"] = new(471f, 373f),
-		};
-
 		public bool IsGate;
 		public bool IsShelter;
 		public bool IsAncientShelter;
@@ -92,11 +28,13 @@ namespace Cornifer.MapObjects
 		public Vector2? TreasuryPos;
 		public Vector2? OutpostPos;
 
+		public float TerrainDepth = 0f;
+
 		public Vector2? WarpPos;
 		public string? WarpTarget;
 		public PlacedObject? SpinningTopObj;
 
-		public Point TileSize;
+		public Point TileSize = new();
         public bool WaterInFrontOfTerrain;
         public Tile[,] Tiles = null!;
 
@@ -114,10 +52,16 @@ namespace Cornifer.MapObjects
         public ObjectProperty<ColorRef> AcidColor = new("acidWater", new(null, Color.Blue));
 
         public Effect[] Effects = Array.Empty<Effect>();
-        public Connection?[] Connections = Array.Empty<Connection>();
+		public Connection?[] Connections = Array.Empty<Connection>();
         public HashSet<string> BrokenForSlugcats = new();
 
-        public Texture2D? TileMap;
+		public List<Handle> Handles = new();
+		public int HandleSegments = 0;
+		private Vector2[] HandleBackPoints = Array.Empty<Vector2>();
+		private Vector2[] HandleFrontPoints = Array.Empty<Vector2>();
+		private Vector2[] HandleCollisionPoints = Array.Empty<Vector2>();
+
+		public Texture2D? TileMap;
         public bool TileMapDirty = false;
 
         public bool Loaded = false;
@@ -255,8 +199,102 @@ namespace Cornifer.MapObjects
             y = Math.Clamp(y, 0, TileSize.Y - 1);
             return Tiles[x, y];
         }
+		
+		private static float Normalize(float f) {
+			if (float.IsNaN(f) || float.IsInfinity(f)) {
+				return 0f;
+			}
+			return f;
+		}
 
-        public void Load(string data, string? settings)
+		public class Handle {
+			public Vector2 Left;
+			public Vector2 Middle;
+			public Vector2 Right;
+			float Height;
+			private static float Sample(float a, float b, float c, float d, float t) {
+				float num = 1f - t;
+				return num * num * num * a + 3f * num * num * t * b + 3f * num * t * t * c + t * t * t * d;
+			}
+
+			private static float LerpUnclamped(float a, float b, float t) {
+				return a + (b - a) * t;
+			}
+			private static float InverseLerp(float value, float from, float to) {
+				return (value - from) / (to - from);
+			}
+			public static float Sample(Handle left, Handle right, float x) {
+				if (x < left.Middle.X) {
+					return LerpUnclamped(left.Middle.Y, left.Left.Y, InverseLerp(x, left.Middle.X, left.Left.X));
+				}
+				if (x > right.Middle.X) {
+					return LerpUnclamped(right.Middle.Y, right.Right.Y, InverseLerp(x, right.Middle.X, right.Right.X));
+				}
+				float num = 0f;
+				float num2 = 1f;
+				for (int i = 0; i < 16; i++) {
+					float num3 = (num + num2) / 2f;
+					if (Sample(left.Middle.X, left.Right.X, right.Left.X, right.Middle.X, num3) < x) {
+						num = num3;
+					} else {
+						num2 = num3;
+					}
+				}
+				return Sample(left.Middle.Y, left.Right.Y, right.Left.Y, right.Middle.Y, (num + num2) / 2f);
+			}
+			public static float SampleBack(Handle left, Handle right, float x) {
+				left.Left.Y += left.Height;
+				left.Middle.Y += left.Height;
+				left.Right.Y += left.Height;
+				right.Left.Y += right.Height;
+				right.Middle.Y += right.Height;
+				right.Right.Y += right.Height;
+				return Sample(left, right, x);
+			}
+
+			public Handle(Vector2 left, Vector2 middle, Vector2 right, float height, Point tileSize) {
+				Left = left;
+				Middle = middle;
+				Right = right;
+				Height = height;
+			}
+		}
+		private void UpdateCollision() {
+			Array.Clear(HandleCollisionPoints, 0, HandleCollisionPoints.Length);
+			Array.Resize(ref HandleCollisionPoints, HandleSegments);
+
+			float t = (6f - TerrainDepth) / (35f - TerrainDepth);
+			for (int i = 0; i < HandleSegments; i++) {
+				HandleCollisionPoints[i] = Vector2.Lerp(HandleBackPoints[i], HandleFrontPoints[i], t);
+				HandleCollisionPoints[i].Y = MathF.Max(TileSize.Y - HandleCollisionPoints[i].Y, 0);
+			}
+		}
+
+		private void UpdateHandles() {
+			HandleSegments = TileSize.X;
+			Handles.Sort((Handle a, Handle b) => Math.Sign(a.Middle.X - b.Middle.X));
+
+			Array.Clear(HandleBackPoints, 0, HandleBackPoints.Length);
+			Array.Clear(HandleFrontPoints, 0, HandleFrontPoints.Length);
+
+			Array.Resize(ref HandleBackPoints, HandleSegments);
+			Array.Resize(ref HandleFrontPoints, HandleSegments);
+
+			if (Handles.Count >= 2) {
+				int i = 0;
+				for (int j = 0; j < HandleSegments; j++) {
+					for (; i < Handles.Count - 2 && Handles[i + 1].Middle.X < j; i++) {
+					}
+					HandleBackPoints[j] = new Vector2(j, Handle.Sample(Handles[i], Handles[i + 1], j) / TileSize.Y);
+					HandleFrontPoints[j] = new Vector2(j, Handle.SampleBack(Handles[i], Handles[i + 1], j) / TileSize.Y);
+					HandleBackPoints[j].Y = Normalize(HandleBackPoints[j].Y);
+					HandleFrontPoints[j].Y = Normalize(HandleFrontPoints[j].Y);
+				}
+				UpdateCollision();
+			}
+		}
+
+		public void Load(string data, string? settings)
         {
             SettingsString = settings;
 
@@ -429,8 +467,9 @@ namespace Cornifer.MapObjects
                     if (split[0] == "PlacedObjects")
                     {
                         HashSet<PlacedObject> objects = new();
-                        List<PlacedObject> filters = new();
-						HashSet<PlacedObject> terrainHandles = new();
+						HashSet<PlacedObject> TerrainHandles = new();
+						List<PlacedObject> filters = new();
+						
                         string[] objectStrings = split[1].Split(',', StringSplitOptions.TrimEntries);
 						foreach (string str in objectStrings)
                         {
@@ -446,7 +485,7 @@ namespace Cornifer.MapObjects
 										TreasuryPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
 										break;
 									case "TerrainHandle":
-										terrainHandles.Add(obj);
+										TerrainHandles.Add(obj);
 										break;
 									case "ScavengerOutpost":
 										OutpostPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
@@ -488,15 +527,15 @@ namespace Cornifer.MapObjects
                             }
                         }
 
-						foreach (PlacedObject terrainHandle in terrainHandles)
-						{
-							Vector2 handleOrigin = terrainHandle.RoomPos;
-							Vector2 P0 = handleOrigin + terrainHandle.TerrainHandleLeftOffset;
-							Vector2 P1 = new(handleOrigin.X, handleOrigin.Y + terrainHandle.TerrainHandleBackHeight);
-							Vector2 P2 = handleOrigin + terrainHandle.TerrainHandleRightOffset;
+						foreach (PlacedObject handle in TerrainHandles) {
+							Vector2 middle = handle.RoomPos;
+							Vector2 left = middle + handle.TerrainHandleLeftOffset;
+							Vector2 right = middle + handle.TerrainHandleRightOffset;
+							Handle item = new(left, middle, right, handle.TerrainHandleBackHeight, TileSize);
+							Handles.Add(item);
 						}
 
-                        objects.ExceptWith(remove);
+						objects.ExceptWith(remove);
 
                         foreach (PlacedObject obj in objects)
                         {
@@ -531,6 +570,10 @@ namespace Cornifer.MapObjects
 
                         Effects = effects.ToArray();
                     }
+					else if (split[0] == "TerrainDepth")
+					{
+						TerrainDepth = float.Parse(split[1], CultureInfo.InvariantCulture);
+					}
                 }
 
             if (IsShelter && SpriteAtlases.Sprites.TryGetValue("ShelterMarker", out var shelterMarker))
@@ -575,33 +618,33 @@ namespace Cornifer.MapObjects
 
 			if (isWarpRoom) 
 			{
-				Vector2 align = WarpPos.HasValue ? WarpPos.Value / TileSize.ToVector2() : new Vector2(.5f);
-
-				if (WarpTarget == "NULL" || WarpTarget == null)
+				if (WarpTarget is not null && this.Name != "WAUA_BATH") // the SpinningTopSpot in WAUA_BATH has an unused warp point to SB_D06 that absolutely should NOT show up on the map
 				{
-					WarpTarget = Region.Id switch {
-						"WARA" => "WAUA",
-						"WDSR" or "WGWR" or "WHIR" or "WSUR" => "WORA",
-						_ => "WRSA",
-					};
+					Vector2 align = WarpPos.HasValue ? WarpPos.Value / TileSize.ToVector2() : new Vector2(.5f);
+
+					if (WarpTarget == "NULL" || WarpTarget == null) {
+						WarpTarget = Region.Id switch {
+							"WARA" => "WAUA",
+							"WDSR" or "WGWR" or "WHIR" or "WSUR" => "WORA",
+							_ => "WRSA",
+						};
+					}
+					if ((WarpTarget == "WAUA" || WarpTarget == "WRSA") && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
+						Children.Add(new SimpleIcon("WarpPointIcon", rippleWarpIcon) {
+							ParentPosAlign = align
+						});
+					else if (SpriteAtlases.Sprites.TryGetValue("Object_WarpPoint", out var warpIcon))
+						Children.Add(new SimpleIcon("WarpPointIcon", warpIcon) {
+							ParentPosAlign = align
+						});
+
+					if (this.Name != "WORA_DESERT6") Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {RWAssets.GetRegionDisplayName(WarpTarget, null)}") {
+						ParentPosAlign = align
+					});
 				}
-				if ((WarpTarget == "WAUA" || WarpTarget == "WRSA") && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
-					Children.Add(new SimpleIcon("WarpPointIcon", rippleWarpIcon)
-					{
-						ParentPosAlign = align
-					});
-				else if (SpriteAtlases.Sprites.TryGetValue("Object_WarpPoint", out var warpIcon))
-					Children.Add(new SimpleIcon("WarpPointIcon", warpIcon)
-					{
-						ParentPosAlign = align
-					});
+				
 
-				if (this.Name != "WORA_DESERT6") Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {WarpMap[WarpTarget]}")
-				{
-					ParentPosAlign = align
-				});
-
-				if (SpinningTopObj is not null) Children.Add(SpinningTopObj);
+				if (SpinningTopObj is not null) Children.Add(SpinningTopObj); // so the icon renders overtop its warp point when applicable
 			}
 
             if (GateData is not null && IsGate)
@@ -645,6 +688,8 @@ namespace Cornifer.MapObjects
                     AcidColor.OriginalValue = cref;
                 }
             }
+
+			UpdateHandles();
 
             Loaded = true;
         }
@@ -724,6 +769,28 @@ namespace Cornifer.MapObjects
 
                         colors[i + j * TileSize.X] = color;
                     }
+
+				foreach (Vector2 handlePoint in HandleCollisionPoints)
+				{
+					float gray = 1;
+					int x = (int)handlePoint.X;
+					int ytop = (int)Math.Floor(handlePoint.Y);
+					float yfit = handlePoint.Y - ytop;
+
+					if (yfit > 0.5f) gray = 0.4f;
+
+					Color color = Color.Lerp(Color.Purple, subregion.BackgroundColor.Color, gray);
+
+					for (int y = ytop; y < TileSize.Y; y++) {
+						Tile tile = GetTile(x, y);
+						if (tile.Terrain == Tile.TerrainType.Air) {
+							if (y == ytop && yfit > 0.5) {
+								colors[x + ytop * TileSize.X] = color;
+							}
+							else colors[x + y * TileSize.X] = Color.Purple;
+						}
+					}
+				}
 
                 if (InterfaceState.MarkShortcuts.Value)
                     foreach (Shortcut shortcut in Shortcuts)
