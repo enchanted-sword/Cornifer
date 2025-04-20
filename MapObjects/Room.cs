@@ -692,8 +692,6 @@ namespace Cornifer.MapObjects
                 }
             }
 
-			UpdateHandles();
-
             Loaded = true;
         }
 
@@ -709,7 +707,11 @@ namespace Cornifer.MapObjects
             Subregion subregion = Subregion.Value;
             Color[] colors = ArrayPool<Color>.Shared.Rent(TileSize.X * TileSize.Y);
             Color waterColor = AcidWater.Value ? AcidColor.Value.Color : subregion.WaterColor.Color;
-            try
+
+			UpdateHandles();
+			bool hasHandles = HandleCollisionPoints.Length > 0;
+
+			try
             {
                 bool invertedWater = Effects.Any(ef => ef.Name == "InvertedWater");
 
@@ -767,7 +769,7 @@ namespace Cornifer.MapObjects
                             color = Color.Lerp(waterColor, color, InterfaceState.WaterTransparency.Value);
                         }
 
-                        if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air)
+                        if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
                             color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
 
                         colors[i + j * TileSize.X] = color;
@@ -776,12 +778,15 @@ namespace Cornifer.MapObjects
 				foreach (Vector2 handlePoint in HandleCollisionPoints)
 				{
 					int x = (int)handlePoint.X;
-					int ytop = Math.Max(TileSize.Y - (int)MathF.Round(handlePoint.Y), 0);
+					int yfloor = (int)MathF.Floor(handlePoint.Y);
+					int ytop = Math.Max(TileSize.Y - yfloor, 0);
+					float fit = MathF.Abs(handlePoint.Y - yfloor);
 
 					for (int y = ytop; y < TileSize.Y; y++) {
 						Tile tile = GetTile(x, y);
 						if (tile.Terrain == Tile.TerrainType.Air) {
-							colors[x + y * TileSize.X] = Color.Black;
+							if (y == ytop && fit < 0.5) colors[x + y * TileSize.X] = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, 0.4f);
+							else colors[x + y * TileSize.X] = Color.Black;
 						}
 					}
 				}
