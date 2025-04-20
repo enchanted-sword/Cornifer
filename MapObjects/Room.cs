@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Nodes;
+using static Cornifer.MapObjects.Room;
 
 namespace Cornifer.MapObjects
 {
@@ -199,7 +200,7 @@ namespace Cornifer.MapObjects
             y = Math.Clamp(y, 0, TileSize.Y - 1);
             return Tiles[x, y];
         }
-		
+
 		private static float Normalize(float f) {
 			if (float.IsNaN(f) || float.IsInfinity(f)) {
 				return 0f;
@@ -212,11 +213,19 @@ namespace Cornifer.MapObjects
 			public Vector2 Middle;
 			public Vector2 Right;
 			float Height;
-			private static float Sample(float a, float b, float c, float d, float t) {
+
+			private Handle GetBackHandle() {
+				Handle BackHandle = new(Left, Middle, Right, 0);
+				BackHandle.Left.Y += Height;
+				BackHandle.Middle.Y += Height;
+				BackHandle.Right.Y += Height;
+				return BackHandle;
+			}
+
+			private static float Sample(float a, float b, float c, float d, float t) { // Cubic Bezier sampling at time t
 				float num = 1f - t;
 				return num * num * num * a + 3f * num * num * t * b + 3f * num * t * t * c + t * t * t * d;
 			}
-
 			private static float LerpUnclamped(float a, float b, float t) {
 				return a + (b - a) * t;
 			}
@@ -232,7 +241,7 @@ namespace Cornifer.MapObjects
 				}
 				float num = 0f;
 				float num2 = 1f;
-				for (int i = 0; i < 16; i++) {
+				for (int i = 0; i < 16; i++) { // Finding time t between 0 and 1 where the x component of the point on the curve is closest to our input x position
 					float num3 = (num + num2) / 2f;
 					if (Sample(left.Middle.X, left.Right.X, right.Left.X, right.Middle.X, num3) < x) {
 						num = num3;
@@ -243,16 +252,10 @@ namespace Cornifer.MapObjects
 				return Sample(left.Middle.Y, left.Right.Y, right.Left.Y, right.Middle.Y, (num + num2) / 2f);
 			}
 			public static float SampleBack(Handle left, Handle right, float x) {
-				left.Left.Y += left.Height;
-				left.Middle.Y += left.Height;
-				left.Right.Y += left.Height;
-				right.Left.Y += right.Height;
-				right.Middle.Y += right.Height;
-				right.Right.Y += right.Height;
-				return Sample(left, right, x);
+				return Sample(left.GetBackHandle(), right.GetBackHandle(), x);
 			}
 
-			public Handle(Vector2 left, Vector2 middle, Vector2 right, float height, Point tileSize) {
+			public Handle(Vector2 left, Vector2 middle, Vector2 right, float height) {
 				Left = left;
 				Middle = middle;
 				Right = right;
@@ -265,8 +268,7 @@ namespace Cornifer.MapObjects
 
 			float t = (6f - TerrainDepth) / (35f - TerrainDepth);
 			for (int i = 0; i < HandleSegments; i++) {
-				HandleCollisionPoints[i] = Vector2.Lerp(HandleBackPoints[i], HandleFrontPoints[i], t);
-				HandleCollisionPoints[i].Y = MathF.Max(TileSize.Y - HandleCollisionPoints[i].Y, 0);
+				HandleCollisionPoints[i] = Vector2.Lerp(HandleFrontPoints[i], HandleBackPoints[i], t);
 			}
 		}
 
@@ -283,10 +285,9 @@ namespace Cornifer.MapObjects
 			if (Handles.Count >= 2) {
 				int i = 0;
 				for (int j = 0; j < HandleSegments; j++) {
-					for (; i < Handles.Count - 2 && Handles[i + 1].Middle.X < j; i++) {
-					}
-					HandleBackPoints[j] = new Vector2(j, Handle.Sample(Handles[i], Handles[i + 1], j) / TileSize.Y);
-					HandleFrontPoints[j] = new Vector2(j, Handle.SampleBack(Handles[i], Handles[i + 1], j) / TileSize.Y);
+					for (; i < Handles.Count - 2 && Handles[i + 1].Middle.X < j; i++);
+					HandleFrontPoints[j] = new Vector2(j, Handle.Sample(Handles[i], Handles[i + 1], j));
+					HandleBackPoints[j] = new Vector2(j, Handle.SampleBack(Handles[i], Handles[i + 1], j));
 					HandleBackPoints[j].Y = Normalize(HandleBackPoints[j].Y);
 					HandleFrontPoints[j].Y = Normalize(HandleFrontPoints[j].Y);
 				}
@@ -531,7 +532,7 @@ namespace Cornifer.MapObjects
 							Vector2 middle = handle.RoomPos;
 							Vector2 left = middle + handle.TerrainHandleLeftOffset;
 							Vector2 right = middle + handle.TerrainHandleRightOffset;
-							Handle item = new(left, middle, right, handle.TerrainHandleBackHeight, TileSize);
+							Handle item = new(left, middle, right, handle.TerrainHandleBackHeight);
 							Handles.Add(item);
 						}
 
@@ -572,11 +573,13 @@ namespace Cornifer.MapObjects
                     }
 					else if (split[0] == "TerrainDepth")
 					{
-						TerrainDepth = float.Parse(split[1], CultureInfo.InvariantCulture);
+						TerrainDepth = float.Parse(split[1], NumberStyles.Any, CultureInfo.InvariantCulture);
 					}
                 }
 
-            if (IsShelter && SpriteAtlases.Sprites.TryGetValue("ShelterMarker", out var shelterMarker))
+			if (IsAncientShelter && SpriteAtlases.Sprites.TryGetValue("Object_AncientShelterMarker", out var ancientShelterMarker))
+				Children.Add(new SimpleIcon("AncientShelterMarker", ancientShelterMarker));
+            else if (IsShelter && SpriteAtlases.Sprites.TryGetValue("ShelterMarker", out var shelterMarker))
                 Children.Add(new SimpleIcon("ShelterMarker", shelterMarker));
 
             if (IsScavengerOutpost)
@@ -618,7 +621,7 @@ namespace Cornifer.MapObjects
 
 			if (isWarpRoom) 
 			{
-				if (WarpTarget is not null && this.Name != "WAUA_BATH") // the SpinningTopSpot in WAUA_BATH has an unused warp point to SB_D06 that absolutely should NOT show up on the map
+				if (WarpTarget is not null && this.Name != "WAUA_BATH" && this.Name != "WAUA_TOYS") // the SpinningTopSpot in WAUA_BATH has an unused warp point to SB_D06 that absolutely should NOT show up on the map
 				{
 					Vector2 align = WarpPos.HasValue ? WarpPos.Value / TileSize.ToVector2() : new Vector2(.5f);
 
@@ -772,27 +775,18 @@ namespace Cornifer.MapObjects
 
 				foreach (Vector2 handlePoint in HandleCollisionPoints)
 				{
-					float gray = 1;
 					int x = (int)handlePoint.X;
-					int ytop = (int)Math.Floor(handlePoint.Y);
-					float yfit = handlePoint.Y - ytop;
-
-					if (yfit > 0.5f) gray = 0.4f;
-
-					Color color = Color.Lerp(Color.Purple, subregion.BackgroundColor.Color, gray);
+					int ytop = Math.Max(TileSize.Y - (int)MathF.Round(handlePoint.Y), 0);
 
 					for (int y = ytop; y < TileSize.Y; y++) {
 						Tile tile = GetTile(x, y);
 						if (tile.Terrain == Tile.TerrainType.Air) {
-							if (y == ytop && yfit > 0.5) {
-								colors[x + ytop * TileSize.X] = color;
-							}
-							else colors[x + y * TileSize.X] = Color.Purple;
+							colors[x + y * TileSize.X] = Color.Black;
 						}
 					}
 				}
 
-                if (InterfaceState.MarkShortcuts.Value)
+				if (InterfaceState.MarkShortcuts.Value)
                     foreach (Shortcut shortcut in Shortcuts)
                         if ((!InterfaceState.MarkExitsOnly.Value || shortcut.Type == Tile.ShortcutType.RoomExit) && shortcut.Type != Tile.ShortcutType.None)
                             colors[shortcut.Entrance.X + shortcut.Entrance.Y * TileSize.X] = new(255, 0, 0);

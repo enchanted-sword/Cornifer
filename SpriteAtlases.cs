@@ -157,18 +157,19 @@ namespace Cornifer
             { "ScavengerOutpost", (new(109, 21, 11, 15), new(255, 255, 255, 255)) },
             { "KarmaShrine",      (new(72, 45,  17, 17), new(255, 255, 255, 255)) },
             { "MoonCloak",        (new(1, 49,   21, 25), new(255, 255, 255, 255)) },
+			{ "AncientShelterMarker", (new(91, 45,  21, 22), new(255, 255, 255, 255)) },
 
 			{ "SpinningTopSpot",  (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
-			{ "RippleWarpPoint",        (new(0, 74,  74, 66), new(0.373f, 0.11f, 0.831f, 0.75f)) },
-			{ "WarpPoint",  (new(0, 140,  74, 66), new(0.373f, 0.11f, 0.831f, 0.75f)) }
+			{ "RippleWarpPoint",  (new(0, 74,   74, 66), new(0.373f, 0.11f, 0.831f, 0.75f)) },
+			{ "WarpPoint",		  (new(0, 140,  74, 66), new(0.373f, 0.11f, 0.831f, 0.75f)) }
 		};
 
         static Dictionary<string, (Rectangle Frame, Color Color)> MiscSpriteFrames = new()
         {
-            { "ArrowLeft",     (new(0, 0,  22, 13), new(255, 255, 255, 255)) },
-            { "ArrowRight",    (new(0, 13, 22, 13), new(255, 255, 255, 255)) },
-            { "KarmaR",        (new(23, 0, 36, 36), new(255, 255, 255, 255)) },
-        };
+            { "ArrowLeft",        (new(0, 0,    22, 13), new(255, 255, 255, 255)) },
+            { "ArrowRight",		  (new(0, 13,   22, 13), new(255, 255, 255, 255)) },
+            { "KarmaR",           (new(23, 0,   36, 36), new(255, 255, 255, 255)) },
+		};
 
         static List<string> SlugcatIconOrder = new() { "White", "Yellow", "Red", "Night", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint", "Inv", "Watcher" };
 
