@@ -62,6 +62,9 @@ namespace Cornifer.MapObjects
 		private Vector2[] HandleFrontPoints = Array.Empty<Vector2>();
 		private Vector2[] HandleCollisionPoints = Array.Empty<Vector2>();
 
+		public int? WaterCycleTop;
+		public int? WaterCycleBottom;
+
 		public Texture2D? TileMap;
         public bool TileMapDirty = false;
 
@@ -200,6 +203,10 @@ namespace Cornifer.MapObjects
             y = Math.Clamp(y, 0, TileSize.Y - 1);
             return Tiles[x, y];
         }
+
+		private static float Lerp(float a, float b, float t) {
+			return a + (b - a) * MathF.Max(MathF.Min(t, 1), 0);
+		}
 
 		private static float Normalize(float f) {
 			if (float.IsNaN(f) || float.IsInfinity(f)) {
@@ -499,6 +506,12 @@ namespace Cornifer.MapObjects
 
 										if (obj.Type == "SpinningTopSpot") objects.Add(obj);
 										break;
+									case "WaterCycleTop":
+										WaterCycleTop = (int)MathF.Round(obj.RoomPos.Y);
+										break;
+									case "WaterCycleBottom":
+										WaterCycleBottom = (int)MathF.Round(obj.RoomPos.Y);
+										break;
 									default:
 										objects.Add(obj);
 										break;
@@ -716,64 +729,74 @@ namespace Cornifer.MapObjects
                 bool invertedWater = Effects.Any(ef => ef.Name == "InvertedWater");
 
                 int waterLevel = WaterLevel.Value;
+				int waterFluxLevel = -1;
+				float WaterFluxTransparency = Lerp(InterfaceState.WaterTransparency.Value, 1, 0.35f);
 
-                if (waterLevel < 0)
-                {
-                    Effect? waterFluxMin = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMinLevel");
-                    Effect? waterFluxMax = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMaxLevel");
+				Effect? waterFluxMin = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMinLevel");
+				Effect? waterFluxMax = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMaxLevel");
 
-                    if (waterFluxMin is not null && waterFluxMax is not null)
-                    {
-                        float waterMid = 1 - (waterFluxMax.Amount + waterFluxMin.Amount) / 2 * (22f / 20f);
-                        waterLevel = (int)(waterMid * TileSize.Y) + 2;
-                    }
-                }
 
-                for (int j = 0; j < TileSize.Y; j++)
-                    for (int i = 0; i < TileSize.X; i++)
-                    {
-                        if (!InterfaceState.DisableRoomCropping.Value && CutOutSolidTiles is not null && CutOutSolidTiles[i, j])
-                        {
-                            colors[i + j * TileSize.X] = Color.Transparent;
-                            continue;
-                        }
+				if (waterFluxMin is not null && waterFluxMax is not null) {
+					// float waterMid = 1 - (waterFluxMax.Amount + waterFluxMin.Amount) / 2 * (22f / 20f);
+					// waterLevel = (int)(waterMid * TileSize.Y) + 2;
+					float waterMax = waterFluxMax.Amount / (22f / 20f);
+					float waterMin = waterFluxMin.Amount / (22f / 20f);
+					waterFluxLevel = (int)(waterMax * TileSize.Y) + 2;
+					waterLevel = (int)(waterMin * TileSize.Y) + 2;
+				} else if (WaterCycleTop is not null && WaterCycleBottom is not null) {
+					waterFluxLevel = (int)WaterCycleTop;
+					waterLevel = (int)WaterCycleBottom;
+				}
 
-                        Tile tile = GetTile(i, j);
+					for (int j = 0; j < TileSize.Y; j++)
+						for (int i = 0; i < TileSize.X; i++) {
+							if (!InterfaceState.DisableRoomCropping.Value && CutOutSolidTiles is not null && CutOutSolidTiles[i, j]) {
+								colors[i + j * TileSize.X] = Color.Transparent;
+								continue;
+							}
 
-                        float gray = 1;
+							Tile tile = GetTile(i, j);
 
-                        bool solid = tile.Terrain == Tile.TerrainType.Solid;
+							float gray = 1;
 
-                        if (solid)
-                            gray = 0;
+							bool solid = tile.Terrain == Tile.TerrainType.Solid;
 
-                        else if (tile.Terrain == Tile.TerrainType.Floor)
-                            gray = 0.35f;
+							if (solid)
+								gray = 0;
 
-                        else if (tile.Terrain == Tile.TerrainType.Slope)
-                            gray = .4f;
+							else if (tile.Terrain == Tile.TerrainType.Floor)
+								gray = 0.35f;
 
-                        else if (InterfaceState.DrawTileWalls.Value && tile.Attributes.HasFlag(Tile.TileAttributes.WallBehind))
-                            gray = 0.75f;
+							else if (tile.Terrain == Tile.TerrainType.Slope)
+								gray = .4f;
 
-                        if (InterfaceState.RegionBGShortcuts.Value && tile.Terrain == Tile.TerrainType.ShortcutEntrance)
-                            gray = 1;
+							else if (InterfaceState.DrawTileWalls.Value && tile.Attributes.HasFlag(Tile.TileAttributes.WallBehind))
+								gray = 0.75f;
 
-                        else if (tile.Attributes.HasFlag(Tile.TileAttributes.VerticalBeam) || tile.Attributes.HasFlag(Tile.TileAttributes.HorizontalBeam))
-                            gray = 0.35f;
+							if (InterfaceState.RegionBGShortcuts.Value && tile.Terrain == Tile.TerrainType.ShortcutEntrance)
+								gray = 1;
 
-                        Color color = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, gray);
+							else if (tile.Attributes.HasFlag(Tile.TileAttributes.VerticalBeam) || tile.Attributes.HasFlag(Tile.TileAttributes.HorizontalBeam))
+								gray = 0.35f;
 
-                        if (!solid && (invertedWater ? j <= waterLevel : j >= TileSize.Y - waterLevel))
-                        {
-                            color = Color.Lerp(waterColor, color, InterfaceState.WaterTransparency.Value);
-                        }
+							Color color = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, gray);
 
-                        if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
-                            color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
+							if (!solid) {
+								if ((invertedWater ? j <= waterLevel : j >= TileSize.Y - waterLevel)) {
+									color = Color.Lerp(waterColor, color, InterfaceState.WaterTransparency.Value);
+								} else if (waterFluxLevel > 0 && (invertedWater ? j <= waterFluxLevel : j >= TileSize.Y - waterFluxLevel)) {
+									color = Color.Lerp(waterColor, color, WaterFluxTransparency);
+								}
+							}
 
-                        colors[i + j * TileSize.X] = color;
-                    }
+
+
+							if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
+								color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
+
+							colors[i + j * TileSize.X] = color;
+						}
+				
 
 				foreach (Vector2 handlePoint in HandleCollisionPoints)
 				{

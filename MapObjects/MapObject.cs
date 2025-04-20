@@ -238,6 +238,18 @@ namespace Cornifer.MapObjects
 		};
 		public static Point[] Directions = new Point[] { new Point(0, -1), new Point(1, 0), new Point(0, 1), new Point(-1, 0) };
 
+        public static HashSet<string> HideObjectTypes = new()
+        {
+            "DevToken"
+        };
+		public static Dictionary<string, string[]> TiedSandboxIDs = new()
+        {
+            ["CicadaA"] = new[] { "CicadaB" },
+            ["SmallCentipede"] = new[] { "MediumCentipede" },
+            ["BigNeedleWorm"] = new[] { "SmallNeedleWorm" },
+        };
+		public static HashSet<string> HollowSlugcats = new() { "White", "Yellow", "Red", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint" };
+
         private UIElement? BuildConfig()
         {
             UIList list = new()

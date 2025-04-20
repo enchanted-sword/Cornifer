@@ -43,21 +43,7 @@ namespace Cornifer.MapObjects
 
         UIList? AvailabilityPresets;
 
-        public static HashSet<string> HideObjectTypes = new()
-        {
-            "DevToken"
-        };
-
-        static Dictionary<string, string[]> TiedSandboxIDs = new()
-        {
-            ["CicadaA"] = new[] { "CicadaB" },
-            ["SmallCentipede"] = new[] { "MediumCentipede" },
-            ["BigNeedleWorm"] = new[] { "SmallNeedleWorm" },
-        };
-
-        static HashSet<string> HollowSlugcats = new() { "White", "Yellow", "Red", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint" };
-
-        public PlacedObject()
+		public PlacedObject()
         {
             BorderSize.OriginalValue = 2;
         }
@@ -234,7 +220,7 @@ namespace Cornifer.MapObjects
 
         public static PlacedObject? Load(string name, Vector2 pos)
         {
-            if (name == "Filter" || name == "ScavengerTreasury" || name == "TerrainHandle")
+            if (name == "Filter" || name == "ScavengerTreasury" || name == "TerrainHandle" || name == "WaterCycleTop" || name == "WaterCycleBottom")
                 return new()
                 {
                     Type = name,
