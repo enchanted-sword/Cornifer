@@ -144,7 +144,7 @@ namespace Cornifer.MapObjects
             {
                 if (dir is not null)
                 {
-                    Point dirVal = Directions[dir.Value];
+                    Point dirVal = StaticData.Directions[dir.Value];
 
                     Point testTilePos = pos + dirVal;
 
@@ -167,7 +167,7 @@ namespace Cornifer.MapObjects
                 foundDir = false;
                 for (int j = 0; j < 4; j++)
                 {
-                    Point dirVal = Directions[j];
+                    Point dirVal = StaticData.Directions[j];
                     Point testTilePos = pos + dirVal;
 
                     if (testTilePos == lastPos || testTilePos.X < 0 || testTilePos.Y < 0 || testTilePos.X >= TileSize.X || testTilePos.Y >= TileSize.Y)
@@ -686,7 +686,7 @@ namespace Cornifer.MapObjects
                 GateRegionText.Offset = new(0, MathF.Floor(-Size.Y / 2 - GateSymbols.Size.Y - 19 - Main.DefaultBigMapFont.LineSpacing / 2));
             }
 
-            if (!Region.LegacyFormat && VistaRooms.TryGetValue(Name!, out Vector2 vistaPoint))
+            if (!Region.LegacyFormat && StaticData.VistaRooms.TryGetValue(Name!, out Vector2 vistaPoint))
             {
                 Vector2 rel = vistaPoint / 20 / Size;
 

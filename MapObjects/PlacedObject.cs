@@ -37,7 +37,7 @@ namespace Cornifer.MapObjects
         {
             get => InterfaceState.DrawPlacedObjects.Value
                 && (Parent is not Room || !HideObjectTypes.Contains(Type))
-                && (Parent is not Room || InterfaceState.DrawPlacedPickups.Value || Room.NonPickupObjectsWhitelist.Contains(Type))
+                && (Parent is not Room || InterfaceState.DrawPlacedPickups.Value || StaticData.NonPickupObjectsWhitelist.Contains(Type))
                 && base.Active;
         }
 
@@ -124,7 +124,7 @@ namespace Cornifer.MapObjects
 
                             List<PlacedObject> objects = new() { subObject };
 
-                            if (TiedSandboxIDs.TryGetValue(subname, out string[]? tied))
+                            if (StaticData.TiedSandboxIDs.TryGetValue(subname, out string[]? tied))
                             {
                                 foreach (string to in tied)
                                 {
@@ -271,7 +271,7 @@ namespace Cornifer.MapObjects
             {
                 bool available = SlugcatAvailability.Contains(slugcat.Id);
 
-                if (!available && !HollowSlugcats.Contains(slugcat.Id))
+                if (!available && !StaticData.HollowSlugcats.Contains(slugcat.Id))
                     continue;
 
                 Vector2 offset = new Vector2(MathF.Cos(currentAngle), -MathF.Sin(currentAngle)) * 15;
