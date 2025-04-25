@@ -18,6 +18,8 @@ using static Cornifer.MapObjects.Room;
 namespace Cornifer.MapObjects
 {
 	public class Room : MapObject {
+		public string? replaceRoomName;
+
 		public bool IsGate;
 		public bool IsShelter;
 		public bool IsAncientShelter;
@@ -61,6 +63,8 @@ namespace Cornifer.MapObjects
 		private Vector2[] HandleBackPoints = Array.Empty<Vector2>();
 		private Vector2[] HandleFrontPoints = Array.Empty<Vector2>();
 		private Vector2[] HandleCollisionPoints = Array.Empty<Vector2>();
+
+		private List<Rectangle> AirPockets = new();
 
 		public int? WaterCycleTop;
 		public int? WaterCycleBottom;
@@ -477,6 +481,8 @@ namespace Cornifer.MapObjects
                         HashSet<PlacedObject> objects = new();
 						HashSet<PlacedObject> TerrainHandles = new();
 						List<PlacedObject> filters = new();
+						List<PlacedObject> airPockets = new();
+						List<PlacedObject> waterCutoffs = new();
 						
                         string[] objectStrings = split[1].Split(',', StringSplitOptions.TrimEntries);
 						foreach (string str in objectStrings)
@@ -511,6 +517,12 @@ namespace Cornifer.MapObjects
 										break;
 									case "WaterCycleBottom":
 										WaterCycleBottom = (int)MathF.Round(obj.RoomPos.Y);
+										break;
+									case "AirPocket":
+										airPockets.Add(obj);
+										break;
+									case "WaterCutoff":
+										waterCutoffs.Add(obj);
 										break;
 									default:
 										objects.Add(obj);
@@ -547,6 +559,17 @@ namespace Cornifer.MapObjects
 							Vector2 right = middle + handle.TerrainHandleRightOffset;
 							Handle item = new(left, middle, right, handle.TerrainHandleBackHeight);
 							Handles.Add(item);
+						}
+
+						foreach (PlacedObject airPocket in airPockets) { 
+							AirPockets.Add(airPocket.AirPocket);
+						}
+
+						foreach (PlacedObject waterCutoff in waterCutoffs) {
+							int x = (int)Math.Round(waterCutoff.RoomPos.X);
+							int y = (int)Math.Round(waterCutoff.RoomPos.Y);
+							int height = TileSize.Y - y;
+							AirPockets.Add(new(x, y, waterCutoff.WaterCutoffLength, height));
 						}
 
 						objects.ExceptWith(remove);
@@ -794,20 +817,28 @@ namespace Cornifer.MapObjects
 							Color color = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, gray);
 
 							if (!solid) {
-								if ((invertedWater ? j <= waterLevel : j >= TileSize.Y - waterLevel)) {
-									color = Color.Lerp(waterColor, color, InterfaceState.WaterTransparency.Value);
-								} else if (waterFluxLevel > 0 && (invertedWater ? j <= waterFluxLevel : j >= TileSize.Y - waterFluxLevel)) {
-									color = Color.Lerp(waterColor, color, WaterFluxTransparency);
+								bool isAirPocket = false;
+								foreach (Rectangle AirPocket in AirPockets) {
+									if (AirPocket.Contains(i, TileSize.Y - j)) {
+										isAirPocket = true;
+										break;
+									}
 								}
+								if (!isAirPocket) {
+									if ((invertedWater ? j <= waterLevel : j >= TileSize.Y - waterLevel)) {
+										color = Color.Lerp(waterColor, color, InterfaceState.WaterTransparency.Value);
+									} else if (waterFluxLevel > 0 && (invertedWater ? j <= waterFluxLevel : j >= TileSize.Y - waterFluxLevel)) {
+										color = Color.Lerp(waterColor, color, WaterFluxTransparency);
+									}
+								}
+								
 							}
 
-
-
 							if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
-								color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
+									color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
 
-							colors[i + j * TileSize.X] = color;
-						}
+								colors[i + j * TileSize.X] = color;
+							}
 				
 
 				foreach (Vector2 handlePoint in HandleCollisionPoints)

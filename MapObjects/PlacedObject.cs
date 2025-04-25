@@ -5,23 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Cornifer.MapObjects
 {
     public class PlacedObject : SimpleIcon
     {
         public string Type = null!;
+		public static string[] technicalObjects = { "Filter", "ScavengerTreasury", "TerrainHandle", "WaterCycleTop", "WaterCycleBottom", "WaterCutoff", "AirPocket" };
+		public override string? Name => $"{Type}@{RoomPos.X:0},{RoomPos.Y:0}";
+		public List<SlugcatIcon>? AvailabilityIcons;
+		public HashSet<string> SlugcatAvailability = new();
+		public Vector2 RoomPos;
+		public Vector2 HandlePos;
+		public bool RemoveByAvailability = true;
 
-        public override string? Name => $"{Type}@{RoomPos.X:0},{RoomPos.Y:0}";
-
-        public List<SlugcatIcon>? AvailabilityIcons;
-        public HashSet<string> SlugcatAvailability = new();
-        public Vector2 RoomPos;
-        public Vector2 HandlePos;
-
-        public bool RemoveByAvailability = true;
-        public string? DebugDisplay = null;
-
+		public string? DebugDisplay = null;
 		public string? TargetRegion = null;
 		public string? TargetRoom = null;
 
@@ -29,12 +28,14 @@ namespace Cornifer.MapObjects
 		public Vector2 TerrainHandleRightOffset;
 		public float TerrainHandleBackHeight;
 
-        public override bool SkipTextureSave => true;
+		public Rectangle AirPocket;
+		public int WaterCutoffLength;
 
-        public override Vector2 Size => Frame.Size.ToVector2();
-        public override Vector2 ParentPosAlign => Parent is not Room ? new(.5f) : new Vector2(RoomPos.X / Parent.Size.X, 1 - RoomPos.Y / Parent.Size.Y);
-        public override bool Active
-        {
+		public override bool SkipTextureSave => true;
+		public override Vector2 Size => Frame.Size.ToVector2();
+		public override Vector2 ParentPosAlign => Parent is not Room ? new(.5f) : new Vector2(RoomPos.X / Parent.Size.X, 1 - RoomPos.Y / Parent.Size.Y);
+		public override bool Active
+		{
             get => InterfaceState.DrawPlacedObjects.Value
                 && (Parent is not Room || !HideObjectTypes.Contains(Type))
                 && (Parent is not Room || InterfaceState.DrawPlacedPickups.Value || StaticData.NonPickupObjectsWhitelist.Contains(Type))
@@ -171,6 +172,18 @@ namespace Cornifer.MapObjects
 				obj.TerrainHandleBackHeight = float.Parse(subsplit[4], CultureInfo.InvariantCulture) / 20;
 			}
 
+			if (objName == "AirPocket") {
+				float waterLevel = float.Parse(subsplit[5], NumberStyles.Any, CultureInfo.InvariantCulture) / 20;
+				int width = (int)Math.Round(float.Parse(subsplit[0], NumberStyles.Any, CultureInfo.InvariantCulture) / 20);
+				int height = (int)Math.Round((float.Parse(subsplit[1], NumberStyles.Any, CultureInfo.InvariantCulture) / 20) - waterLevel);
+
+				obj.AirPocket = new((int)Math.Round(obj.RoomPos.X), (int)Math.Ceiling(obj.RoomPos.Y + waterLevel), width, height);
+			}
+
+			if (objName == "WaterCutoff") {
+				obj.WaterCutoffLength = (int)Math.Round(float.Parse(subsplit[0], NumberStyles.Any, CultureInfo.InvariantCulture) / 20);
+			}
+
             if (objName == "Filter" && subsplit.Length >= 5)
             {
                 float x = float.Parse(subsplit[0], NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -222,7 +235,7 @@ namespace Cornifer.MapObjects
 
         public static PlacedObject? Load(string name, Vector2 pos)
         {
-            if (name == "Filter" || name == "ScavengerTreasury" || name == "TerrainHandle" || name == "WaterCycleTop" || name == "WaterCycleBottom")
+            if (technicalObjects.Contains(name))
                 return new()
                 {
                     Type = name,
