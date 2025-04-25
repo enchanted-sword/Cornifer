@@ -1,0 +1,32 @@
+{
+  "White": {
+    "name": "Survivor",
+    "playable": true,
+    "color": "FFFFFF",
+    "eyeColor": "000000",
+    "startRoom": "SU_C04"
+  },
+
+  "Yellow": {
+    "name": "Monk",
+    "playable": true,
+    "color": "FFFF73",
+    "eyeColor": "000000",
+    "startRoom": "SU_C04"
+  },
+
+  "Red": {
+    "name": "Hunter",
+    "playable": true,
+    "color": "FF7373",
+    "eyeColor": "000000",
+    "startRoom": "LF_H01"
+  },
+
+  "Night": {
+    "name": "Nightcat",
+    "playable": false,
+    "color": "190F30",
+    "eyeColor": "FFFFFF"
+  }
+}

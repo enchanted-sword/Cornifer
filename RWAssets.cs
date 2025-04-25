@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -177,7 +178,7 @@ namespace Cornifer
                 if (File.Exists(rwVersionPath))
                     rwVersion = File.ReadAllText(rwVersionPath).TrimStart('v');
 
-                InsertMod(new("rainworld", "Rain World", installation.AssetsPath, int.MaxValue, true)
+                InsertMod(new("rainworld", "Rain World", installation.AssetsPath, int.MinValue, true)
                 {
                     Version = rwVersion
                 });
@@ -187,7 +188,7 @@ namespace Cornifer
             {
                 string mergedmods = Path.Combine(installation.AssetsPath, "mergedmods");
                 if (Directory.Exists(mergedmods))
-                    InsertMod(new("mergedmods", "Rain World", mergedmods, int.MinValue, true));
+                    InsertMod(new("mergedmods", "Rain World", mergedmods, int.MaxValue, true));
 
                 string mods = Path.Combine(installation.AssetsPath, "mods");
                 if (Directory.Exists(mods))
@@ -427,6 +428,13 @@ namespace Cornifer
         }
         static void LoadMod(RWMod mod)
         {
+            LoadSlugbaseMod(mod);
+            if (mod.Id == "mergedmods")
+                LoadCRSData(mod);
+        }
+
+        static void LoadSlugbaseMod(RWMod mod)
+        {
             string slugbaseDir = Path.Combine(mod.Path, "slugbase");
             if (Directory.Exists(slugbaseDir))
             {
@@ -501,10 +509,29 @@ namespace Cornifer
             }
         }
 
+        static void LoadCRSData(RWMod mod)
+        {
+            string filepath = Path.Combine(mod.Path, "custompearls.txt");
+            if (File.Exists(filepath))
+            {
+                foreach (string line in File.ReadAllLines(filepath))
+                {
+                    string[] split = Regex.Split(line, " : ");
+                    if (split.Length < 4) continue;
+
+                    Color? color = ColorDatabase.ParseColor(split[1]);
+                    if (color.HasValue)
+                        StaticData.PearlMainColors[split[0]] = (Color)color;
+
+                    StaticData.PearlHighlightColors[split[0]] = ColorDatabase.ParseColor(split[2]);
+                }
+            }
+        }
+
         public static List<string>? ResolveUnmergedFiles(string path)
         {
             List<string> paths = new();
-            foreach (var mod in Mods)
+            foreach (var mod in Mods.OrderByDescending(x => x.LoadOrder))
             {
                 if (!mod.Active || mod.NeedsManualMerging)
                     continue;
@@ -517,7 +544,7 @@ namespace Cornifer
                 }
             }
 
-            for (int i = Mods.Count - 1; i >= 0; i--)
+            for (int i = 0; i < Mods.Count; i++)
             {
                 RWMod? mod = Mods[i];
                 if (!mod.Active || !mod.NeedsManualMerging)
@@ -538,7 +565,7 @@ namespace Cornifer
 
         public static string? ResolveFile(string path)
         {
-            foreach (var mod in Mods)
+            foreach (var mod in Mods.OrderByDescending(x => x.LoadOrder))
             {
                 if (!mod.Active)
                     continue;
@@ -582,7 +609,7 @@ namespace Cornifer
         {
             HashSet<string> enumerated = new();
 
-            foreach (var mod in Mods)
+            foreach (var mod in Mods.OrderByDescending(x => x.LoadOrder))
             {
                 if (!mod.Active)
                     continue;
@@ -632,13 +659,17 @@ namespace Cornifer
             {
                 string id = System.IO.Path.GetFileName(dir)!.ToUpper();
 
+                if (!File.Exists(Path.Combine(dir, $"world_{id}.txt")))
+                    continue;
+
                 string? properties = ResolveFile($"world/{id}/properties.txt");
                 if (properties is null)
                     continue;
 
                 string? displayname = ResolveFile($"world/{id}/displayname.txt");
-                if (displayname is null)
-                    continue;
+                if (displayname is not null)
+                    displayname = File.ReadAllText(displayname);
+                else displayname = id;
 
                 if (slugcat is not null)
                 {
@@ -647,7 +678,7 @@ namespace Cornifer
                         displayname = slugcatDisplayName;
                 }
 
-                yield return new RegionInfo($"world/{id}", $"world/{id}-rooms", id, File.ReadAllText(displayname), mod);
+                yield return new RegionInfo($"world/{id}", $"world/{id}-rooms", id, displayname, mod);
             }
         }
 

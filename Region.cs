@@ -76,7 +76,8 @@ namespace Cornifer
                 for (int i = 0; i < Rooms.Count; i++)
                 {
                     Room r = Rooms[i];
-                    string roomPath = r.IsGate ? $"world/gates/{r.Name}" : $"{info.RoomsPath}/{r.Name}";
+                    string roomFileName = (r.replaceRoomName ?? r.Name)!;
+                    string roomPath = r.Name.StartsWith("GATE") ? $"world/gates/{roomFileName}" : $"{info.RoomsPath}/{roomFileName}";
 
                     string? settings = RWAssets.ResolveSlugcatFile(roomPath + "_settings.txt");
                     string? data = RWAssets.ResolveFile(roomPath + ".txt");
@@ -209,6 +210,7 @@ namespace Cornifer
 
             Dictionary<string, HashSet<string>> exclusiveRooms = new();
             Dictionary<string, HashSet<string>> hideRooms = new();
+            Dictionary<string, string> replaceRooms = new();
 
             foreach (string line in WorldString.Split('\n', StringSplitOptions.TrimEntries))
             {
@@ -225,7 +227,8 @@ namespace Cornifer
                     readingConditionalLinks = false;
                 else if (readingRooms)
                 {
-                    string[] split = line.Split(':', StringSplitOptions.TrimEntries);
+                    string processedLine = ApplyCRSFilters(line);
+                    string[] split = processedLine.Split(':', StringSplitOptions.TrimEntries);
 
                     if (split.Length >= 1)
                     {
@@ -237,12 +240,18 @@ namespace Cornifer
                             if (endIndex > 0)
                             {
                                 string slugcats = roomname.Substring(1, endIndex - 1);
+                                bool notInverted = true;
+                                if (slugcats.StartsWith("X-"))
+                                {
+                                    notInverted = false;
+                                    slugcats = slugcats.Substring(2);
+                                }
                                 roomname = roomname.Substring(endIndex + 1);
 
-                                if (Main.SelectedSlugcat is not null && slugcats
+                                if ((Main.SelectedSlugcat is not null && slugcats
                                     .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                                     .Select(s => FixSlugcatId(s))
-                                    .All(s => !Main.SelectedSlugcat.Id.Equals(s, StringComparison.InvariantCultureIgnoreCase)))
+                                    .All(s => !Main.SelectedSlugcat.Id.Equals(s, StringComparison.InvariantCultureIgnoreCase))) == notInverted)
                                 {
                                     continue;
                                 }
@@ -327,6 +336,18 @@ namespace Cornifer
                             roomCatNames.UnionWith(slugcats);
                         }
                     }
+                    else if (split[1] == "REPLACEROOM")
+                    {
+                        if (Main.SelectedSlugcat is not null)
+                        {
+                            string[] slugcats = split[0].Split(',', StringSplitOptions.TrimEntries);
+
+                            if (slugcats.Contains(Main.SelectedSlugcat.Id))
+                            {
+                                replaceRooms[split[2]] = split[3];
+                            }
+                        }
+                    }
                     else
                     {
                         if (Main.SelectedSlugcat is not null)
@@ -354,6 +375,12 @@ namespace Cornifer
                 foreach (var (roomName, slugcats) in hideRooms)
                     if (slugcats.Contains(Main.SelectedSlugcat.Id) && TryGetRoom(roomName, out Room? room))
                         room.ActiveProperty.OriginalValue = false;
+
+                foreach (KeyValuePair<string, string> entries in replaceRooms)
+                {
+                    if (TryGetRoom(entries.Key, out Room? room))
+                        room.replaceRoomName = entries.Value;
+                }
             }
 
             foreach (var (room, target, disconnectedTarget, replacement) in connectionOverrides)
@@ -591,6 +618,84 @@ namespace Cornifer
             }
             LoadExtraRoomObjects();
         }
+
+        private string ApplyCRSFilters(string line)
+        {
+            if (line[0] == '{')
+            {
+                bool remove = false;
+                string[] split = line.Substring(1, line.IndexOf("}") - 1).Split(',');
+                foreach (string str in split)
+                {
+                    if (!MSCCondition(str))
+                    {
+                        remove = true;
+                        break;
+                    }
+                    if (!RegionExistsCondition(str))
+                    {
+                        remove = true;
+                        break;
+                    }
+                    if (!ModIDCondition(str))
+                    {
+                        remove = true;
+                        break;
+                    }
+                }
+                if (remove)
+                { return ""; }
+
+                else
+                {
+                    return line.Substring(line.IndexOf("}") + 1);
+                }
+            }
+            return line;
+        }
+
+        public static bool MSCCondition(string condition)
+        {
+            bool notInverted = true;
+            if (condition.Contains('!'))
+            {
+                notInverted = false;
+                condition = condition.Replace("!", "");
+            }
+
+            if (condition != "MSC") return true;
+            return RWAssets.Mods.Any(mod => mod.Id == "moreslugcats" && mod.Enabled) == notInverted;
+        }
+
+        public static bool RegionExistsCondition(string condition)
+        {
+            bool notInverted = true;
+            if (condition.Contains('!'))
+            {
+                notInverted = false;
+                condition = condition.Replace("!", "");
+            }
+
+            if (condition.Length != 2) return true;
+            return RWAssets.FindRegions().Any(region => region.Mod.Enabled && region.Id == condition) == notInverted;
+        }
+
+
+        public static bool ModIDCondition(string condition)
+        {
+            bool notInverted = true;
+            if (condition.Contains('!'))
+            {
+                notInverted = false;
+                condition = condition.Replace("!", "");
+            }
+
+            if (condition[0] != '#') return true;
+            condition = condition[1..];
+
+            return RWAssets.Mods.Any(mod => mod.Id == condition && mod.Enabled) == notInverted;
+        }
+
         public void ResetSubregionColors()
         {
             foreach (Subregion subregion in Subregions)
