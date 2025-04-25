@@ -1,32 +1,88 @@
 {
-  "White": {
-    "name": "Survivor",
-    "playable": true,
-    "color": "FFFFFF",
-    "eyeColor": "000000",
-    "startRoom": "SU_C04"
-  },
+	"White": {
+		"name": "Survivor",
+		"playable": true,
+		"color": "FFFFFF",
+		"eyeColor": "000000",
+		"startRoom": "SU_C04"
+	},
 
-  "Yellow": {
-    "name": "Monk",
-    "playable": true,
-    "color": "FFFF73",
-    "eyeColor": "000000",
-    "startRoom": "SU_C04"
-  },
+	"Yellow": {
+		"name": "Monk",
+		"playable": true,
+		"color": "FFFF73",
+		"eyeColor": "000000",
+		"startRoom": "SU_C04"
+	},
 
-  "Red": {
-    "name": "Hunter",
-    "playable": true,
-    "color": "FF7373",
-    "eyeColor": "000000",
-    "startRoom": "LF_H01"
-  },
+	"Red": {
+		"name": "Hunter",
+		"playable": true,
+		"color": "FF7373",
+		"eyeColor": "000000",
+		"startRoom": "LF_H01"
+	},
 
-  "Night": {
-    "name": "Nightcat",
-    "playable": false,
-    "color": "190F30",
-    "eyeColor": "FFFFFF"
-  }
+	"Night": {
+		"name": "Nightcat",
+		"playable": false,
+		"color": "190F30",
+		"eyeColor": "FFFFFF"
+	},
+
+	"Gourmand": {
+		"name": "Gourmand",
+		"playable": true,
+		"color": "F0C197",
+		"eyeColor": "000000",
+		"startRoom": "SH_GOR02"
+	},
+
+	"Artificer": {
+		"name": "Artificer",
+		"playable": true,
+		"color": "70233C",
+		"eyeColor": "FFFFFF",
+		"startRoom": "GW_A24"
+	},
+
+	"Rivulet": {
+		"name": "Rivulet",
+		"playable": true,
+		"color": "91CCF0",
+		"eyeColor": "000000",
+		"startRoom": "DS_RIVSTART"
+	},
+
+	"Spear": {
+		"name": "Spearmaster",
+		"playable": true,
+		"color": "4F2E69",
+		"eyeColor": "FFFFFF",
+		"startRoom": "GATE_OE_SU"
+	},
+
+	"Saint": {
+		"name": "Saint",
+		"playable": true,
+		"color": "AAF156",
+		"eyeColor": "000000",
+		"startRoom": "SI_SAINTINTRO"
+	},
+
+	"Inv": {
+		"name": "Inv",
+		"playable": false,
+		"color": "00133A",
+		"eyeColor": "FFFFFF",
+		"startRoom": "SH_E01"
+	},
+
+	"Watcher": {
+		"name": "Watcher",
+		"playable": true,
+		"color": "190F30",
+		"eyeColor": "FFFFFF",
+		"startRoom": "HI_W14"
+	}
 }
