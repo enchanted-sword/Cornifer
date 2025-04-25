@@ -837,8 +837,8 @@ namespace Cornifer.MapObjects
 							if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
 									color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
 
-								colors[i + j * TileSize.X] = color;
-							}
+							colors[i + j * TileSize.X] = color;
+						}
 				
 
 				foreach (Vector2 handlePoint in HandleCollisionPoints)
