@@ -11,7 +11,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json.Nodes;
+using static Cornifer.MapObjects.Room;
 
 namespace Cornifer.MapObjects
 {
@@ -34,11 +36,18 @@ namespace Cornifer.MapObjects
         public bool IsScavengerTrader;
         public bool IsScavengerOutpost;
         public bool IsScavengerTreasury;
+        public bool isWarpRoom;
 
         public Vector2? TreasuryPos;
-        public Vector2? OutpostPos;
+		public Vector2? OutpostPos;
 
-        public Point TileSize;
+		public float TerrainDepth = 0f;
+
+		public Vector2? WarpPos;
+		public string? WarpTarget;
+		public PlacedObject? SpinningTopObj;
+
+		public Point TileSize = new();
         public bool WaterInFrontOfTerrain;
         public Tile[,] Tiles = null!;
 
@@ -56,10 +65,19 @@ namespace Cornifer.MapObjects
         public ObjectProperty<ColorRef> AcidColor = new("acidWater", new(null, Color.Blue));
 
         public Effect[] Effects = Array.Empty<Effect>();
-        public Connection?[] Connections = Array.Empty<Connection>();
+		public Connection?[] Connections = Array.Empty<Connection>();
         public HashSet<string> BrokenForSlugcats = new();
 
-        public Texture2D? TileMap;
+		public List<Handle> Handles = new();
+		public int HandleSegments = 0;
+		private Vector2[] HandleBackPoints = Array.Empty<Vector2>();
+		private Vector2[] HandleFrontPoints = Array.Empty<Vector2>();
+		private Vector2[] HandleCollisionPoints = Array.Empty<Vector2>();
+
+		public int? WaterCycleTop;
+		public int? WaterCycleBottom;
+
+		public Texture2D? TileMap;
         public bool TileMapDirty = false;
 
         public bool Loaded = false;
@@ -128,7 +146,7 @@ namespace Cornifer.MapObjects
             Region = region;
             Name = id;
         }
-        public Point TraceShotrcut(Point pos, List<Point>? turns = null)
+        public Point TraceShortcut(Point pos, List<Point>? turns = null)
         {
             Point lastPos = pos;
             int? dir = null;
@@ -138,7 +156,7 @@ namespace Cornifer.MapObjects
             {
                 if (dir is not null)
                 {
-                    Point dirVal = Directions[dir.Value];
+                    Point dirVal = StaticData.Directions[dir.Value];
 
                     Point testTilePos = pos + dirVal;
 
@@ -161,7 +179,7 @@ namespace Cornifer.MapObjects
                 foundDir = false;
                 for (int j = 0; j < 4; j++)
                 {
-                    Point dirVal = Directions[j];
+                    Point dirVal = StaticData.Directions[j];
                     Point testTilePos = pos + dirVal;
 
                     if (testTilePos == lastPos || testTilePos.X < 0 || testTilePos.Y < 0 || testTilePos.X >= TileSize.X || testTilePos.Y >= TileSize.Y)
@@ -198,13 +216,111 @@ namespace Cornifer.MapObjects
             return Tiles[x, y];
         }
 
-        public void Load(string data, string? settings)
+		private static float Lerp(float a, float b, float t) {
+			return a + (b - a) * MathF.Max(MathF.Min(t, 1), 0);
+		}
+
+		private static float Normalize(float f) {
+			if (float.IsNaN(f) || float.IsInfinity(f)) {
+				return 0f;
+			}
+			return f;
+		}
+
+		public class Handle {
+			public Vector2 Left;
+			public Vector2 Middle;
+			public Vector2 Right;
+			float Height;
+
+			private Handle GetBackHandle() {
+				Handle BackHandle = new(Left, Middle, Right, 0);
+				BackHandle.Left.Y += Height;
+				BackHandle.Middle.Y += Height;
+				BackHandle.Right.Y += Height;
+				return BackHandle;
+			}
+
+			private static float Sample(float a, float b, float c, float d, float t) { // Cubic Bezier sampling at time t
+				float num = 1f - t;
+				return num * num * num * a + 3f * num * num * t * b + 3f * num * t * t * c + t * t * t * d;
+			}
+			private static float LerpUnclamped(float a, float b, float t) {
+				return a + (b - a) * t;
+			}
+			private static float InverseLerp(float value, float from, float to) {
+				return (value - from) / (to - from);
+			}
+			public static float Sample(Handle left, Handle right, float x) {
+				if (x < left.Middle.X) {
+					return LerpUnclamped(left.Middle.Y, left.Left.Y, InverseLerp(x, left.Middle.X, left.Left.X));
+				}
+				if (x > right.Middle.X) {
+					return LerpUnclamped(right.Middle.Y, right.Right.Y, InverseLerp(x, right.Middle.X, right.Right.X));
+				}
+				float num = 0f;
+				float num2 = 1f;
+				for (int i = 0; i < 16; i++) { // Finding time t between 0 and 1 where the x component of the point on the curve is closest to our input x position
+					float num3 = (num + num2) / 2f;
+					if (Sample(left.Middle.X, left.Right.X, right.Left.X, right.Middle.X, num3) < x) {
+						num = num3;
+					} else {
+						num2 = num3;
+					}
+				}
+				return Sample(left.Middle.Y, left.Right.Y, right.Left.Y, right.Middle.Y, (num + num2) / 2f);
+			}
+			public static float SampleBack(Handle left, Handle right, float x) {
+				return Sample(left.GetBackHandle(), right.GetBackHandle(), x);
+			}
+
+			public Handle(Vector2 left, Vector2 middle, Vector2 right, float height) {
+				Left = left;
+				Middle = middle;
+				Right = right;
+				Height = height;
+			}
+		}
+		private void UpdateCollision() {
+			Array.Clear(HandleCollisionPoints, 0, HandleCollisionPoints.Length);
+			Array.Resize(ref HandleCollisionPoints, HandleSegments);
+
+			float t = (6f - TerrainDepth) / (35f - TerrainDepth);
+			for (int i = 0; i < HandleSegments; i++) {
+				HandleCollisionPoints[i] = Vector2.Lerp(HandleFrontPoints[i], HandleBackPoints[i], t);
+			}
+		}
+
+		private void UpdateHandles() {
+			HandleSegments = TileSize.X;
+			Handles.Sort((Handle a, Handle b) => Math.Sign(a.Middle.X - b.Middle.X));
+
+			Array.Clear(HandleBackPoints, 0, HandleBackPoints.Length);
+			Array.Clear(HandleFrontPoints, 0, HandleFrontPoints.Length);
+
+			Array.Resize(ref HandleBackPoints, HandleSegments);
+			Array.Resize(ref HandleFrontPoints, HandleSegments);
+
+			if (Handles.Count >= 2) {
+				int i = 0;
+				for (int j = 0; j < HandleSegments; j++) {
+					for (; i < Handles.Count - 2 && Handles[i + 1].Middle.X < j; i++);
+					HandleFrontPoints[j] = new Vector2(j, Handle.Sample(Handles[i], Handles[i + 1], j));
+					HandleBackPoints[j] = new Vector2(j, Handle.SampleBack(Handles[i], Handles[i + 1], j));
+					HandleBackPoints[j].Y = Normalize(HandleBackPoints[j].Y);
+					HandleFrontPoints[j].Y = Normalize(HandleFrontPoints[j].Y);
+				}
+				UpdateCollision();
+			}
+		}
+
+		public void Load(string data, string? settings)
         {
             SettingsString = settings;
 
             string[] lines = data.Split('\n');
 
-            if (lines.TryGet(1, out string sizeWater))
+			if (lines.TryGet(1, out string sizeWater))
             {
                 string[] swArray = sizeWater.Split('|');
                 if (swArray.TryGet(0, out string size))
@@ -320,14 +436,14 @@ namespace Cornifer.MapObjects
 
                 for (int i = 0; i < exits.Count; i++)
                 {
-                    exitEntrances[i] = TraceShotrcut(exits[i]);
+                    exitEntrances[i] = TraceShortcut(exits[i]);
                 }
 
                 List<Shortcut> tracedShortcuts = new();
 
                 foreach (Point shortcutIn in shortcuts)
                 {
-                    Point target = TraceShotrcut(shortcutIn);
+                    Point target = TraceShortcut(shortcutIn);
                     Tile targetTile = GetTile(target.X, target.Y);
 
                     Tile.ShortcutType type = targetTile.Shortcut;
@@ -371,25 +487,47 @@ namespace Cornifer.MapObjects
                     if (split[0] == "PlacedObjects")
                     {
                         HashSet<PlacedObject> objects = new();
-                        List<PlacedObject> filters = new();
+						HashSet<PlacedObject> TerrainHandles = new();
+						List<PlacedObject> filters = new();
+						
                         string[] objectStrings = split[1].Split(',', StringSplitOptions.TrimEntries);
-                        foreach (string str in objectStrings)
+						foreach (string str in objectStrings)
                         {
                             PlacedObject? obj = PlacedObject.Load(str);
                             if (obj is not null)
                             {
-                                if (obj.Type == "Filter")
-                                    filters.Add(obj);
-                                else if (obj.Type == "ScavengerTreasury")
-                                {
-                                    IsScavengerTreasury = true;
-                                    TreasuryPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
-                                }
-                                else
-                                    objects.Add(obj);
+								switch (obj.Type) {
+									case "Filter":
+										filters.Add(obj);
+										break;
+									case "ScavengerTreasury":
+										IsScavengerTreasury = true;
+										TreasuryPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
+										break;
+									case "TerrainHandle":
+										TerrainHandles.Add(obj);
+										break;
+									case "ScavengerOutpost":
+										OutpostPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
+										break;
+									case "WarpPoint":
+									case "SpinningTopSpot":
+										isWarpRoom = true;
+										WarpPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
+										WarpTarget = obj.TargetRegion;
 
-                                if (obj.Type == "ScavengerOutpost")
-                                    OutpostPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
+										if (obj.Type == "SpinningTopSpot") objects.Add(obj);
+										break;
+									case "WaterCycleTop":
+										WaterCycleTop = (int)MathF.Round(obj.RoomPos.Y);
+										break;
+									case "WaterCycleBottom":
+										WaterCycleBottom = (int)MathF.Round(obj.RoomPos.Y);
+										break;
+									default:
+										objects.Add(obj);
+										break;
+								}
                             }
                         }
                         List<PlacedObject> remove = new();
@@ -415,13 +553,39 @@ namespace Cornifer.MapObjects
                             }
                         }
 
-                        objects.ExceptWith(remove);
+						foreach (PlacedObject handle in TerrainHandles) {
+							Vector2 middle = handle.RoomPos;
+							Vector2 left = middle + handle.TerrainHandleLeftOffset;
+							Vector2 right = middle + handle.TerrainHandleRightOffset;
+							Handle item = new(left, middle, right, handle.TerrainHandleBackHeight);
+							Handles.Add(item);
+						}
+
+						objects.ExceptWith(remove);
 
                         foreach (PlacedObject obj in objects)
                         {
-                            obj.AddAvailabilityIcons();
-                            Children.Add(obj);
-                        }
+							if (isWarpRoom && obj.Type == "SpinningTopSpot") {
+								SpinningTopObj = obj;
+							}
+							else 
+							{
+								obj.AddAvailabilityIcons();
+								Children.Add(obj);
+							}
+
+							if (obj.Type == "RedToken") {
+								MapText arenaText = new("WarpTargetText", Main.DefaultSmallMapFont, "Arena");
+								arenaText.Color.Value = new(null, Color.Red);
+								arenaText.ParentPosAlign = obj.RoomPos / TileSize.ToVector2();
+								Children.Add(arenaText);
+							} else if (obj.Type == "GoldToken") {
+								MapText safariText = new("WarpTargetText", Main.DefaultSmallMapFont, "Safari");
+								safariText.Color.Value = new(null, new Color(255, 153, 13));
+								safariText.ParentPosAlign = obj.RoomPos / TileSize.ToVector2();
+								Children.Add(safariText);
+							}
+						}
                     }
                     else if (split[0] == "Effects")
                     {
@@ -430,21 +594,29 @@ namespace Cornifer.MapObjects
                         foreach (string effectStr in split[1].Split(',', StringSplitOptions.TrimEntries))
                         {
                             string[] effectSplit = effectStr.Split('-');
-                            if (effectSplit.Length == 4)
+							
+							if (effectSplit.Length == 4)
                             {
-                                string name = effectSplit[0];
-                                if (!float.TryParse(effectSplit[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float amount))
-                                    amount = 0;
+								string name = effectSplit[0];
 
-                                effects.Add(new(name, amount));
-                            }
+								if (!float.TryParse(effectSplit[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float amount))
+									amount = 0;
+
+								effects.Add(new(name, amount));
+							}
                         }
 
                         Effects = effects.ToArray();
                     }
+					else if (split[0] == "TerrainDepth")
+					{
+						TerrainDepth = float.Parse(split[1], NumberStyles.Any, CultureInfo.InvariantCulture);
+					}
                 }
 
-            if (IsShelter && SpriteAtlases.Sprites.TryGetValue("ShelterMarker", out var shelterMarker))
+			if (IsAncientShelter && SpriteAtlases.Sprites.TryGetValue("Object_AncientShelterMarker", out var ancientShelterMarker))
+				Children.Add(new SimpleIcon("AncientShelterMarker", ancientShelterMarker));
+            else if (IsShelter && SpriteAtlases.Sprites.TryGetValue("ShelterMarker", out var shelterMarker))
                 Children.Add(new SimpleIcon("ShelterMarker", shelterMarker));
 
             if (IsScavengerOutpost)
@@ -483,6 +655,37 @@ namespace Cornifer.MapObjects
                         ParentPosAlign = align,
                     });
             }
+
+			if (isWarpRoom) 
+			{
+				if (WarpTarget is not null && this.Name != "WAUA_BATH" && this.Name != "WAUA_TOYS") // the SpinningTopSpot in WAUA_BATH has an unused warp point to SB_D06 that absolutely should NOT show up on the map
+				{
+					Vector2 align = WarpPos.HasValue ? WarpPos.Value / TileSize.ToVector2() : new Vector2(.5f);
+
+					if (WarpTarget == "NULL" || WarpTarget == null) {
+						WarpTarget = Region.Id switch {
+							"WARA" => "WAUA",
+							"WDSR" or "WGWR" or "WHIR" or "WSUR" => "WORA",
+							_ => "WRSA",
+						};
+					}
+					if ((WarpTarget == "WAUA" || WarpTarget == "WRSA") && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
+						Children.Add(new SimpleIcon("WarpPointIcon", rippleWarpIcon) {
+							ParentPosAlign = align
+						});
+					else if (SpriteAtlases.Sprites.TryGetValue("Object_WarpPoint", out var warpIcon))
+						Children.Add(new SimpleIcon("WarpPointIcon", warpIcon) {
+							ParentPosAlign = align
+						});
+
+					if (this.Name != "WORA_DESERT6") Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {RWAssets.GetRegionDisplayName(WarpTarget, null)}") {
+						ParentPosAlign = align
+					});
+				}
+				
+
+				if (SpinningTopObj is not null) Children.Add(SpinningTopObj); // so the icon renders overtop its warp point when applicable
+			}
 
             if (GateData is not null && IsGate)
             {
@@ -541,71 +744,101 @@ namespace Cornifer.MapObjects
             Subregion subregion = Subregion.Value;
             Color[] colors = ArrayPool<Color>.Shared.Rent(TileSize.X * TileSize.Y);
             Color waterColor = AcidWater.Value ? AcidColor.Value.Color : subregion.WaterColor.Color;
-            try
+
+			UpdateHandles();
+			bool hasHandles = HandleCollisionPoints.Length > 0;
+
+			try
             {
                 bool invertedWater = Effects.Any(ef => ef.Name == "InvertedWater");
 
                 int waterLevel = WaterLevel.Value;
+				int waterFluxLevel = -1;
+				float WaterFluxTransparency = Lerp(InterfaceState.WaterTransparency.Value, 1, 0.35f);
 
-                if (waterLevel < 0)
-                {
-                    Effect? waterFluxMin = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMinLevel");
-                    Effect? waterFluxMax = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMaxLevel");
+				Effect? waterFluxMin = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMinLevel");
+				Effect? waterFluxMax = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMaxLevel");
 
-                    if (waterFluxMin is not null && waterFluxMax is not null)
-                    {
-                        float waterMid = 1 - (waterFluxMax.Amount + waterFluxMin.Amount) / 2 * (22f / 20f);
-                        waterLevel = (int)(waterMid * TileSize.Y) + 2;
-                    }
-                }
 
-                for (int j = 0; j < TileSize.Y; j++)
-                    for (int i = 0; i < TileSize.X; i++)
-                    {
-                        if (!InterfaceState.DisableRoomCropping.Value && CutOutSolidTiles is not null && CutOutSolidTiles[i, j])
-                        {
-                            colors[i + j * TileSize.X] = Color.Transparent;
-                            continue;
-                        }
+				if (waterFluxMin is not null && waterFluxMax is not null) {
+					// float waterMid = 1 - (waterFluxMax.Amount + waterFluxMin.Amount) / 2 * (22f / 20f);
+					// waterLevel = (int)(waterMid * TileSize.Y) + 2;
+					float waterMax = waterFluxMax.Amount / (22f / 20f);
+					float waterMin = waterFluxMin.Amount / (22f / 20f);
+					waterFluxLevel = (int)(waterMax * TileSize.Y) + 2;
+					waterLevel = (int)(waterMin * TileSize.Y) + 2;
+				} else if (WaterCycleTop is not null && WaterCycleBottom is not null) {
+					waterFluxLevel = (int)WaterCycleTop;
+					waterLevel = (int)WaterCycleBottom;
+				}
 
-                        Tile tile = GetTile(i, j);
+					for (int j = 0; j < TileSize.Y; j++)
+						for (int i = 0; i < TileSize.X; i++) {
+							if (!InterfaceState.DisableRoomCropping.Value && CutOutSolidTiles is not null && CutOutSolidTiles[i, j]) {
+								colors[i + j * TileSize.X] = Color.Transparent;
+								continue;
+							}
 
-                        float gray = 1;
+							Tile tile = GetTile(i, j);
 
-                        bool solid = tile.Terrain == Tile.TerrainType.Solid;
+							float gray = 1;
 
-                        if (solid)
-                            gray = 0;
+							bool solid = tile.Terrain == Tile.TerrainType.Solid;
 
-                        else if (tile.Terrain == Tile.TerrainType.Floor)
-                            gray = 0.35f;
+							if (solid)
+								gray = 0;
 
-                        else if (tile.Terrain == Tile.TerrainType.Slope)
-                            gray = .4f;
+							else if (tile.Terrain == Tile.TerrainType.Floor)
+								gray = 0.35f;
 
-                        else if (InterfaceState.DrawTileWalls.Value && tile.Attributes.HasFlag(Tile.TileAttributes.WallBehind))
-                            gray = 0.75f;
+							else if (tile.Terrain == Tile.TerrainType.Slope)
+								gray = .4f;
 
-                        if (InterfaceState.RegionBGShortcuts.Value && tile.Terrain == Tile.TerrainType.ShortcutEntrance)
-                            gray = 1;
+							else if (InterfaceState.DrawTileWalls.Value && tile.Attributes.HasFlag(Tile.TileAttributes.WallBehind))
+								gray = 0.75f;
 
-                        else if (tile.Attributes.HasFlag(Tile.TileAttributes.VerticalBeam) || tile.Attributes.HasFlag(Tile.TileAttributes.HorizontalBeam))
-                            gray = 0.35f;
+							if (InterfaceState.RegionBGShortcuts.Value && tile.Terrain == Tile.TerrainType.ShortcutEntrance)
+								gray = 1;
 
-                        Color color = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, gray);
+							else if (tile.Attributes.HasFlag(Tile.TileAttributes.VerticalBeam) || tile.Attributes.HasFlag(Tile.TileAttributes.HorizontalBeam))
+								gray = 0.35f;
 
-                        if (!solid && (invertedWater ? j <= waterLevel : j >= TileSize.Y - waterLevel))
-                        {
-                            color = Color.Lerp(waterColor, color, InterfaceState.WaterTransparency.Value);
-                        }
+							Color color = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, gray);
 
-                        if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air)
-                            color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
+							if (!solid) {
+								if ((invertedWater ? j <= waterLevel : j >= TileSize.Y - waterLevel)) {
+									color = Color.Lerp(waterColor, color, InterfaceState.WaterTransparency.Value);
+								} else if (waterFluxLevel > 0 && (invertedWater ? j <= waterFluxLevel : j >= TileSize.Y - waterFluxLevel)) {
+									color = Color.Lerp(waterColor, color, WaterFluxTransparency);
+								}
+							}
 
-                        colors[i + j * TileSize.X] = color;
-                    }
 
-                if (InterfaceState.MarkShortcuts.Value)
+
+							if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
+								color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
+
+							colors[i + j * TileSize.X] = color;
+						}
+				
+
+				foreach (Vector2 handlePoint in HandleCollisionPoints)
+				{
+					int x = (int)handlePoint.X;
+					int yfloor = (int)MathF.Floor(handlePoint.Y);
+					int ytop = Math.Max(TileSize.Y - yfloor, 0);
+					float fit = MathF.Abs(handlePoint.Y - yfloor);
+
+					for (int y = ytop; y < TileSize.Y; y++) {
+						Tile tile = GetTile(x, y);
+						if (tile.Terrain == Tile.TerrainType.Air) {
+							if (y == ytop && fit < 0.5) colors[x + y * TileSize.X] = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, 0.4f);
+							else colors[x + y * TileSize.X] = Color.Black;
+						}
+					}
+				}
+
+				if (InterfaceState.MarkShortcuts.Value)
                     foreach (Shortcut shortcut in Shortcuts)
                         if ((!InterfaceState.MarkExitsOnly.Value || shortcut.Type == Tile.ShortcutType.RoomExit) && shortcut.Type != Tile.ShortcutType.None)
                             colors[shortcut.Entrance.X + shortcut.Entrance.Y * TileSize.X] = new(255, 0, 0);

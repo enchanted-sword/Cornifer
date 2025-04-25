@@ -24,28 +24,33 @@ namespace Cornifer
             { "KarmaFlower",      (new(76, 0,   23, 23), new(255, 255, 255, 255)) },
             { "SeedCob",          (new(40, 0,   35, 38), new(255, 255, 255, 255)) },
             { "GhostSpot",        (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
-            { "BlueToken",        (new(78, 24,  10, 20), new(255, 255, 255, 150)) },
-            { "GoldToken",        (new(89, 24,  10, 20), new(255, 255, 255, 150)) },
-            { "PurpleToken",      (new(111, 24, 10, 20), new(255, 255, 255, 150)) },
-            { "RedToken",         (new(100, 0,  10, 20), new(255, 255, 255, 150)) },
-            { "DevToken",         (new(100, 24, 10, 20), new(255, 255, 255, 150)) },
-            { "GreenToken",       (new(111, 0,  10, 20), new(255, 255, 255, 150)) },
+            { "BlueToken",        (new(77, 84,  13, 13), new(255, 255, 255, 0.75f)) },
+            { "GoldToken",        (new(92, 84,  13, 13), new(255, 255, 255, 0.75f)) },
+            { "PurpleToken",      (new(107, 69, 13, 13), new(255, 255, 255, 150)) },
+            { "RedToken",         (new(77, 69,  13, 13), new(255, 255, 255, 0.75f)) },
+            { "DevToken",         (new(107, 84, 13, 13), new(255, 255, 255, 0.75f)) },
+            { "GreenToken",       (new(92, 69,  13, 13), new(255, 255, 255, 0.75f)) },
             { "DataPearl",        (new(39, 39,  11, 11), new(255, 255, 255, 255)) },
             { "UniqueDataPearl",  (new(39, 39,  11, 11), new(255, 255, 255, 255)) },
             { "Slugcat",          (new(51, 39,  20, 19), new(255, 255, 255, 255)) },
-            { "ScavengerOutpost", (new(90, 45,  11, 15), new(255, 255, 255, 255)) },
+            { "ScavengerOutpost", (new(52, 59,  11, 15), new(255, 255, 255, 255)) },
             { "KarmaShrine",      (new(72, 45,  17, 17), new(255, 255, 255, 255)) },
             { "MoonCloak",        (new(1, 49,   21, 25), new(255, 255, 255, 255)) },
-        };
+			{ "AncientShelterMarker", (new(91, 45,  21, 22), new(255, 255, 255, 255)) },
+
+			{ "SpinningTopSpot",  (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
+			{ "RippleWarpPoint",  (new(0, 74,   74, 66), new(0.373f, 0.11f, 0.831f, 0.75f)) },
+			{ "WarpPoint",		  (new(0, 140,  74, 66), new(0.373f, 0.11f, 0.831f, 0.75f)) }
+		};
 
         static Dictionary<string, (Rectangle Frame, Color Color)> MiscSpriteFrames = new()
         {
-            { "ArrowLeft",     (new(0, 0,  22, 13), new(255, 255, 255, 255)) },
-            { "ArrowRight",    (new(0, 13, 22, 13), new(255, 255, 255, 255)) },
-            { "KarmaR",        (new(23, 0, 36, 36), new(255, 255, 255, 255)) },
-        };
+            { "ArrowLeft",        (new(0, 0,    22, 13), new(255, 255, 255, 255)) },
+            { "ArrowRight",		  (new(0, 13,   22, 13), new(255, 255, 255, 255)) },
+            { "KarmaR",           (new(23, 0,   36, 36), new(255, 255, 255, 255)) },
+		};
 
-        static List<string> SlugcatIconOrder = new() { "White", "Yellow", "Red", "Night", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint", "Inv" };
+        static List<string> SlugcatIconOrder = new() { "White", "Yellow", "Red", "Night", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint", "Inv", "Watcher" };
 
         public static void Load()
         {

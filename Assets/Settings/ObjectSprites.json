@@ -88,5 +88,38 @@
 "WhiteToken": { "sprite": "Symbol_Satellite", "color": "FFFFFF" },
 
 "HRGuard": { "sprite": "Object_KarmaFlower", "color": "FF0000" },
-"TempleGuard": { "sprite": "Object_KarmaFlower", "color": "FF0000" }
+"TempleGuard": { "sprite": "Object_KarmaFlower", "color": "FF0000" },
+
+
+"Barnacle": { "sprite": "Kill_Barnacle", "color": "D9A699" },
+"BigMoth": { "sprite": "Kill_BigMoth", "color": "FFFFFF" },
+"BigSandGrub": { "sprite": "Kill_BigSandGrub", "color": "A9A4B2" },
+"BlizzardLizard": { "sprite": "Kill_BlizzardLizard", "color": "8C99B2" },
+"BoxWorm": { "sprite": "Kill_BoxWorm", "color": "007F7F" },
+"PlacedBoxWorm": { "sprite": "Kill_BoxWorm", "color": "007F7F" },
+"DrillCrab": { "sprite": "Kill_DrillCrab", "color": "A9A4B2" },
+"FireSprite": { "sprite": "Kill_FireSprite", "color": "00FFFF" },
+"Frog": { "sprite": "Kill_Frog", "color": "CD7F33" },
+"IndigoLizard": { "sprite": "Kill_IndigoLizard", "color": "4C00CC" },
+"BasiliskLizard": { "sprite": "Kill_IndigoLizard", "color": "B24C00" },
+"Loach": { "sprite": "Kill_Loach", "color": "FFFFFF" },
+"Locust": { "sprite": "Kill_Locust", "color": "FFFFFF" },
+"ProtoLizard": { "sprite": "Kill_ProtoLizard", "color": "4C00FF" },
+"Rat": { "sprite": "Kill_Rat", "color": "7F472E" },
+"Rattler": { "sprite": "Kill_Rattler", "color": "D1B2BD" },
+"RotLizard": { "sprite": "Kill_RotLizard", "color": "4C00FF" },
+"RotLoach": { "sprite": "Kill_RotLoach", "color": "4C00FF" },
+"SandGrub": { "sprite": "Kill_SandGrub", "color": "A9A4B2" },
+"ScavengerDisciple": { "sprite": "Kill_ScavengerDisciple", "color": "FFCC4C" },
+"ScavengerTemplar": { "sprite": "Kill_ScavengerTemplar", "color": "FFCC4C" },
+"SkyWhale": { "sprite": "Kill_SkyWhale", "color": "FFFFFF" },
+"SmallMoth": { "sprite": "Kill_SmallMoth", "color": "7F7F7F" },
+"Tardigrade": { "sprite": "Kill_Tardigrade", "color": "00FFFF" },
+
+"Boomerang": { "sprite": "Symbol_Boomerang", "color": "FFCC4C" },
+"FireSpriteLarva": { "sprite": "Symbol_FireSpriteLarva", "color": "FFFFFF" },
+"Pomegranate": { "sprite": "Symbol_Pomegranate", "color": "00AA0E" },
+"RotcornPlant": { "sprite": "Symbol_RotcornPlant", "color": "4C00FF" },
+"RotFruit": { "sprite": "Symbol_RotFruit", "color": "4C00FF" }
+		
 }

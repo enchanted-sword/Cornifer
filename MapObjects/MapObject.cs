@@ -144,6 +144,11 @@ namespace Cornifer.MapObjects
         private UIList? ConfigChildrenList;
         private UIList? ConfigLayerList;
 
+        public static HashSet<string> HideObjectTypes = new()
+        {
+            "DevToken"
+        };
+
         private UIElement? BuildConfig()
         {
             UIList list = new()

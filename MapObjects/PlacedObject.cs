@@ -22,6 +22,13 @@ namespace Cornifer.MapObjects
         public bool RemoveByAvailability = true;
         public string? DebugDisplay = null;
 
+		public string? TargetRegion = null;
+		public string? TargetRoom = null;
+
+		public Vector2 TerrainHandleLeftOffset;
+		public Vector2 TerrainHandleRightOffset;
+		public float TerrainHandleBackHeight;
+
         public override bool SkipTextureSave => true;
 
         public override Vector2 Size => Frame.Size.ToVector2();
@@ -30,27 +37,13 @@ namespace Cornifer.MapObjects
         {
             get => InterfaceState.DrawPlacedObjects.Value
                 && (Parent is not Room || !HideObjectTypes.Contains(Type))
-                && (Parent is not Room || InterfaceState.DrawPlacedPickups.Value || Room.NonPickupObjectsWhitelist.Contains(Type))
+                && (Parent is not Room || InterfaceState.DrawPlacedPickups.Value || StaticData.NonPickupObjectsWhitelist.Contains(Type))
                 && base.Active;
         }
 
         UIList? AvailabilityPresets;
 
-        public static HashSet<string> HideObjectTypes = new()
-        {
-            "DevToken"
-        };
-
-        static Dictionary<string, string[]> TiedSandboxIDs = new()
-        {
-            ["CicadaA"] = new[] { "CicadaB" },
-            ["SmallCentipede"] = new[] { "MediumCentipede" },
-            ["BigNeedleWorm"] = new[] { "SmallNeedleWorm" },
-        };
-
-        static HashSet<string> HollowSlugcats = new() { "White", "Yellow", "Red", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint" };
-
-        public PlacedObject()
+		public PlacedObject()
         {
             BorderSize.OriginalValue = 2;
         }
@@ -59,7 +52,7 @@ namespace Cornifer.MapObjects
         {
             string[] split = data.Split("><", 4);
 
-            if (split.Length < 3)
+				if (split.Length < 3)
                 return null;
 
             string objName = split[0];
@@ -133,7 +126,7 @@ namespace Cornifer.MapObjects
 
                             List<PlacedObject> objects = new() { subObject };
 
-                            if (TiedSandboxIDs.TryGetValue(subname, out string[]? tied))
+                            if (StaticData.TiedSandboxIDs.TryGetValue(subname, out string[]? tied))
                             {
                                 foreach (string to in tied)
                                 {
@@ -161,6 +154,22 @@ namespace Cornifer.MapObjects
                         break;
                 }
             }
+
+			if (objName == "WarpPoint")
+			{
+				obj.TargetRegion = subsplit[4];
+				obj.TargetRoom = subsplit[5];
+			} else if (objName == "SpinningTopSpot")
+			{
+				obj.TargetRegion = subsplit[3];
+				obj.TargetRoom = subsplit[4];
+			}
+
+			if (objName == "TerrainHandle") {
+				obj.TerrainHandleLeftOffset = new(float.Parse(subsplit[0], CultureInfo.InvariantCulture) / 20, float.Parse(subsplit[1], CultureInfo.InvariantCulture) / 20);
+				obj.TerrainHandleRightOffset = new(float.Parse(subsplit[2], CultureInfo.InvariantCulture) / 20, float.Parse(subsplit[3], CultureInfo.InvariantCulture) / 20);
+				obj.TerrainHandleBackHeight = float.Parse(subsplit[4], CultureInfo.InvariantCulture) / 20;
+			}
 
             if (objName == "Filter" && subsplit.Length >= 5)
             {
@@ -213,7 +222,7 @@ namespace Cornifer.MapObjects
 
         public static PlacedObject? Load(string name, Vector2 pos)
         {
-            if (name == "Filter" || name == "ScavengerTreasury")
+            if (name == "Filter" || name == "ScavengerTreasury" || name == "TerrainHandle" || name == "WaterCycleTop" || name == "WaterCycleBottom")
                 return new()
                 {
                     Type = name,
@@ -264,7 +273,7 @@ namespace Cornifer.MapObjects
             {
                 bool available = SlugcatAvailability.Contains(slugcat.Id);
 
-                if (!available && !HollowSlugcats.Contains(slugcat.Id))
+                if (!available && !StaticData.HollowSlugcats.Contains(slugcat.Id))
                     continue;
 
                 Vector2 offset = new Vector2(MathF.Cos(currentAngle), -MathF.Sin(currentAngle)) * 15;

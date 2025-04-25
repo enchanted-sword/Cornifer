@@ -8,6 +8,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Windows.Forms;
 using Cornifer.Json;
+using System.Linq;
 
 namespace Cornifer
 {
@@ -23,9 +24,11 @@ namespace Cornifer
 
         public static List<Slugcat> Slugcats = new();
 
+        public static readonly HashSet<string> HollowSlugcats = new() { "White", "Yellow", "Red", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint" };
+
         public static Dictionary<string, string> GateSymbols = new();
 
-        public static List<string> PlacedObjectTypes = new()
+        public static readonly List<string> PlacedObjectTypes = new()
         {
             "PurpleToken","GreenToken","WhiteToken","Germinator","RedToken","OEsphere","MSArteryPush","GooieDuck","LillyPuck",
             "GlowWeed","BigJellyFish","RotFlyPaper","MoonCloak","DandelionPeach","KarmaShrine","Stowaway",
@@ -42,13 +45,18 @@ namespace Cornifer
             "ReliableIggyDirection","Hazer","DeadHazer","Rainbow","LightBeam","NoLeviathanStrandingZone",
             "FairyParticleSettings","DayNightSettings","EnergySwirl","LightningMachine","SteamPipe","WallSteamer",
             "Vine","VultureMask","SnowSource","DeathFallFocus","CellDistortion","LocalBlizzard","NeuronSpawner",
-            "HangingPearls","Lantern","ExitSymbolAncientShelter","BlinkingFlower"
-        };
+            "HangingPearls","Lantern","ExitSymbolAncientShelter","BlinkingFlower", "SpinningTopSpot", "WarpPoint", "Pomegranate", "PlacedBoxWorm"
+		};
+		public static readonly Dictionary<string, string[]> TiedSandboxIDs = new() {
+			["CicadaA"] = new[] { "CicadaB" },
+			["SmallCentipede"] = new[] { "MediumCentipede" },
+			["BigNeedleWorm"] = new[] { "SmallNeedleWorm" },
+		};
 
-        public static HashSet<string> VanillaRegions = new() { "CC", "DS", "HI", "GW", "SI", "SU", "SH", "SL", "LF", "UW", "SB", "SS" };
+		public static readonly HashSet<string> VanillaRegions = new() { "CC", "DS", "HI", "GW", "SI", "SU", "SH", "SL", "LF", "UW", "SB", "SS" };
 
         // TODO: equivalences.txt
-        public static Dictionary<string, List<string>> RegionEquivalences = new()
+        public static readonly Dictionary<string, List<string>> RegionEquivalences = new()
         {
             ["LM"] = new() { "SL" },
             ["RM"] = new() { "SS" },
@@ -103,10 +111,24 @@ namespace Cornifer
             ["Saint"] = new() { "SU", "HI", "UG", "CC", "GW", "VS", "CL", "SL", "SI", "LF", "SB", "HR" },
             ["Spear"] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "LM", "SI", "LF", "UW", "SS", "SB", "DM" },
             ["Gourmand"] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "SL", "SI", "LF", "UW", "SS", "SB", "OE" },
-            [""] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "SL", "SI", "LF", "UW", "SS", "SB" },
+			["Watcher"] = new() { "SU", "HI", "CC", "SH", "VS", "LF", "WARA", "WARB", "WARC", "WARD", "WARE", "WARF", "WARG", "WAUA", "WBLA", "WDSR", "WGWR", "WHIR", "WORA", "WPTA", "WRFA", "WRFB", "WRRA", "WRSA", "WSKA", "WSKB", "WSKC", "WSKD", "WSSR", "WSUR", "WTDA", "WTDB", "WVWA" },
+			[""] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "SL", "SI", "LF", "UW", "SS", "SB" },
         };
 
-        public static void Init()
+		
+
+		public static readonly HashSet<string> NonPickupObjectsWhitelist = new()
+		{
+			"GhostSpot", "BlueToken", "GoldToken",
+			"RedToken", "WhiteToken", "DevToken", "GreenToken",
+			"DataPearl", "UniqueDataPearl", "ScavengerOutpost",
+			"HRGuard", "TempleGuard", "MoonCloak", "SpinningTopSpot",
+			"WarpPoint", "TerrainHandle", "WaterCycleTop", "WaterCycleBottom"
+		};
+
+		public static readonly Point[] Directions = new Point[] { new (0, -1), new (1, 0), new (0, 1), new (-1, 0) };
+
+		public static void Init()
         {
             InitSlugcats();
             InitPearls();
@@ -116,6 +138,8 @@ namespace Cornifer
 
         private static void InitSlugcats()
         {
+            InitOldSlugcats();
+
             string filename = Path.Combine(Main.MainDir, "Assets\\Settings\\Slugcats.json");
             if (File.Exists(filename))
             {
@@ -124,17 +148,16 @@ namespace Cornifer
                 JsonObject? obj = JsonSerializer.Deserialize<JsonObject>(fs, new JsonSerializerOptions() { AllowTrailingCommas = true });
                 if (obj is not null)
                 {
-                    Slugcats = new();
+                    //Slugcats = new();
                     foreach (KeyValuePair<string, JsonNode> entry in obj)
                     {
                         if (entry.Value is not JsonObject dict) continue;
-                        Slugcats.Add(new(entry.Key, dict));
+                        if (!Slugcats.Any(x => x.Id == entry.Key))
+                            Slugcats.Add(new(entry.Key, dict));
                     }
                     return;
                 }
             }
-            //runs if loading the json fails
-            InitOldSlugcats();
         }
 
         private static void InitOldSlugcats()
@@ -156,6 +179,11 @@ namespace Cornifer
                 Slugcats.Add(new("Saint", "Saint", true, new(170, 241, 86), Color.Black, "SI_SAINTINTRO"));
                 Slugcats.Add(new("Inv", "Inv", false, new(0, 19, 58), Color.White, "SH_E01"));
             }
+
+			if (RWAssets.CurrentInstallation?.IsWatcher is true)
+			{
+				Slugcats.Add(new("Watcher", "Watcher", true, new(25, 15, 48), Color.White, "HI_W14"));
+			}
         }
 
         private static void InitPearls()

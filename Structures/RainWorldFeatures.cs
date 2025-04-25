@@ -13,6 +13,8 @@ namespace Cornifer.Structures
         Steam = 8,
         CRS = 16,
 
-        All = Legacy | Remix | Downpour | Steam | CRS,
+		Watcher = 32,
+
+        All = Legacy | Remix | Downpour | Steam | CRS | Watcher ,
     }
 }

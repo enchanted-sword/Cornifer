@@ -1,4 +1,5 @@
 # Cornifer
+
 Rain World mapping tool
 
 ### Usage
@@ -12,5 +13,5 @@ Move around with right click.
 Zoom with mouse wheel.
 
 ### Download
+See releases for latest build.
 
-Latest autobuild can be downloaded [here](https://nightly.link/Ved-s/Cornifer/workflows/dotnet/master/Build.zip) (powered by nightly.link)

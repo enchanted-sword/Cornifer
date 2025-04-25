@@ -44,7 +44,7 @@ namespace Cornifer.Connections
 
             ShortcutTracingCache.Clear();
 
-            room.TraceShotrcut(SourcePoint, ShortcutTracingCache);
+            room.TraceShortcut(SourcePoint, ShortcutTracingCache);
 
             foreach (Point point in ShortcutTracingCache)
             {
