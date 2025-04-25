@@ -69,20 +69,10 @@ namespace Cornifer.Input
                 Keybinds[field.Name] = (Keybind)field.GetValue(null)!;
             }
 
-            string oldKeybindsFile = OldKeybindsFile;
-            if (File.Exists(oldKeybindsFile))
-            {
-                LoadOldKeybinds();
+            if (Profile.Current.Keybinds is null)
                 SaveKeybinds();
-                File.Delete(oldKeybindsFile);
-            }
             else
-            {
-                if (Profile.Current.Keybinds is null)
-                    SaveKeybinds();
-                else
-                    LoadKeybinds();
-            }
+                LoadKeybinds();
         }
 
         public static void Update()
@@ -112,12 +102,12 @@ namespace Cornifer.Input
                     continue;
                 }
 
-                foreach (List<KeybindInput> keyCombo in keybind.Inputs)
+                foreach (ComboInput keyCombo in keybind.Inputs)
                 {
                     Profile.Keybind keybindInfo = new()
                     {
                         Name = name,
-                        Keys = keyCombo.Select(k => k.KeyName).ToArray()
+                        Keys = keyCombo.Inputs.Select(k => k.KeyName).ToArray()
                     };
                     Profile.Current.Keybinds.Add(keybindInfo);
                 }
@@ -167,75 +157,29 @@ namespace Cornifer.Input
                         inputs.Add(key);
                     }
                 }
-                keybind.Inputs.Add(inputs);
+                keybind.Inputs.Add(new(inputs));
             }
+            RefreshEncapsulatedBinds();
         }
 
-        public static void LoadOldKeybinds()
+        public static void RefreshEncapsulatedBinds()
         {
-            HashSet<string> keybindsReset = new();
-
-            try
+            //probably the worst way to do this... but it works so
+            List<ComboInput> combos = new();
+            foreach (Keybind keybind in Keybinds.Values)
             {
-                string[] lines = File.ReadAllLines(OldKeybindsFile);
-                foreach (string line in lines)
-                {
-                    if (line.StartsWith("//"))
-                        continue;
-
-                    // Split the line into keybind name and key list parts
-                    string[] parts = line.Split('=');
-                    if (parts.Length != 2)
-                    {
-                        // Ignore the line if it doesn't contain exactly one equals sign
-                        continue;
-                    }
-                    string keybindNameString = parts[0].Trim();
-                    string[] keyStrings = parts[1].Split('&');
-
-                    // Convert the input type string to an enum value
-                    if (!Keybinds.TryGetValue(keybindNameString, out Keybind? keybind))
-                    {
-                        // Ignore the line if the keybind name string is not a valid name
-                        continue;
-                    }
-
-                    if (!keybindsReset.Contains(keybindNameString))
-                    {
-                        keybind.Inputs.Clear();
-                        keybindsReset.Add(keybindNameString);
-                    }
-                    if (parts[1].Length == 0)
-                        continue;
-
-                    List<KeybindInput> inputs = new();
-                    // Convert the key strings to inputs and add them to the dictionary
-                    foreach (string keyString in keyStrings)
-                    {
-                        string trimmedKey = keyString.Trim();
-
-                        if (Enum.TryParse(trimmedKey, out ModifierKeys modifierKey))
-                        {
-                            inputs.Add(modifierKey);
-                        }
-
-                        if (Enum.TryParse(trimmedKey, out MouseKeys mouseKey))
-                        {
-                            inputs.Add(mouseKey);
-                        }
-
-                        else if (Enum.TryParse(trimmedKey, out Keys key))
-                        {
-                            inputs.Add(key);
-                        }
-                    }
-                    keybind.Inputs.Add(inputs);
-                }
+                foreach (ComboInput combo in keybind.Inputs) combos.Add(combo);
             }
-            catch (Exception ex)
+            foreach (ComboInput combo in combos)
             {
-                // Handle any file I/O errors by logging an error message and returning an empty list
-                Debug.WriteLine($"Error loading key bindings from file: {ex.Message}");
+                combo.EncapsulatingCombos.Clear();
+                foreach (ComboInput combo2 in combos)
+                {
+                    if (combo.ComboEncapsulates(combo2) && !combo.EncapsulatingCombos.Any(x => x.InputEquality(combo2)))
+                    {
+                        combo.EncapsulatingCombos.Add(combo2);
+                    }
+                }
             }
         }
 

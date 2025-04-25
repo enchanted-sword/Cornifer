@@ -5,6 +5,8 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using System.Buffers;
 using Cornifer.MapObjects;
+using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
 
 namespace Cornifer.Structures
 {
@@ -33,6 +35,34 @@ namespace Cornifer.Structures
             Color = color;
             EyeColor = color;
             PossibleStartingRooms = startingRoom is null ? null : new[] { startingRoom };
+        }
+
+        public Slugcat(string id, JsonObject dict)
+        {
+            Id = id;
+            Color = Color.White;
+
+            if (dict.TryGet("name", out string? name))
+                this.Name = name;
+
+            if (dict.TryGet("playable", out bool? playable))
+                this.Playable = (bool)playable;
+
+            if (dict.TryGet("color", out string? colorString))
+            {
+                Color? color = ColorDatabase.ParseColor(colorString);
+                if (color.HasValue)
+                    this.Color = color.Value;
+            }
+
+            if (dict.TryGet("eyeColor", out string? eyeColor))
+            {
+                Color? color = ColorDatabase.ParseColor(eyeColor);
+                if (color.HasValue)
+                    this.EyeColor = color.Value;
+            }
+            if (dict.TryGet("startRoom", out string? startRoom))
+                this.PossibleStartingRooms = new[] { startRoom };
         }
 
         public Room? GetStartingRoom(Region region)

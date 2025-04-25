@@ -1,0 +1,56 @@
+{
+  "frames": {
+    "karma-10reinforced.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 29,
+        "h": 29
+      }
+    },
+    "karma-Comsmark.png": {
+      "frame": {
+        "x": 52,
+        "y": 18,
+        "w": 9,
+        "h": 9
+      }
+    },
+    "karma-Forbidden.png": {
+      "frame": {
+        "x": 52,
+        "y": 11,
+        "w": 27,
+        "h": 6
+      }
+    },
+    "karma-Uwu.png": {
+      "frame": {
+        "x": 52,
+        "y": 1,
+        "w": 33,
+        "h": 9
+      }
+    },
+    "karma-Glow.png": {
+      "frame": {
+        "x": 31,
+        "y": 1,
+        "w": 20,
+        "h": 30
+      }
+    }
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "ExtendedGateSymbols.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 86,
+      "h": 32
+    },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:3e9eb9b947c740902ee7e65bbf8fe2da:d10dd3d420afd446438b2b6412ad61f0:91174c6b396ff50d7f2cfb4e2396d231$"
+  }
+}

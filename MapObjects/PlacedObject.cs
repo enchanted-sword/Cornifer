@@ -70,6 +70,8 @@ namespace Cornifer.MapObjects
                     objName = "RedToken";
                 else if (subsplit.Length > 10 && subsplit[10] == "1")
                     objName = "DevToken";
+                else if (objName == "PurpleToken")
+                    objName = "PurpleToken";
                 else
                     objName = "GoldToken";
             }

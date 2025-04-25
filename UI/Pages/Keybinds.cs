@@ -46,8 +46,8 @@ namespace Cornifer.UI.Pages
                             Height = 0,
                         };
 
-                        foreach (List<KeybindInput> inputs in keybind.Inputs)
-                            AddKeyComboPanel(list, keybind, inputs);
+                        foreach (ComboInput combo in keybind.Inputs)
+                            AddKeyComboPanel(list, keybind, combo);
 
                         list.Elements.Add(combos);
                         list.Elements.Add(new UIButton
@@ -62,9 +62,11 @@ namespace Cornifer.UI.Pages
                             if (inputs is null)
                                 return;
 
-                            keybind.Inputs.Add(inputs);
-                            AddKeyComboPanel(combos, keybind, inputs);
+                            ComboInput combo = new(inputs);
+                            keybind.Inputs.Add(combo);
+                            AddKeyComboPanel(combos, keybind, combo);
                             InputHandler.SaveKeybinds();
+                            InputHandler.LoadKeybinds(); //idk why it doesn't work without this
                             KeybindsList.Recalculate();
                         }));
                         list.Elements.Add(new UIElement { Height = 10 });
@@ -73,7 +75,7 @@ namespace Cornifer.UI.Pages
             };
         }
 
-        static void AddKeyComboPanel(UIList list, Keybind keybind, List<KeybindInput> inputs)
+        static void AddKeyComboPanel(UIList list, Keybind keybind, ComboInput combo)
         {
             UIPanel panel = new()
             {
@@ -98,7 +100,7 @@ namespace Cornifer.UI.Pages
                                 Left = 3,
                                 Top = 1,
                                 Width = new(-3, 1),
-                                Text = string.Join(" + ", inputs.Select(i => i.KeyName)),
+                                Text = string.Join(" + ", combo.Inputs.Select(i => i.KeyName)),
                                 TextAlign = new(.5f),
                                 AutoSize = false,
                             },
@@ -116,7 +118,7 @@ namespace Cornifer.UI.Pages
             }.OnEvent(UIElement.ClickEvent, (_, _) =>
             {
                 list.Elements.Remove(panel);
-                keybind.Inputs.Remove(inputs);
+                keybind.Inputs.Remove(combo);
                 list.Recalculate();
                 InputHandler.SaveKeybinds();
             }));
