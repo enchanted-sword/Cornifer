@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using RegionInfo = Cornifer.Structures.RegionInfo;
 
 namespace Cornifer
 {
@@ -163,6 +165,8 @@ namespace Cornifer
             Thread.CurrentThread.Name = "Main thread";
 
             RWAssets.ShowDialogs();
+
+			RPC.Initialize();
         }
 
         private static async void LoadState()
@@ -593,6 +597,7 @@ namespace Cornifer
 
         protected override void EndRun()
         {
+			RPC.Deinitialize();
             Profile.Save();
 
             using MemoryStream ms = new();
@@ -851,6 +856,12 @@ namespace Cornifer
                 LoadErrors.Add("Could not find world map file");
                 return Task.CompletedTask;
             }
+
+			string modName = info.Mod.Name;
+			if (modName == "Rain World") RPC.UpdateDescription("Mapping Rain World");
+			else RPC.UpdateDescription(string.Format(CultureInfo.InvariantCulture, "Mapping Rain World - {0}", modName));
+
+				RPC.UpdateState(string.Format(CultureInfo.InvariantCulture, "Working on {0} ({1})", info.Displayname, info.Id));
 
             TaskCompletionSource completion = new();
             ThreadPool.QueueUserWorkItem((_) =>

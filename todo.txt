@@ -42,4 +42,3 @@ Switch slugcats after region load
 + displayname.txt
 
 Exclusive keybinds
-Discord RPC
