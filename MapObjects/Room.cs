@@ -584,18 +584,6 @@ namespace Cornifer.MapObjects
 								obj.AddAvailabilityIcons();
 								Children.Add(obj);
 							}
-
-							if (obj.Type == "RedToken") {
-								MapText arenaText = new("WarpTargetText", Main.DefaultSmallMapFont, "Arena");
-								arenaText.Color.Value = new(null, Color.Red);
-								arenaText.ParentPosAlign = obj.RoomPos / TileSize.ToVector2();
-								Children.Add(arenaText);
-							} else if (obj.Type == "GoldToken") {
-								MapText safariText = new("WarpTargetText", Main.DefaultSmallMapFont, "Safari");
-								safariText.Color.Value = new(null, new Color(255, 153, 13));
-								safariText.ParentPosAlign = obj.RoomPos / TileSize.ToVector2();
-								Children.Add(safariText);
-							}
 						}
                     }
                     else if (split[0] == "Effects")

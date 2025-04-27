@@ -125,11 +125,11 @@ namespace Cornifer.MapObjects
                             subObject.ParentPosition = new(0, 15);
                             obj.Children.Add(subObject);
 
-                            List<PlacedObject> objects = new() { subObject };
-
                             if (StaticData.TiedSandboxIDs.TryGetValue(subname, out string[]? tied))
                             {
-                                foreach (string to in tied)
+								List<PlacedObject> objects = new() { subObject };
+
+								foreach (string to in tied)
                                 {
                                     PlacedObject? tiedObj = Load(to, obj.Size / 2);
                                     if (tiedObj is null)
@@ -138,23 +138,34 @@ namespace Cornifer.MapObjects
                                     obj.Children.Add(tiedObj);
                                     objects.Add(tiedObj);
                                 }
-                            }
+								if (objects.Count > 1) {
+									float angle = 0;
+									float ad = MathF.PI * 2 / objects.Count;
 
-                            if (objects.Count > 1)
-                            {
-                                float angle = 0;
-                                float ad = MathF.PI * 2 / objects.Count;
-
-                                foreach (PlacedObject o in objects)
-                                {
-                                    o.Offset = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * 20;
-                                    angle += ad;
-                                }
-                            }
+									foreach (PlacedObject o in objects) {
+										o.Offset = new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * 20;
+										angle += ad;
+									}
+								}
+							}
                         }
                         break;
+
+					case "RedToken":
+						MapText arenaText = new("ArenaText", Main.DefaultSmallMapFont, "Arena");
+						arenaText.Color.Value = new(null, new(255, 0, 0));
+						arenaText.ParentPosition = new(-30, -45);
+						obj.Children.Add(arenaText);
+						break;
+
+					case "GoldToken":
+						MapText safariText = new("SafariText", Main.DefaultSmallMapFont, "Safari");
+						safariText.Color.Value = new(null, new(255, 153, 13));
+						safariText.ParentPosition = new(-30, -45);
+						obj.Children.Add(safariText);
+						break;
                 }
-            }
+			}
 
 			if (objName == "WarpPoint")
 			{
