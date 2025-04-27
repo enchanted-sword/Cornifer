@@ -25,7 +25,7 @@ namespace Cornifer.Connections
         public bool IsInRoomShortcut = false;
 
         public bool Active => Source.Active && Destination.Active && (!IsInRoomShortcut || Source.DrawInRoomShortcuts.Value);
-        public Color Color => IsInRoomShortcut ? Color.Lerp(Color.White, Source.Subregion.Value.BackgroundColor.Color, .5f) : Color.White;
+        public Color Color => IsInRoomShortcut ? Color.Lerp(Color.White, Source.Subregion.Value.BackgroundColor.Color, .3f) : Color.White;
         public string JsonKey => IsInRoomShortcut ? $"#{Source.Name}~{SourcePoint.X}~{SourcePoint.Y}" : $"{Source.Name}~{Destination.Name}";
 
         public Color GuideColor => Color.White;

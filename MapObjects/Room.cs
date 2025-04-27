@@ -127,6 +127,10 @@ namespace Cornifer.MapObjects
         Vector2 Position;
         private Room? boundRoom;
 
+		private bool IsValidTilePos(Point testTilePos) {
+			return testTilePos.X >= 0 && testTilePos.Y >= 0 && testTilePos.X < TileSize.X && testTilePos.Y < TileSize.Y;
+		}
+
         public Room()
         {
             Subregion.SaveValue = v => v.Name;
@@ -138,50 +142,49 @@ namespace Cornifer.MapObjects
             Region = region;
             Name = id;
         }
-        public Point TraceShortcut(Point pos, List<Point>? turns = null)
+
+        public Point TraceShortcut(Point sourcePos, List<Point>? turns = null)
         {
-            Point lastPos = pos;
+            Point lastPos = sourcePos;
             int? dir = null;
-            bool foundDir = false;
+            bool foundDir;
 
             while (true)
             {
                 if (dir is not null)
                 {
                     Point dirVal = StaticData.Directions[dir.Value];
+                    Point testTilePos = sourcePos + dirVal;
 
-                    Point testTilePos = pos + dirVal;
-
-                    if (testTilePos.X >= 0 && testTilePos.Y >= 0 && testTilePos.X < TileSize.X && testTilePos.Y < TileSize.Y)
+                    if (IsValidTilePos(testTilePos))
                     {
                         Tile tile = Tiles[testTilePos.X, testTilePos.Y];
                         if (tile.Shortcut == Tile.ShortcutType.Normal)
                         {
-                            lastPos = pos;
-                            pos = testTilePos;
+                            lastPos = sourcePos;
+                            sourcePos = testTilePos;
                             continue;
                         }
                         else if (tile.Shortcut != Tile.ShortcutType.None)
                         {
-                            pos = testTilePos;
+                            sourcePos = testTilePos;
                             break;
                         }
                     }
                 }
-                foundDir = false;
+				foundDir = false;
                 for (int j = 0; j < 4; j++)
                 {
                     Point dirVal = StaticData.Directions[j];
-                    Point testTilePos = pos + dirVal;
+                    Point testTilePos = sourcePos + dirVal;
 
-                    if (testTilePos == lastPos || testTilePos.X < 0 || testTilePos.Y < 0 || testTilePos.X >= TileSize.X || testTilePos.Y >= TileSize.Y)
-                        continue;
+                    if (testTilePos == lastPos || !IsValidTilePos(testTilePos)) continue;
 
                     Tile tile = Tiles[testTilePos.X, testTilePos.Y];
                     if (tile.Shortcut == Tile.ShortcutType.Normal)
                     {
                         if (dir is not null) // not the first iteration
-                            turns?.Add(pos);
+                            turns?.Add(sourcePos);
 
                         dir = j;
                         foundDir = true;
@@ -189,7 +192,7 @@ namespace Cornifer.MapObjects
                     }
                     else if (tile.Shortcut != Tile.ShortcutType.None)
                     {
-                        pos = testTilePos;
+                        sourcePos = testTilePos;
                         foundDir = false;
                         break;
                     }
@@ -198,7 +201,7 @@ namespace Cornifer.MapObjects
                     break;
             }
 
-            return pos;
+            return sourcePos;
         }
 
         public Tile GetTile(int x, int y)

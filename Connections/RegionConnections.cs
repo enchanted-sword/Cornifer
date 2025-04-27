@@ -19,6 +19,7 @@ namespace Cornifer.Connections
     public class RegionConnections
     {
         public static Texture2D? ConnectionTexture;
+		public static Texture2D? ShortcutTexture;
 
         public Dictionary<(string src, string dst), Connection> RoomConnections = new();
         public Dictionary<(string room, Point shortcut), Connection> InRoomConnections = new();
@@ -262,11 +263,15 @@ namespace Cornifer.Connections
 
         public void DrawConnections(Renderer renderer, bool overRoomShadow, bool betweenRooms, bool inRooms, Predicate<MapObject>? predicate = null)
         {
-            if (ConnectionTexture is null)
-            {
+            if (ConnectionTexture is null) {
                 ConnectionTexture = new(Main.Instance.GraphicsDevice, 2, 1);
                 ConnectionTexture.SetData(new Color[] { Color.White, Color.Transparent });
             }
+
+			if (ShortcutTexture is null) {
+				ShortcutTexture = new(Main.Instance.GraphicsDevice, 1, 1);
+				ShortcutTexture.SetData(new Color[] { Color.White });
+			}
 
             var state = Main.SpriteBatch.GetState();
             Main.SpriteBatch.End();
@@ -315,15 +320,15 @@ namespace Cornifer.Connections
 
                         if (i == 0)
                         {
-                            source.Width -= 2;
-                            origin.X -= 2;
-                            length -= 2;
-                        }
+							source.Width -= 2;
+							origin.X -= 2;
+							length -= 2;
+						}
                         if (i == connection.Points.Count)
                         {
-                            int dist = connection.AllowWhiteToRedPixel.Value ? 1 : 2;
+                            int dist = connection.AllowWhiteToRedPixel.Value && !connection.IsInRoomShortcut ? 1 : 2;
 
-                            source.Width -= dist;
+							source.Width -= dist;
                             length -= dist;
                         }
 
@@ -360,7 +365,7 @@ namespace Cornifer.Connections
                                 length -= 1;
                             }
 
-                            Main.SpriteBatch.Draw(ConnectionTexture, renderer.TransformVector(start), source, connectionColor, angle, origin, renderer.Scale, SpriteEffects.None, 0);
+                            Main.SpriteBatch.Draw(connection.IsInRoomShortcut ? ShortcutTexture : ConnectionTexture, renderer.TransformVector(start), source, connectionColor, angle, origin, renderer.Scale, SpriteEffects.None, 0);
                         }
                     }
                     totalLength += length;
