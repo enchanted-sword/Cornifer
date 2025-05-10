@@ -733,7 +733,7 @@ namespace Cornifer.MapObjects
 
             Deathpit.OriginalValue = !IsShelter && !IsGate && WaterLevel.Value < 0 && Enumerable.Range(0, TileSize.X).Any(x => Tiles[x, TileSize.Y - 1].Terrain == Tile.TerrainType.Air);
 
-            if (Effects.Any(e => e.Name == "LethalWater"))
+            if (Effects.Any(e => e.Name == "LethalWater" || e.Name == "Toxic Brine Water"))
             {
                 string key = $"reg_{Region.Id}_acid";
                 if (ColorDatabase.Colors.TryGetValue(key, out ColorRef? cref))
@@ -837,8 +837,8 @@ namespace Cornifer.MapObjects
 								
 							}
 
-							if (Deathpit.Value && j >= TileSize.Y - 5 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
-									color = Color.Lerp(Color.Black, color, (TileSize.Y - j - .5f) / 5f);
+							if (Deathpit.Value && j >= TileSize.Y - 3 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
+									color = Color.Lerp(color, Color.Black, (4 - TileSize.Y + j) * 0.15f);
 
 							colors[i + j * TileSize.X] = color;
 						}
