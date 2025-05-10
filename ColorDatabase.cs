@@ -62,7 +62,7 @@ namespace Cornifer
             const string regPrefix = "reg_";
             const string waterPostfix = "_water";
 
-            if (subregion?.Length is 0)
+            if (subregion?.Length is 0 || subregion == RWAssets.GetRegionDisplayName(region, null))
                 subregion = null;
 
             Span<char> subregionSpan = stackalloc char[subregion?.Length ?? 0];

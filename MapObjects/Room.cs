@@ -597,7 +597,7 @@ namespace Cornifer.MapObjects
                         {
                             string[] effectSplit = effectStr.Split('-');
 							
-							if (effectSplit.Length == 4)
+							if (effectSplit.Length >= 4)
                             {
 								string name = effectSplit[0];
 
@@ -609,7 +609,7 @@ namespace Cornifer.MapObjects
                         }
 
                         Effects = effects.ToArray();
-                    }
+					}
 					else if (split[0] == "TerrainDepth")
 					{
 						TerrainDepth = float.Parse(split[1], NumberStyles.Any, CultureInfo.InvariantCulture);
@@ -663,6 +663,7 @@ namespace Cornifer.MapObjects
 				if (WarpTarget is not null && this.Name != "WAUA_BATH" && this.Name != "WAUA_TOYS") // the SpinningTopSpot in WAUA_BATH has an unused warp point to SB_D06 that absolutely should NOT show up on the map
 				{
 					Vector2 align = WarpPos.HasValue ? WarpPos.Value / TileSize.ToVector2() : new Vector2(.5f);
+					bool isDESERT6 = this.Name == "WORA_DESERT6";
 
 					if (WarpTarget == "NULL" || WarpTarget == null) {
 						WarpTarget = Region.Id switch {
@@ -671,7 +672,11 @@ namespace Cornifer.MapObjects
 							_ => "WRSA",
 						};
 					}
-					if ((WarpTarget == "WAUA" || WarpTarget == "WRSA") && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
+
+					ColorRef warpColor = ColorDatabase.GetRegionColor(WarpTarget, null);
+
+					
+					if ((WarpTarget == "WAUA" || WarpTarget == "WRSA") && !isDESERT6 && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
 						Children.Add(new SimpleIcon("WarpPointIcon", rippleWarpIcon) {
 							ParentPosAlign = align
 						});
@@ -680,25 +685,32 @@ namespace Cornifer.MapObjects
 							ParentPosAlign = align
 						});
 
-					if (this.Name != "WORA_DESERT6") Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To {RWAssets.GetRegionDisplayName(WarpTarget, null)}") {
+					if (!isDESERT6) Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To [c:{warpColor.GetKeyOrColorString()}]{RWAssets.GetRegionDisplayName(WarpTarget, null)}[/c]") {
 						ParentPosAlign = align
 					});
+					
 				}
-				
 
 				if (SpinningTopObj is not null) Children.Add(SpinningTopObj); // so the icon renders overtop its warp point when applicable
 			}
 
-            if (GateData is not null && IsGate)
-            {
-                Children.Add(GateSymbols = new GateSymbols(GateData.LeftKarma, GateData.RightKarma));
-                Children.Add(GateRegionText = new MapText("TargetRegionText", Main.DefaultBigMapFont, $"Region Text"));
+			if (Name is not null && StaticData.ValidWarpTargets.TryGetValue(Name, out var warpTarget) && SpriteAtlases.Sprites.TryGetValue("Object_EchoWarpPoint", out var echoWarpIcon)) {
+				string fromRegion = RWAssets.GetRegionDisplayName(warpTarget, null);
+				ColorRef warpColor = ColorDatabase.GetRegionColor(warpTarget, null);
 
-                GateRegionText.NoAlignOverride = true;
-                GateRegionText.IconPosAlign = new(.5f);
-                GateSymbols.Offset = new(0, MathF.Floor(-Size.Y / 2 - GateSymbols.Size.Y / 2 - 5));
-                GateRegionText.Offset = new(0, MathF.Floor(-Size.Y / 2 - GateSymbols.Size.Y - 19 - Main.DefaultBigMapFont.LineSpacing / 2));
-            }
+				Children.Add(new SimpleIcon("WarpPointIcon", echoWarpIcon));
+				Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"From [c:{warpColor.GetKeyOrColorString()}]{fromRegion}[/c]"));
+			}
+
+			if (GateData is not null && IsGate) {
+				Children.Add(GateSymbols = new GateSymbols(GateData.LeftKarma, GateData.RightKarma));
+				Children.Add(GateRegionText = new MapText("TargetRegionText", Main.DefaultBigMapFont, $"Region Text"));
+
+				GateRegionText.NoAlignOverride = true;
+				GateRegionText.IconPosAlign = new(.5f);
+				GateSymbols.Offset = new(0, MathF.Floor(-Size.Y / 2 - GateSymbols.Size.Y / 2 - 5));
+				GateRegionText.Offset = new(0, MathF.Floor(-Size.Y / 2 - GateSymbols.Size.Y - 19 - Main.DefaultBigMapFont.LineSpacing / 2));
+			}
 
             if (!Region.LegacyFormat && StaticData.VistaRooms.TryGetValue(Name!, out Vector2 vistaPoint))
             {

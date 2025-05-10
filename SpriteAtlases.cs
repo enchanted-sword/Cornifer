@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Security.Policy;
@@ -16,7 +17,7 @@ namespace Cornifer
 
         public static Dictionary<string, AtlasSprite> Sprites = new();
 
-        static Dictionary<string, (string Atlas, Color Color)> ObjectSprites = new()
+        static readonly Dictionary<string, (string Atlas, Color Color)> ObjectSprites = new()
         {
             {"GreenLizard", ("Kill_Green_Lizard", new(51, 255, 0))},
             {"PinkLizard", ("Kill_Standard_Lizard", new(255, 0, 255))},
@@ -141,7 +142,7 @@ namespace Cornifer
 			{"RotFruit", ("Symbol_RotFruit", new(76, 0, 255)) }
 		};
 
-        static Dictionary<string, (Rectangle Frame, Color Color)> ObjectSpriteFrames = new()
+        static readonly Dictionary<string, (Rectangle Frame, Color Color)> ObjectSpriteFrames = new()
         {
             { "KarmaFlower",      (new(76, 0,   23, 23), new(255, 255, 255, 255)) },
             { "SeedCob",          (new(40, 0,   35, 38), new(255, 255, 255, 255)) },
@@ -160,18 +161,19 @@ namespace Cornifer
 			{ "AncientShelterMarker", (new(91, 45,  21, 22), new(255, 255, 255, 255)) },
 
 			{ "SpinningTopSpot",  (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
-			{ "RippleWarpPoint",  (new(0, 74,   74, 66), new(0.373f, 0.11f, 0.831f, 0.75f)) },
-			{ "WarpPoint",		  (new(0, 140,  74, 66), new(0.373f, 0.11f, 0.831f, 0.75f)) }
+			{ "RippleWarpPoint",  (new(24, 60,  22, 24), new(0.373f, 0.11f, 0.831f, 0.75f)) },
+			{ "WarpPoint",		  (new(48, 60,  24, 25), new(0.373f, 0.11f, 0.831f, 0.75f)) },
+			{ "EchoWarpPoint",    (new(48, 60,  24, 25), new(1f, 0.73f, 0.368f, 0.75f)) }
 		};
 
-        static Dictionary<string, (Rectangle Frame, Color Color)> MiscSpriteFrames = new()
+        static readonly Dictionary<string, (Rectangle Frame, Color Color)> MiscSpriteFrames = new()
         {
             { "ArrowLeft",        (new(0, 0,    22, 13), new(255, 255, 255, 255)) },
             { "ArrowRight",		  (new(0, 13,   22, 13), new(255, 255, 255, 255)) },
             { "KarmaR",           (new(23, 0,   36, 36), new(255, 255, 255, 255)) },
 		};
 
-        static List<string> SlugcatIconOrder = new() { "White", "Yellow", "Red", "Night", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint", "Inv", "Watcher" };
+        static readonly List<string> SlugcatIconOrder = new() { "White", "Yellow", "Red", "Night", "Gourmand", "Artificer", "Rivulet", "Spear", "Saint", "Inv", "Watcher" };
 
         public static void Load()
         {

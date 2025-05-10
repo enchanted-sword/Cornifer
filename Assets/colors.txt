@@ -1,6 +1,7 @@
 reg_SU: 38C79E
 
 reg_HI: 75CED5
+reg_HI_hydroponics: 36B194
 reg_HI_water: 4966DD
 
 reg_DS: C73ADF
@@ -82,3 +83,66 @@ reg_GW_acid: 8AFF00
 reg_HR_acid: FF9900
 reg_HR_water: FF9900
 reg_HR_rubicon_water: FF9900
+
+reg_WARA: D7CA5Fk
+
+reg_WARB: 2369FF
+
+reg_WARC: A17236
+
+reg_WARD: 56B8FF
+reg_WARD_station-annex: 561EFF
+
+reg_WARE: 872B3B
+reg_WARE_thermal-relay: 00FFFF
+
+reg_WARF: A7A8AD
+reg_WARF_blast-deck: B7BFE5
+reg_WARF_ridgeworks: 2E5475
+reg_WARF_aerial-tramway: 69C6EC
+reg_WARF_acid: FFFFFF
+
+reg_WARG: 6098CD
+reg_WARG_fallen-tramway: B5DDE1
+reg_WARG_tundra-fault: 526A87
+
+reg_WAUA: FFE88F
+
+reg_WBLA: BF9168
+
+reg_WDSR: 8C679D
+
+reg_WGWR: 8C679D
+
+reg_WHIR: 8C679D
+
+reg_WORA: E59F55
+reg_WORA_the-throne: 5F1CD3
+
+reg_WPTA: F181D0
+
+reg_WRFA: 57A0EF
+
+reg_WRFB: 2768C4
+
+reg_WRRA: AD4530
+
+reg_WRSA: 86E1FD
+
+reg_WSKA: 86E1FD
+
+reg_WSKB: FF9755
+
+reg_WSKC: 8B60FF
+
+reg_WSKD: 1BB5A3
+
+reg_WSSR: 717171
+
+reg_WSUR: 8C679D
+
+reg_WTDA: DFA73A
+
+reg_WTDB: B5D179
+
+reg_WVWA: 31AF39

@@ -121,6 +121,33 @@ namespace Cornifer
 
 		public static Dictionary<string, string> GateSymbols = new();
 
+		public static readonly Dictionary<string, string> ValidWarpTargets = new() {
+			["WSKB_C17"] = "CC",
+			["WRFA_SK04"] = "LF",
+			["WSKA_D02"] = "SH",
+			["WARA_P05"] = "WARB",
+			["WARA_E08"] = "WARC",
+			["WARB_F01"] = "WARD",
+			["WSSR_CRAMPED"] = "WARD",
+			["WSKC_A03"] = "WARE",
+			["WARB_H13"] = "WARE",
+			["SB_D07"] = "WAUA",
+			["WSKD_B01"] = "WBLA",
+			["WSSR_CRAMPED"] = "WBLA",
+			["WTDA_B12"] = "WARF",
+			["WRSA_C01"] = "WORA",
+			["WORA_STARCATCHER02"] = "WORA",
+			["WARA_P08"] = "WPTA",
+			["WARE_I01X"] = "WRFB",
+			["WRFB_A11"] = "WRFA",
+			["WARA_P17"] = "WRSA",
+			["WPTA_B10"] = "WSKC",
+			["WARD_R15"] = "WSKD",
+			["WBLA_C01"] = "WTDA",
+			["WARC_E03"] = "WVWA",
+			["WRFB_D09"] = "WTDB",
+		};
+
 		public static void Init() {
 			InitSlugcats();
 			InitPearls();
