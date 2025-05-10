@@ -26,8 +26,9 @@ namespace Cornifer
         public static Switch MarkShortcuts = new("markShortcuts", true);
         public static Switch RegionBGShortcuts = new("regionBGShortcuts", true);
         public static Switch MarkExitsOnly = new("markExitsOnly", true);
+		public static Switch DrawAllShortcuts = new("drawAllShortcuts", false);
 
-        public static Switch DisableRoomCropping = new("disableRoomCropping", false);
+		public static Switch DisableRoomCropping = new("disableRoomCropping", false);
 
         public static Slider WaterTransparency = new("waterTransparency", .3f);
 
@@ -45,6 +46,7 @@ namespace Cornifer
             MarkShortcuts.OnChanged = UpdateRoomTilemaps;
             RegionBGShortcuts.OnChanged = UpdateRoomTilemaps;
             MarkExitsOnly.OnChanged = UpdateRoomTilemaps;
+			DrawAllShortcuts.OnChanged = UpdateRoomTilemaps;
             DisableRoomCropping.OnChanged = UpdateRoomTilemaps;
 
             foreach (FieldInfo field in typeof(InterfaceState).GetFields(BindingFlags.Public | BindingFlags.Static))

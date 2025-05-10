@@ -63,7 +63,21 @@ namespace Cornifer.UI.Pages
 
                         }.BindConfig(InterfaceState.RegionBGShortcuts),
 
-                        new UIButton
+						new UIButton
+						{
+							Height = 20,
+
+							Selectable = true,
+							Text = "Draw all shortcuts",
+
+							SelectedBackColor = Color.White,
+							SelectedTextColor = Color.Black,
+
+							TextAlign = new(.5f)
+
+						}.BindConfig(InterfaceState.DrawAllShortcuts),
+
+						new UIButton
                         {
                             Height = 20,
 
