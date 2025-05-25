@@ -144,20 +144,20 @@ namespace Cornifer
 
         static readonly Dictionary<string, (Rectangle Frame, Color Color)> ObjectSpriteFrames = new()
         {
-            { "KarmaFlower",      (new(76, 0,   23, 23), new(255, 255, 255, 255)) },
+            { "KarmaFlower",      (new(110,72,   7,  7), new(255, 255, 255, 0.65f)) },
             { "SeedCob",          (new(40, 0,   35, 38), new(255, 255, 255, 255)) },
             { "GhostSpot",        (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
             { "BlueToken",        (new(77, 84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "GoldToken",        (new(92, 84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "RedToken",         (new(77, 69,  13, 13), new(255, 255, 255, 0.75f)) },
-            { "DevToken",         (new(107, 84, 13, 13), new(255, 255, 255, 0.75f)) },
+            { "DevToken",         (new(107,84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "GreenToken",       (new(92, 69,  13, 13), new(255, 255, 255, 0.75f)) },
             { "DataPearl",        (new(39, 39,  11, 11), new(255, 255, 255, 255)) },
             { "UniqueDataPearl",  (new(39, 39,  11, 11), new(255, 255, 255, 255)) },
             { "Slugcat",          (new(51, 39,  20, 19), new(255, 255, 255, 255)) },
-            { "ScavengerOutpost", (new(109, 21, 11, 15), new(255, 255, 255, 255)) },
+            { "ScavengerOutpost", (new(109,21,  11, 15), new(255, 255, 255, 255)) },
             { "KarmaShrine",      (new(72, 45,  17, 17), new(255, 255, 255, 255)) },
-            { "MoonCloak",        (new(1, 49,   21, 25), new(255, 255, 255, 255)) },
+            { "MoonCloak",        (new(1,  49,  21, 25), new(255, 255, 255, 255)) },
 			{ "AncientShelterMarker", (new(91, 45,  21, 22), new(255, 255, 255, 255)) },
 
 			{ "SpinningTopSpot",  (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
