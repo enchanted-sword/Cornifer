@@ -153,19 +153,19 @@ namespace Cornifer.MapObjects
                         break;
 
 					case "RedToken":
-						MapText arenaText = new("ArenaText", Main.DefaultSmallMapFont, "Arena");
-						arenaText.Color.Value = new(null, new(255, 0, 0));
-						arenaText.ParentPosition = new(-30, -45);
-						obj.Children.Add(arenaText);
-						break;
-
-					case "GoldToken":
 						MapText safariText = new("SafariText", Main.DefaultSmallMapFont, "Safari");
 						safariText.Color.Value = new(null, new(255, 153, 13));
 						safariText.ParentPosition = new(-30, -45);
 						obj.Children.Add(safariText);
 						break;
-                }
+
+					case "GoldToken":
+						MapText arenaText = new("ArenaText", Main.DefaultSmallMapFont, "Arena");
+						arenaText.Color.Value = new(null, new(255, 0, 0));
+						arenaText.ParentPosition = new(-30, -45);
+						obj.Children.Add(arenaText);
+						break;
+				}
 			}
 
 			if (objName == "WarpPoint")
