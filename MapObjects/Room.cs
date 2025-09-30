@@ -695,7 +695,7 @@ namespace Cornifer.MapObjects
 			}
 
 			if (Name is not null && StaticData.ValidWarpTargets.TryGetValue(Name, out var warpTarget) && SpriteAtlases.Sprites.TryGetValue("Object_EchoWarpPoint", out var echoWarpIcon)) {
-				string fromRegion = RWAssets.GetRegionDisplayName(warpTarget, null);
+				string? fromRegion = RWAssets.GetRegionDisplayName(warpTarget, null);
 				ColorRef warpColor = ColorDatabase.GetRegionColor(warpTarget, null);
 
 				Children.Add(new SimpleIcon("WarpPointIcon", echoWarpIcon));
