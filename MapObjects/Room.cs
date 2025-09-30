@@ -35,6 +35,7 @@ namespace Cornifer.MapObjects
 
 		public Vector2? WarpPos;
 		public string? WarpTarget;
+		public bool RippleWarp;
 		public PlacedObject? SpinningTopObj;
 
 		public Point TileSize = new();
@@ -512,6 +513,7 @@ namespace Cornifer.MapObjects
 										isWarpRoom = true;
 										WarpPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
 										WarpTarget = obj.TargetRegion;
+										RippleWarp = obj.IsRippleWarp ?? false;
 
 										if (obj.Type == "SpinningTopSpot") objects.Add(obj);
 										break;
@@ -675,9 +677,8 @@ namespace Cornifer.MapObjects
 
 					ColorRef warpColor = ColorDatabase.GetRegionColor(WarpTarget, null);
 
-					
-					if ((WarpTarget == "WAUA" || WarpTarget == "WRSA") && !isDESERT6 && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
-						Children.Add(new SimpleIcon("WarpPointIcon", rippleWarpIcon) {
+					if ((WarpTarget == "WAUA" || WarpTarget == "WRSA" || RippleWarp) && !isDESERT6 && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
+						Children.Add(new SimpleIcon("RippleWarpPointIcon", rippleWarpIcon) {
 							ParentPosAlign = align
 						});
 					else if (SpriteAtlases.Sprites.TryGetValue("Object_WarpPoint", out var warpIcon))
@@ -688,7 +689,6 @@ namespace Cornifer.MapObjects
 					if (!isDESERT6) Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To [c:{warpColor.GetKeyOrColorString()}]{RWAssets.GetRegionDisplayName(WarpTarget, null)}[/c]") {
 						ParentPosAlign = align
 					});
-					
 				}
 
 				if (SpinningTopObj is not null) Children.Add(SpinningTopObj); // so the icon renders overtop its warp point when applicable

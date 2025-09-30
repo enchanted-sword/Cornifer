@@ -23,6 +23,7 @@ namespace Cornifer.MapObjects
 		public string? DebugDisplay = null;
 		public string? TargetRegion = null;
 		public string? TargetRoom = null;
+		public bool? IsRippleWarp = null;
 
 		public Vector2 TerrainHandleLeftOffset;
 		public Vector2 TerrainHandleRightOffset;
@@ -171,6 +172,7 @@ namespace Cornifer.MapObjects
 			{
 				obj.TargetRegion = subsplit[4];
 				obj.TargetRoom = subsplit[5];
+				obj.IsRippleWarp = Boolean.Parse(subsplit[25]);
 			} else if (objName == "SpinningTopSpot")
 			{
 				obj.TargetRegion = subsplit[3];
