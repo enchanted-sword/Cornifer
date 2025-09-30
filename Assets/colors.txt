@@ -129,8 +129,6 @@ reg_WRFB: 2768C4
 
 reg_WRRA: AD4530
 
-reg_WRSA: 86E1FD
-
 reg_WSKA: 86E1FD
 
 reg_WSKB: FF9755
