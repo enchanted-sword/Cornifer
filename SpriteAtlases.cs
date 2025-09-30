@@ -135,11 +135,18 @@ namespace Cornifer
 			{"SmallMoth", ("Kill_SmallMoth", new(127, 127, 127)) },
 			{"Tardigrade", ("Kill_Tardigrade", new(0, 255, 255)) },
 
+			{"PeachLizard", ("Kill_Peach", new(255, 120, 131)) },
+			{"MothGrub", ("Kill_MothGrub", new(255, 178, 140)) },
+			{"TowerCrab", ("Kill_DrillCrab", new(82, 56,46)) },
+			{"Angler", ("Kill_Angler", new(169, 164, 178)) },
+			{"AltSkyWhale", ("Kill_SkyWhale", new(127, 115, 89)) },
+
 			{"Boomerang", ("Symbol_Boomerang", new(255, 204, 76)) },
 			{"FireSpriteLarva", ("Symbol_FireSpriteLarva", new(255, 255, 255)) },
 			{"Pomegranate", ("Symbol_Pomegranate", new(0, 170, 14)) },
 			{"RotcornPlant", ("Symbol_RotcornPlant", new(76, 0, 255)) },
-			{"RotFruit", ("Symbol_RotFruit", new(76, 0, 255)) }
+			{"RotFruit", ("Symbol_RotFruit", new(76, 0, 255)) },
+			{"GraffitiBomb", ("Symbol_GraffitiBomb", new(153, 102, 255)) }
 		};
 
         static readonly Dictionary<string, (Rectangle Frame, Color Color)> ObjectSpriteFrames = new()
@@ -163,7 +170,9 @@ namespace Cornifer
 			{ "SpinningTopSpot",  (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
 			{ "RippleWarpPoint",  (new(24, 60,  22, 24), new(0.373f, 0.11f, 0.831f, 0.75f)) },
 			{ "WarpPoint",		  (new(48, 60,  24, 25), new(0.373f, 0.11f, 0.831f, 0.75f)) },
-			{ "EchoWarpPoint",    (new(48, 60,  24, 25), new(1f, 0.73f, 0.368f, 0.75f)) }
+			{ "EchoWarpPoint",    (new(48, 60,  24, 25), new(1f, 0.73f, 0.368f, 0.75f)) },
+			{ "WeaverSpot",		  (new(48, 86,  28, 34), new(255, 255, 255, 255)) },
+			{ "RippleSpawnEgg",   (new(23, 85,  24, 24), new(104, 90, 251, 255)) },
 		};
 
         static readonly Dictionary<string, (Rectangle Frame, Color Color)> MiscSpriteFrames = new()

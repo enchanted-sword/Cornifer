@@ -115,11 +115,16 @@
 "SkyWhale": { "sprite": "Kill_SkyWhale", "color": "FFFFFF" },
 "SmallMoth": { "sprite": "Kill_SmallMoth", "color": "7F7F7F" },
 "Tardigrade": { "sprite": "Kill_Tardigrade", "color": "00FFFF" },
+"PeachLizard": { "sprite": "Kill_Peach", "color": "FF7883" },
+"MothGrub":  { "sprite":  "Kill_MothGrub", "color":  "FFB28C" },
+"TowerCrab":  { "sprite":  "Kill_DrillCrab", "color":  "FFB28C" },
+"Angler":  { "sprite":  "Kill_Angler", "color":  "A9A4B2" },
+"AltSkyWhale":  { "sprite":  "Kill_SkyWhale", "color":  "7F7359" },
 
 "Boomerang": { "sprite": "Symbol_Boomerang", "color": "FFCC4C" },
 "FireSpriteLarva": { "sprite": "Symbol_FireSpriteLarva", "color": "FFFFFF" },
 "Pomegranate": { "sprite": "Symbol_Pomegranate", "color": "00AA0E" },
 "RotcornPlant": { "sprite": "Symbol_RotcornPlant", "color": "4C00FF" },
-"RotFruit": { "sprite": "Symbol_RotFruit", "color": "4C00FF" }
-		
+"RotFruit": { "sprite": "Symbol_RotFruit", "color": "4C00FF" },
+"GraffitiBomb":  { "sprite":  "Symbol_GraffitiBomb", "color" :  "9966FF"}
 }

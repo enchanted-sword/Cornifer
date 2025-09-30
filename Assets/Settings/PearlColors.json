@@ -1,6 +1,5 @@
 {
 "SI_west": ["020202", "199966"],
-
 "SI_top": ["020202", "196699"],
 "SI_chat3": ["020202", "661999"],
 "SI_chat4": ["020202", "669919"],
@@ -31,6 +30,74 @@
 "SU": ["7F99E5"],
 "UW": ["669966", "FFB2FF"],
 "SL_chimney": ["FF008C", "CC4CFF"],
-"Red_stomach": ["99FFE5", "FFFFFF"],
+	"Red_stomach": [ "99FFE5", "FFFFFF" ],
+"WAUA": [
+	"F2331A",
+	"FF664D"
+],
+"WORA": [
+	"8FD647",
+	"DBFFA6"
+],
+"DRONE": [
+	"E6B380",
+	"FFE6CC"
+],
+"ABSTRACT": [
+	"007373",
+	"B39494"
+],
+"TEXT_AUDIO_TALKSHOW": [
+	"CC14A6",
+	"1A1A1A"
+],
+"TEXT_STARDUST": [
+	"59E6A6",
+	"1A1A1A"
+],
+"TEXT_NOTIONOFSELF": [
+	"66BF66",
+	"1A1A1A"
+],
+"TEXT_KITESDAY": [
+	"F2A605",
+	"1A1A1A"
+],
+"TEXT_SECRET": [
+	"803399",
+	"1A1A1A"
+],
+"TEXT_CONTEMPT": [
+	"BD7A8A",
+	"1A1A1A"
+],
+"AUDIO_JAM1": [
+	"6C40F2",
+	"85FF21"
+],
+"AUDIO_JAM2": [
+	"7249EC",
+	"FFD633"
+],
+"AUDIO_JAM3": [
+	"683AF5",
+	"14FF95"
+],
+"AUDIO_JAM4": [
+	"6636F7",
+	"FF0DFF"
+],
+"AUDIO_GROOVE": [
+	"7045EF",
+	"FF8095"
+],
+"AUDIO_VOICEWIND1": [
+	"762DCB",
+	"620D3D"
+],
+"AUDIO_VOICEWIND2": [
+	"7934C9",
+	"6A471A"
+],
 "": ["B2B2B2"]
 }

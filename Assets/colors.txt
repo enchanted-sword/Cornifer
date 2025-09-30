@@ -119,6 +119,8 @@ reg_WHIR: 8C679D
 reg_WORA: E59F55
 reg_WORA_the-throne: 5F1CD3
 
+reg_WRSA: 3E3E55
+
 reg_WPTA: F181D0
 
 reg_WRFA: 57A0EF
@@ -146,3 +148,9 @@ reg_WTDA: DFA73A
 reg_WTDB: B5D179
 
 reg_WVWA: 31AF39
+
+reg_WVWB: 3D4232
+
+reg_WMPA: 705458
+
+reg_WPGA: 7AC8AA
