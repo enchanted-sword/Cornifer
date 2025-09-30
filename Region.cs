@@ -520,7 +520,7 @@ namespace Cornifer
                 room.Connections = new Room.Connection[roomConnections.Length];
                 for (int i = 0; i < roomConnections.Length; i++)
                 {
-                    if (roomConnections[i] == "DISCONNECTED")
+                    if (roomConnections[i] == "DISCONNECTED" || roomConnections[i] == "")
                         continue;
 
                     if (TryGetRoom(roomConnections[i], out Room? targetRoom))
