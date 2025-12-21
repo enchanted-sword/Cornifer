@@ -83,7 +83,7 @@ namespace Cornifer.UI.Pages
                             Content.Idle.Play(.5f, 0, 0);
                         }).OnEvent(UIElement.UpdateEvent, (b, _) =>
                             {
-                                b.Text = $"Test Idle ({(Main.NoIdle ? "D " : Main.Idlesound ? "S " : "")}{Main.Idle})";
+                                b.Text = $"Test Idle ({(InterfaceState.DisableIdleSound.Value ? "D " : Main.Idlesound ? "S " : "")}{Main.Idle})";
                             }),
 
                         new UIButton

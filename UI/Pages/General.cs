@@ -101,7 +101,23 @@ namespace Cornifer.UI.Pages
                             }
                         }),
 
-                        new UIPanel
+						new UIButton
+						{
+							Height = 20,
+
+							Selectable = true,
+							Text = "Disable idle sound",
+
+							SelectedBackColor = Color.White,
+							SelectedTextColor = Color.Black,
+
+							HoverText = "Disables the Cornifer humming sound that plays when the program is idle",
+
+							TextAlign = new(.5f)
+
+						}.BindConfig(InterfaceState.DisableIdleSound),
+
+						new UIPanel
                         {
                             Height = 40,
                             Padding = 3,

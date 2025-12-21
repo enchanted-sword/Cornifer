@@ -251,7 +251,7 @@ namespace Cornifer
 
             InputHandler.Update();
 
-            if (!NoIdle)
+            if (!InterfaceState.DisableIdleSound.Value)
             {
                 if (IsActive && (InputHandler.AllKeys.Any(k => InputHandler.KeyboardState[k] == Microsoft.Xna.Framework.Input.KeyState.Down)
                     || InputHandler.AllMouseKeys.Any(k => InputHandler.MouseState.IsKeyDown(k))))

@@ -27,6 +27,7 @@ namespace Cornifer
         public static Switch RegionBGShortcuts = new("regionBGShortcuts", true);
         public static Switch MarkExitsOnly = new("markExitsOnly", true);
 		public static Switch DrawAllShortcuts = new("drawAllShortcuts", false);
+		public static Switch DisableIdleSound = new("disableIdleSound", false);
 
 		public static Switch DisableRoomCropping = new("disableRoomCropping", false);
 
