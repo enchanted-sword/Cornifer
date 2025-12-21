@@ -37,7 +37,7 @@ namespace Cornifer
             "FairyParticleSettings","DayNightSettings","EnergySwirl","LightningMachine","SteamPipe","WallSteamer",
             "Vine","VultureMask","SnowSource","DeathFallFocus","CellDistortion","LocalBlizzard","NeuronSpawner",
             "HangingPearls","Lantern","ExitSymbolAncientShelter","BlinkingFlower", "SpinningTopSpot", "WarpPoint",
-			"Pomegranate", "PlacedBoxWorm", "RippleSpawnEgg", "WeaverSpot"
+			"Pomegranate", "PlacedBoxWorm", "RippleSpawnEgg", "WeaverSpot", "TerrainHandle", "LocalTerrain"
 		};
 		public static readonly Dictionary<string, string[]> TiedSandboxIDs = new() {
 			["CicadaA"] = new[] { "CicadaB" },

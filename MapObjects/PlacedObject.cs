@@ -12,7 +12,7 @@ namespace Cornifer.MapObjects
     public class PlacedObject : SimpleIcon
     {
         public string Type = null!;
-		public static string[] technicalObjects = { "Filter", "ScavengerTreasury", "TerrainHandle", "WaterCycleTop", "WaterCycleBottom", "WaterCutoff", "AirPocket" };
+		public static string[] technicalObjects = { "Filter", "ScavengerTreasury", "TerrainHandle", "WaterCycleTop", "WaterCycleBottom", "WaterCutoff", "AirPocket", "LocalTerrain" };
 		public override string? Name => $"{Type}@{RoomPos.X:0},{RoomPos.Y:0}";
 		public List<SlugcatIcon>? AvailabilityIcons;
 		public HashSet<string> SlugcatAvailability = new();
@@ -28,6 +28,10 @@ namespace Cornifer.MapObjects
 		public Vector2 TerrainHandleLeftOffset;
 		public Vector2 TerrainHandleRightOffset;
 		public float TerrainHandleBackHeight;
+
+		public Vector2[] LocalTerrainMidpoints = Array.Empty<Vector2>();
+		public Vector2[] LocalTerrainSpline = Array.Empty<Vector2>();
+		public float LocalTerrainBottom;
 
 		public Rectangle AirPocket;
 		public int WaterCutoffLength;
@@ -49,6 +53,11 @@ namespace Cornifer.MapObjects
         {
             BorderSize.OriginalValue = 2;
         }
+
+		public static Vector2 ParseBezierSpline(string s) {
+			string[] array = s.Split("^");
+			return new Vector2(float.Parse(array[0], CultureInfo.InvariantCulture) / 20, float.Parse(array[1], CultureInfo.InvariantCulture) / 20);
+		}
 
         public static PlacedObject? Load(string data)
         {
@@ -96,6 +105,23 @@ namespace Cornifer.MapObjects
 					obj.TerrainHandleLeftOffset = new(float.Parse(subsplit[0], CultureInfo.InvariantCulture) / 20, float.Parse(subsplit[1], CultureInfo.InvariantCulture) / 20);
 					obj.TerrainHandleRightOffset = new(float.Parse(subsplit[2], CultureInfo.InvariantCulture) / 20, float.Parse(subsplit[3], CultureInfo.InvariantCulture) / 20);
 					obj.TerrainHandleBackHeight = float.Parse(subsplit[4], CultureInfo.InvariantCulture) / 20;
+					break;
+				case "LocalTerrain":
+					string[] midpoints = subsplit[4].Split("|");
+					obj.LocalTerrainBottom = float.Parse(subsplit[0], CultureInfo.InvariantCulture) / 20;
+					List<Vector2> splineMidpoints = new();
+					List<Vector2> splinePoints = new();
+					foreach (string text in midpoints) {
+						if (!string.IsNullOrWhiteSpace(text)) {
+							splineMidpoints.Add(ParseBezierSpline(text));
+						}
+					}
+					splinePoints.Add(Vector2.Zero);
+					splinePoints.Add(ParseBezierSpline(subsplit[2]));
+					splinePoints.Add(ParseBezierSpline(subsplit[1]));
+					splinePoints.Add(ParseBezierSpline(subsplit[3]));
+					obj.LocalTerrainMidpoints = splineMidpoints.ToArray();
+					obj.LocalTerrainSpline = splinePoints.ToArray();
 					break;
 				case "AirPocket":
 					float waterLevel = float.Parse(subsplit[5], NumberStyles.Any, CultureInfo.InvariantCulture) / 20;
@@ -193,14 +219,14 @@ namespace Cornifer.MapObjects
 
 							case "RedToken":
 								MapText safariText = new("SafariText", Main.DefaultSmallMapFont, "Safari");
-								safariText.Color.Value = new(null, new(255, 153, 13));
+								safariText.Color.Value = new(null, new(255, 0, 0));
 								safariText.ParentPosition = new(-30, -45);
 								obj.Children.Add(safariText);
 								break;
 
 							case "GoldToken":
 								MapText arenaText = new("ArenaText", Main.DefaultSmallMapFont, "Arena");
-								arenaText.Color.Value = new(null, new(255, 0, 0));
+								arenaText.Color.Value = new(null, new(255, 153, 13));
 								arenaText.ParentPosition = new(-30, -45);
 								obj.Children.Add(arenaText);
 								break;

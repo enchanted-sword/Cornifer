@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text.Json.Nodes;
 using static Cornifer.MapObjects.Room;
 
@@ -64,6 +65,12 @@ namespace Cornifer.MapObjects
 		private Vector2[] HandleBackPoints = Array.Empty<Vector2>();
 		private Vector2[] HandleFrontPoints = Array.Empty<Vector2>();
 		private Vector2[] HandleCollisionPoints = Array.Empty<Vector2>();
+
+		public List<Vector2[]> LocalTerrainSplines = new();
+		public List<float> LocalTerrainBottoms = new();
+		public int TerrainSegments = 0;
+		private Vector2[] LocalCollisionPoints = Array.Empty<Vector2>();
+		private Vector2[] LocalBottomPoints = Array.Empty<Vector2>();
 
 		private List<Rectangle> AirPockets = new();
 
@@ -223,11 +230,38 @@ namespace Cornifer.MapObjects
 			return f;
 		}
 
+		private static Vector2 GetBezierPoint(Vector2[] bezier, float f) {
+			Vector2 posA = bezier[0];
+			Vector2 handleA = bezier[1];
+			Vector2 posB = bezier[2];
+			Vector2 handleB = bezier[3];
+			Vector2 vector = Vector2.Lerp(handleA, handleB, f);
+			handleA = Vector2.Lerp(posA, handleA, f);
+			handleB = Vector2.Lerp(handleB, posB, f);
+			handleA = Vector2.Lerp(handleA, vector, f);
+			handleB = Vector2.Lerp(vector, handleB, f);
+			return Vector2.Lerp(handleA, handleB, f);
+		}
+
+		private static float BezierYatX(Vector2[] bezier, float x) {
+			float num = 0f;
+			float num2 = 1f;
+			for (int i = 0; i < 16; i++) {
+				float num3 = (num + num2) / 2f;
+				if (GetBezierPoint(bezier,num3).X < x) {
+					num = num3;
+				} else {
+					num2 = num3;
+				}
+			}
+			return GetBezierPoint(bezier,(num + num2) / 2f).Y;
+		}
+
 		public class Handle {
 			public Vector2 Left;
 			public Vector2 Middle;
 			public Vector2 Right;
-			float Height;
+			public float Height;
 
 			private Handle GetBackHandle() {
 				Handle BackHandle = new(Left, Middle, Right, 0);
@@ -247,7 +281,7 @@ namespace Cornifer.MapObjects
 			private static float InverseLerp(float value, float from, float to) {
 				return (value - from) / (to - from);
 			}
-			public static float Sample(Handle left, Handle right, float x) {
+			public static float Sample(Handle left, Handle right, float x) { // Sampling at X position
 				if (x < left.Middle.X) {
 					return LerpUnclamped(left.Middle.Y, left.Left.Y, InverseLerp(x, left.Middle.X, left.Left.X));
 				}
@@ -307,6 +341,35 @@ namespace Cornifer.MapObjects
 					HandleFrontPoints[j].Y = Normalize(HandleFrontPoints[j].Y);
 				}
 				UpdateCollision();
+			}
+		}
+
+		private void RefreshCurves() {
+			Array.Clear(LocalCollisionPoints, 0, LocalCollisionPoints.Length);
+			Array.Clear(LocalBottomPoints, 0, LocalBottomPoints.Length);
+
+			List<int> lengths = new();
+			int ct = 0;
+
+			foreach (Vector2[] LocalTerrainSpline in LocalTerrainSplines) {
+				int l = Math.Max((int)LocalTerrainSpline[2].X - (int)LocalTerrainSpline[0].X, 0);
+				lengths.Add(l);
+				TerrainSegments += l;
+			}
+
+			Array.Resize(ref LocalCollisionPoints, TerrainSegments);
+			Array.Resize(ref LocalBottomPoints, TerrainSegments);
+
+			for (int i = 0; i < LocalTerrainSplines.Count; i++) {
+				Vector2[] LocalTerrainSpline = LocalTerrainSplines[i];
+				int startX = (int)LocalTerrainSpline[0].X;
+				float bottom = LocalTerrainBottoms[i];
+
+				for (int j = 0; j < lengths[i]; j++) {
+					float x = j + startX;
+					LocalCollisionPoints[ct] = new Vector2(x, BezierYatX(LocalTerrainSpline, x));
+					LocalBottomPoints[ct++] = new Vector2(x, bottom);
+				}
 			}
 		}
 
@@ -484,6 +547,7 @@ namespace Cornifer.MapObjects
                     {
                         HashSet<PlacedObject> objects = new();
 						HashSet<PlacedObject> TerrainHandles = new();
+						HashSet<PlacedObject> LocalTerrain = new();
 						List<PlacedObject> filters = new();
 						List<PlacedObject> airPockets = new();
 						List<PlacedObject> waterCutoffs = new();
@@ -504,6 +568,9 @@ namespace Cornifer.MapObjects
 										break;
 									case "TerrainHandle":
 										TerrainHandles.Add(obj);
+										break;
+									case "LocalTerrain":
+										LocalTerrain.Add(obj);
 										break;
 									case "ScavengerOutpost":
 										OutpostPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
@@ -564,6 +631,15 @@ namespace Cornifer.MapObjects
 							Vector2 right = middle + handle.TerrainHandleRightOffset;
 							Handle item = new(left, middle, right, handle.TerrainHandleBackHeight);
 							Handles.Add(item);
+						}
+
+						foreach (PlacedObject terrain in LocalTerrain) {
+							List <Vector2> terrainPoints = new();
+							foreach (Vector2 splinePoint in terrain.LocalTerrainSpline) {
+								terrainPoints.Add(terrain.RoomPos + splinePoint);
+							}
+							LocalTerrainSplines.Add(terrainPoints.ToArray());
+							LocalTerrainBottoms.Add(terrain.RoomPos.Y - terrain.LocalTerrainBottom);
 						}
 
 						foreach (PlacedObject airPocket in airPockets) { 
@@ -760,7 +836,9 @@ namespace Cornifer.MapObjects
             Color waterColor = AcidWater.Value ? AcidColor.Value.Color : subregion.WaterColor.Color;
 
 			UpdateHandles();
+			RefreshCurves();
 			bool hasHandles = HandleCollisionPoints.Length > 0;
+			bool hasLocalTerrain = LocalCollisionPoints.Length > 0;
 
 			try
             {
@@ -854,6 +932,25 @@ namespace Cornifer.MapObjects
 					for (int y = ytop; y < TileSize.Y; y++) {
 						Tile tile = GetTile(x, y);
 						if (tile.Terrain == Tile.TerrainType.Air) {
+							if (y == ytop && fit < 0.5) colors[x + y * TileSize.X] = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, 0.4f);
+							else colors[x + y * TileSize.X] = Color.Black;
+						}
+					}
+				}
+
+				for (int k = 0; k < LocalCollisionPoints.Length; k++) {
+					Vector2 localTerrainPoint = LocalCollisionPoints[k];
+					Vector2 localBottomPoint = LocalBottomPoints[k];
+					int x = (int)localTerrainPoint.X;
+					if (x < 0) continue;
+					int ybottom = Math.Max(TileSize.Y - (int)MathF.Floor(localBottomPoint.Y), 0);
+					int yfloor = (int)MathF.Floor(localTerrainPoint.Y);
+					int ytop = Math.Max(TileSize.Y - yfloor - 1, 0);
+					float fit = MathF.Abs(localTerrainPoint.Y - yfloor);
+
+					for (int y = ytop; y < ybottom; y++) {
+						Tile tile = GetTile(x, y);
+						if (tile.Terrain != Tile.TerrainType.Solid) {
 							if (y == ytop && fit < 0.5) colors[x + y * TileSize.X] = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, 0.4f);
 							else colors[x + y * TileSize.X] = Color.Black;
 						}
