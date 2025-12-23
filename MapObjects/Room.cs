@@ -950,7 +950,7 @@ namespace Cornifer.MapObjects
 								
 							}
 
-							if (Deathpit.Value && j >= TileSize.Y - 3 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air)
+							if (Deathpit.Value && j >= TileSize.Y - 3 && Tiles[i, j].Terrain == Tile.TerrainType.Air)
 									color = Color.Lerp(color, Color.Black, (4 - TileSize.Y + j) * 0.15f);
 
 							colors[i + j * TileSize.X] = color;
