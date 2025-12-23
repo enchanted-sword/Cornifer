@@ -3,6 +3,7 @@ using Cornifer.Renderers;
 using Cornifer.Structures;
 using Cornifer.UI.Elements;
 using Cornifer.UI.Helpers;
+using Cornifer.UI.Pages;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -514,7 +515,7 @@ namespace Cornifer.MapObjects
 
                 Shortcuts = tracedShortcuts.ToArray();
                 Exits = exitEntrances;
-            }
+			}
             else
             {
                 Main.LoadErrors.Add($"Could not find tile data for room {Name}");
@@ -819,14 +820,53 @@ namespace Cornifer.MapObjects
                 }
             }
 
-            Loaded = true;
+			void DrawCurveCollision(int x, int ytop, int ybottom, float fit) {
+				for (int y = ytop; y < ybottom; y++) {
+					Tile tile = Tiles[x, y];
+					if (tile.Terrain != Tile.TerrainType.Solid) {
+						if (y == ytop && fit < 0.5) Tiles[x, y].Terrain = Tile.TerrainType.Slope;
+						else Tiles[x, y].Terrain = Tile.TerrainType.Solid;
+					}
+				}
+			}
+
+			UpdateHandles();
+			RefreshCurves();
+
+			foreach (Vector2 handlePoint in HandleCollisionPoints) {
+				int x = (int)handlePoint.X;
+				if (x < 0) continue;
+				int yfloor = (int)MathF.Floor(handlePoint.Y);
+				int ytop = Math.Max(TileSize.Y - yfloor, 0);
+				float fit = MathF.Abs(handlePoint.Y - yfloor);
+
+				DrawCurveCollision(x, ytop, TileSize.Y, fit);
+			}
+
+			for (int k = 0; k < LocalCollisionPoints.Length; k++) {
+				Vector2 localTerrainPoint = LocalCollisionPoints[k];
+				Vector2 localBottomPoint = LocalBottomPoints[k];
+				int x = (int)localTerrainPoint.X;
+				if (x < 0) continue;
+				int ybottom = Math.Max(TileSize.Y - (int)MathF.Floor(localBottomPoint.Y), 0);
+				int yfloor = (int)MathF.Floor(localTerrainPoint.Y);
+				int ytop = Math.Max(TileSize.Y - yfloor - 1, 0);
+				float fit = MathF.Abs(localTerrainPoint.Y - yfloor);
+
+				DrawCurveCollision(x, ytop, ybottom, fit);
+			}
+
+			Loaded = true;
         }
 
         public Texture2D GetTileMap()
         {
             if (TileMap is null || TileMapDirty)
                 UpdateTileMap();
-            return TileMap!;
+
+			if (CutOutsDirty)
+				ProcessCutouts();
+			return TileMap!;
         }
 
         public void UpdateTileMap()
@@ -834,11 +874,6 @@ namespace Cornifer.MapObjects
             Subregion subregion = Subregion.Value;
             Color[] colors = ArrayPool<Color>.Shared.Rent(TileSize.X * TileSize.Y);
             Color waterColor = AcidWater.Value ? AcidColor.Value.Color : subregion.WaterColor.Color;
-
-			UpdateHandles();
-			RefreshCurves();
-			bool hasHandles = HandleCollisionPoints.Length > 0;
-			bool hasLocalTerrain = LocalCollisionPoints.Length > 0;
 
 			try
             {
@@ -915,47 +950,11 @@ namespace Cornifer.MapObjects
 								
 							}
 
-							if (Deathpit.Value && j >= TileSize.Y - 3 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air && (!hasHandles || HandleCollisionPoints[i].Y == 0))
+							if (Deathpit.Value && j >= TileSize.Y - 3 && Tiles[i, TileSize.Y - 1].Terrain == Tile.TerrainType.Air)
 									color = Color.Lerp(color, Color.Black, (4 - TileSize.Y + j) * 0.15f);
 
 							colors[i + j * TileSize.X] = color;
 						}
-				
-
-				foreach (Vector2 handlePoint in HandleCollisionPoints)
-				{
-					int x = (int)handlePoint.X;
-					int yfloor = (int)MathF.Floor(handlePoint.Y);
-					int ytop = Math.Max(TileSize.Y - yfloor, 0);
-					float fit = MathF.Abs(handlePoint.Y - yfloor);
-
-					for (int y = ytop; y < TileSize.Y; y++) {
-						Tile tile = GetTile(x, y);
-						if (tile.Terrain == Tile.TerrainType.Air) {
-							if (y == ytop && fit < 0.5) colors[x + y * TileSize.X] = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, 0.4f);
-							else colors[x + y * TileSize.X] = Color.Black;
-						}
-					}
-				}
-
-				for (int k = 0; k < LocalCollisionPoints.Length; k++) {
-					Vector2 localTerrainPoint = LocalCollisionPoints[k];
-					Vector2 localBottomPoint = LocalBottomPoints[k];
-					int x = (int)localTerrainPoint.X;
-					if (x < 0) continue;
-					int ybottom = Math.Max(TileSize.Y - (int)MathF.Floor(localBottomPoint.Y), 0);
-					int yfloor = (int)MathF.Floor(localTerrainPoint.Y);
-					int ytop = Math.Max(TileSize.Y - yfloor - 1, 0);
-					float fit = MathF.Abs(localTerrainPoint.Y - yfloor);
-
-					for (int y = ytop; y < ybottom; y++) {
-						Tile tile = GetTile(x, y);
-						if (tile.Terrain != Tile.TerrainType.Solid) {
-							if (y == ytop && fit < 0.5) colors[x + y * TileSize.X] = Color.Lerp(Color.Black, subregion.BackgroundColor.Color, 0.4f);
-							else colors[x + y * TileSize.X] = Color.Black;
-						}
-					}
-				}
 
 				if (InterfaceState.MarkShortcuts.Value)
                     foreach (Shortcut shortcut in Shortcuts)
@@ -1248,10 +1247,10 @@ namespace Cornifer.MapObjects
             if (!Loaded)
                 return;
 
-            if (CutOutsDirty)
-                ProcessCutouts();
+			if (CutOutsDirty)
+				ProcessCutouts();
 
-            renderer.DrawTexture(GetTileMap(), WorldPosition);
+			renderer.DrawTexture(GetTileMap(), WorldPosition);
 
             if (base.Name is not null)
                 Main.SpriteBatch.DrawStringAligned(Content.Consolas10, base.Name, renderer.TransformVector(WorldPosition + new Vector2(TileSize.X / 2, .5f)), Color.Yellow, new(.5f, 0), Color.Black);
