@@ -710,7 +710,7 @@ namespace Cornifer.MapObjects
                 {
                     ParentPosAlign = align,
                 });
-                if (SpriteAtlases.Sprites.TryGetValue("ChieftainA", out var tollIcon))
+                if (SpriteAtlases.Sprites.TryGetValue("Object_ScavengerOutpost", out var tollIcon))
                     Children.Add(new SimpleIcon("TollIcon", tollIcon)
                     {
                         ParentPosAlign = align,
@@ -720,7 +720,7 @@ namespace Cornifer.MapObjects
             if (IsScavengerTrader)
             {
                 Children.Add(new MapText("TraderText", Main.DefaultSmallMapFont, "Scavenger merchant"));
-                if (SpriteAtlases.Sprites.TryGetValue("ChieftainA", out var tollIcon))
+                if (SpriteAtlases.Sprites.TryGetValue("Object_ScavengerOutpost", out var tollIcon))
                     Children.Add(new SimpleIcon("TraderIcon", tollIcon));
             }
 
@@ -732,7 +732,7 @@ namespace Cornifer.MapObjects
                 {
                     ParentPosAlign = align,
                 });
-                if (SpriteAtlases.Sprites.TryGetValue("ChieftainA", out var tollIcon))
+                if (SpriteAtlases.Sprites.TryGetValue("Object_ScavengerOutpost", out var tollIcon))
                     Children.Add(new SimpleIcon("TreasuryIcon", tollIcon)
                     {
                         ParentPosAlign = align,
