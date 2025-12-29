@@ -771,12 +771,27 @@ namespace Cornifer.MapObjects
 				if (SpinningTopObj is not null) Children.Add(SpinningTopObj); // so the icon renders overtop its warp point when applicable
 			}
 
-			if (Name is not null && StaticData.ValidWarpTargets.TryGetValue(Name, out var warpTarget) && SpriteAtlases.Sprites.TryGetValue("Object_EchoWarpPoint", out var echoWarpIcon)) {
-				string? fromRegion = RWAssets.GetRegionDisplayName(warpTarget, null);
-				ColorRef warpColor = ColorDatabase.GetRegionColor(warpTarget, null);
+			if (Name is not null && Region.OneWayWarps.TryGetValue(Name, out var warpTarget) && SpriteAtlases.Sprites.TryGetValue("Object_EchoWarpPoint", out var echoWarpIcon)) {
+				string[] split = warpTarget.Split(":");
+				ColorRef warpColor = ColorDatabase.GetRegionColor(split[0], split[2]);
+				string? fromRegion;
 
-				Children.Add(new SimpleIcon("WarpPointIcon", echoWarpIcon));
-				Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"From [c:{warpColor.GetKeyOrColorString()}]{fromRegion}[/c]"));
+				if (split.Length > 2) fromRegion = split[2];
+				else fromRegion = RWAssets.GetRegionDisplayName(split[0], null);
+
+				Vector2 align = new(.5f);
+
+				if (split[1] != "") {
+					string[] subsplit = split[1].Split("~");
+					align = new Vector2(float.Parse(subsplit[0], CultureInfo.InvariantCulture) / 20, TileSize.Y - (float.Parse(subsplit[1], CultureInfo.InvariantCulture) / 20)) / TileSize.ToVector2(); // Not sure why it's vertically flipped...
+				}
+
+				Children.Add(new SimpleIcon("WarpPointIcon", echoWarpIcon) {
+					ParentPosAlign = align
+				});
+				Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"From [c:{warpColor.GetKeyOrColorString()}]{fromRegion}[/c]") {
+					ParentPosAlign = align
+				});
 			}
 
 			if (GateData is not null && IsGate) {

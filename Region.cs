@@ -3,6 +3,7 @@ using Cornifer.Helpers;
 using Cornifer.MapObjects;
 using Cornifer.Structures;
 using Microsoft.Xna.Framework;
+using SixLabors.ImageSharp.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -18,7 +19,9 @@ namespace Cornifer
 {
     public class Region
     {
-        static Regex GateNameRegex = new("GATE_(.+)?_(.+)", RegexOptions.Compiled);
+        static readonly Regex GateNameRegex = new("GATE_(.+)?_(.+)", RegexOptions.Compiled);
+		static readonly Regex WatcherCacheRegex = new("watchercache(.+)\\.txt", RegexOptions.Compiled);
+		static readonly Regex STSpotRegex = new("SpinningTopSpot><[\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+~[\\d\\.-]+~[^~]+~[^~]+~[^~]+~(\\d+~\\d+)~\\d+~[^,]+,", RegexOptions.Compiled);
 
         public string Id = "";
         public List<Room> Rooms = new();
@@ -37,6 +40,8 @@ namespace Cornifer
 
         public CompoundEnumerable<MapObject> ObjectLists = new();
         public List<MapObject> Objects = new();
+
+		public Dictionary<string, string> OneWayWarps = new();
 
         public Region()
         {
@@ -617,9 +622,10 @@ namespace Cornifer
                 room.Children.Add(new MapText(name, Main.DefaultSmallMapFont, text));
             }
             LoadExtraRoomObjects();
+			LoadOneWayWarps();
         }
 
-        private string ApplyCRSFilters(string line)
+        private static string ApplyCRSFilters(string line)
         {
             if (line[0] == '{')
             {
@@ -648,7 +654,7 @@ namespace Cornifer
 
                 else
                 {
-                    return line.Substring(line.IndexOf("}") + 1);
+                    return line[(line.IndexOf("}") + 1)..];
                 }
             }
             return line;
@@ -715,7 +721,7 @@ namespace Cornifer
 
         void LoadExtraRoomObjects()
         {
-            string roomobjectsPath = Path.Combine(Main.MainDir, "Assets/roomobjects.txt");
+            string roomobjectsPath = System.IO.Path.Combine(Main.MainDir, "Assets/roomobjects.txt");
             if (!File.Exists(roomobjectsPath))
                 return;
 
@@ -887,6 +893,54 @@ namespace Cornifer
                 room.Children.Add(obj);
             }
         }
+
+		void LoadOneWayWarps() {
+			if (RWAssets.CurrentInstallation?.IsWatcher is true) {
+				
+				foreach (string indexFile in Directory.EnumerateFiles(System.IO.Path.Combine(RWAssets.CurrentInstallation.AssetsPath, "consolefiles/watcher/world/indexmaps"))) {
+					Match regionMatch = WatcherCacheRegex.Match(indexFile);
+
+					if (!regionMatch.Success) continue;
+
+					string sourceRegionId = regionMatch.Groups[1].Value;
+					string cacheText = File.ReadAllText(indexFile);
+					string[] echoWarps = cacheText.Split("\r\n")[0].Split(",");
+
+					foreach (string warp in echoWarps) {
+						string[] subsplit = warp.Split(":");
+						if (subsplit.Length < 3 || !subsplit[2].StartsWith(Id.ToLower())) continue;
+
+						string infoStr = sourceRegionId.ToUpper();
+
+						try {
+							string sourceRoomId = subsplit[0].Split("_")[1];
+							string? sourceSettingsPath = RWAssets.ResolveSlugcatFile($"world/{sourceRegionId}-rooms/{subsplit[0]}_settings.txt");
+
+							if (sourceSettingsPath is not null) {
+								string sourceSettings = File.ReadAllText(sourceSettingsPath);
+								Match stSpotMatch = STSpotRegex.Match(sourceSettings);
+
+								if (stSpotMatch.Success) infoStr += $":{stSpotMatch.Groups[1].Value}";
+								else infoStr += ":";
+							} else infoStr += ":";
+
+								string? sourceMapFile = RWAssets.ResolveFile($"world/{sourceRegionId}/map_{sourceRegionId}.txt");
+
+							if (sourceMapFile is not null) {
+								Regex subregionRegex = new($"{subsplit[0].ToUpper()}: [\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><([\\w\\d]+)?>", RegexOptions.Compiled);
+								Match subregionMatch = subregionRegex.Match(File.ReadAllText(sourceMapFile));
+								if (subregionMatch.Success) infoStr += $":{subregionMatch.Groups[1].Value}";
+							}
+
+						} catch (Exception e) {
+							Main.LoadErrors.Add($"Could not load Echo Warp source room {subsplit[0]}: {e.Message}");
+						}
+
+						OneWayWarps.Add(subsplit[2].ToUpper(), infoStr);
+					}
+				}
+			}	
+		}
 
         public void PostRegionLoad()
         {
