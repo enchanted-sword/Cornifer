@@ -37,7 +37,7 @@ namespace Cornifer.MapObjects
 
 		public Vector2? WarpPos;
 		public string? WarpTarget;
-		public string WarpTargetRoom = "";
+		public string? WarpTargetRoom;
 		public bool RippleWarp;
 		public PlacedObject? SpinningTopObj;
 
@@ -662,6 +662,7 @@ namespace Cornifer.MapObjects
                         {
 							if (isWarpRoom && obj.Type == "SpinningTopSpot") {
 								SpinningTopObj = obj;
+								SpinningTopObj.BorderSize.OriginalValue = 0;
 							}
 							else 
 							{
@@ -715,14 +716,20 @@ namespace Cornifer.MapObjects
                     {
                         ParentPosAlign = align,
                     });
-            }
+				if (SpriteAtlases.Sprites.TryGetValue("ChieftainA", out var tollTextIcon))
+					Children.Add(new SimpleIcon("TollTextIcon", tollTextIcon) {
+						ParentPosAlign = align,
+					});
+			}
 
             if (IsScavengerTrader)
             {
                 Children.Add(new MapText("TraderText", Main.DefaultSmallMapFont, "Scavenger merchant"));
-                if (SpriteAtlases.Sprites.TryGetValue("Object_ScavengerOutpost", out var tollIcon))
-                    Children.Add(new SimpleIcon("TraderIcon", tollIcon));
-            }
+                if (SpriteAtlases.Sprites.TryGetValue("Object_ScavengerOutpost", out var traderIcon))
+                    Children.Add(new SimpleIcon("TraderIcon", traderIcon));
+				if (SpriteAtlases.Sprites.TryGetValue("ChieftainA", out var traderTextIcon))
+					Children.Add(new SimpleIcon("TraderTextIcon", traderTextIcon));
+			}
 
             if (IsScavengerTreasury)
             {
@@ -732,12 +739,16 @@ namespace Cornifer.MapObjects
                 {
                     ParentPosAlign = align,
                 });
-                if (SpriteAtlases.Sprites.TryGetValue("Object_ScavengerOutpost", out var tollIcon))
-                    Children.Add(new SimpleIcon("TreasuryIcon", tollIcon)
+                if (SpriteAtlases.Sprites.TryGetValue("Object_ScavengerOutpost", out var treasuryIcon))
+                    Children.Add(new SimpleIcon("TreasuryIcon", treasuryIcon)
                     {
                         ParentPosAlign = align,
                     });
-            }
+				if (SpriteAtlases.Sprites.TryGetValue("ChieftainA", out var treasuryTextIcon))
+					Children.Add(new SimpleIcon("TreasuryTextIcon", treasuryTextIcon) {
+						ParentPosAlign = align,
+					});
+			}
 
 			if (isWarpRoom) 
 			{
@@ -754,9 +765,9 @@ namespace Cornifer.MapObjects
 						};
 					}
 
-					string subregion = Region.GetRoomSubregion(WarpTargetRoom!);
+					string? subregion = Region.GetRoomSubregion(WarpTargetRoom);
 					string? fromRegion;
-					if (subregion != "") fromRegion = subregion;
+					if (subregion is not null) fromRegion = subregion;
 					else fromRegion = RWAssets.GetRegionDisplayName(WarpTarget, Main.SelectedSlugcat);
 
 					ColorRef warpColor = ColorDatabase.GetRegionColor(WarpTarget, subregion);
@@ -780,11 +791,17 @@ namespace Cornifer.MapObjects
 
 			if (Name is not null && Region.OneWayWarps.TryGetValue(Name, out var warpTarget) && SpriteAtlases.Sprites.TryGetValue("Object_EchoWarpPoint", out var echoWarpIcon)) {
 				string[] split = warpTarget.Split(":");
-				ColorRef warpColor = ColorDatabase.GetRegionColor(split[0], split[2]);
 				string? fromRegion;
+				ColorRef warpColor;
 
-				if (split.Length > 2) fromRegion = split[2];
-				else fromRegion = RWAssets.GetRegionDisplayName(split[0], null);
+				if (split.Length > 2) {
+					fromRegion = split[2];
+					warpColor = ColorDatabase.GetRegionColor(split[0], split[2]);
+				}
+				else {
+					fromRegion = RWAssets.GetRegionDisplayName(split[0], null);
+					warpColor = ColorDatabase.GetRegionColor(split[0], null);
+				}
 
 				Vector2 align = new(.5f);
 

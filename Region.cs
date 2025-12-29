@@ -686,15 +686,17 @@ namespace Cornifer
             return RWAssets.FindRegions().Any(region => region.Mod.Enabled && region.Id == condition) == notInverted;
         }
 
-		public static string GetRoomSubregion(string roomName) {
-			string subregion = "";
-			string regionId = roomName.Split("_")[0].ToLower();
-			string? sourceMapFile = RWAssets.ResolveFile($"world/{regionId}/map_{regionId}.txt");
+		public static string? GetRoomSubregion(string? roomName) {
+			string? subregion = null;
+			if (roomName is not null) {
+				string regionId = roomName.Split("_")[0].ToLower();
+				string? sourceMapFile = RWAssets.ResolveFile($"world/{regionId}/map_{regionId}.txt");
 
-			if (sourceMapFile is not null) {
-				Regex subregionRegex = new($"{roomName.ToUpper()}: [\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><([\\w\\d ]+)?>", RegexOptions.Compiled);
-				Match subregionMatch = subregionRegex.Match(File.ReadAllText(sourceMapFile));
-				if (subregionMatch.Success) subregion = subregionMatch.Groups[1].Value;
+				if (sourceMapFile is not null) {
+					Regex subregionRegex = new($"{roomName.ToUpper()}: [\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><[\\d\\.-]+><([\\w\\d ]+)?>", RegexOptions.Compiled);
+					Match subregionMatch = subregionRegex.Match(File.ReadAllText(sourceMapFile));
+					if (subregionMatch.Success) subregion = subregionMatch.Groups[1].Value;
+				}
 			}
 			return subregion;
 		}
@@ -938,8 +940,8 @@ namespace Cornifer
 
 							string? sourceMapFile = RWAssets.ResolveFile($"world/{sourceRegionId}/map_{sourceRegionId}.txt");
 
-							string subregion = GetRoomSubregion(subsplit[0]);
-							if (subregion != "") infoStr += $":{subregion}";
+							string? subregion = GetRoomSubregion(subsplit[0]);
+							if (subregion is not null) infoStr += $":{subregion}";
 
 						} catch (Exception e) {
 							Main.LoadErrors.Add($"Could not load Echo Warp source room {subsplit[0]}: {e.Message}");

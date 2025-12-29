@@ -153,7 +153,7 @@ namespace Cornifer
         {
             { "KarmaFlower",      (new(110,72,   7,  7), new(255, 255, 255, 0.65f)) },
             { "SeedCob",          (new(40, 0,   35, 38), new(255, 255, 255, 255)) },
-            { "GhostSpot",        (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
+            { "GhostSpot",        (new(0,  0,   23, 30), new(255, 255, 255, 255)) },
             { "BlueToken",        (new(77, 84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "GoldToken",        (new(92, 84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "RedToken",         (new(77, 69,  13, 13), new(255, 255, 255, 0.75f)) },
@@ -167,7 +167,7 @@ namespace Cornifer
             { "MoonCloak",        (new(1,  49,  21, 25), new(255, 255, 255, 255)) },
 			{ "AncientShelterMarker", (new(91, 45,  21, 22), new(255, 255, 255, 255)) },
 
-			{ "SpinningTopSpot",  (new(0,  0,   38, 48), new(255, 255, 255, 255)) },
+			{ "SpinningTopSpot",  (new(0,  0,   23, 30), new(255, 255, 255, 255)) },
 			{ "RippleWarpPoint",  (new(24, 60,  22, 24), new(0.373f, 0.11f, 0.831f, 0.75f)) },
 			{ "WarpPoint",		  (new(48, 60,  24, 25), new(0.373f, 0.11f, 0.831f, 0.75f)) },
 			{ "EchoWarpPoint",    (new(48, 60,  24, 25), new(1f, 0.73f, 0.368f, 0.75f)) },
