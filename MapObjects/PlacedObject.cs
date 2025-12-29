@@ -14,7 +14,7 @@ namespace Cornifer.MapObjects
         public string Type = null!;
 		public static string[] technicalObjects = { "Filter", "ScavengerTreasury", "TerrainHandle", "WaterCycleTop", "WaterCycleBottom", "WaterCutoff", "AirPocket", "LocalTerrain" };
 		public override string? Name => $"{Type}@{RoomPos.X:0},{RoomPos.Y:0}";
-		public List<SlugcatIcon>? AvailabilityIcons;
+		public List<SlugcatTokenIcon>? AvailabilityIcons;
 		public HashSet<string> SlugcatAvailability = new();
 		public Vector2 RoomPos;
 		public Vector2 HandlePos;
@@ -177,12 +177,14 @@ namespace Cornifer.MapObjects
 								Slugcat? slugcat = StaticData.Slugcats.FirstOrDefault(s => s.Name == subname || s.Id == subname);
 
 								if (slugcat is not null) {
-									obj.Children.Add(new SlugcatIcon("GreenTokenSlugcat", slugcat, false) {
+									obj.Children.Add(new SlugcatTokenIcon("GreenToken", slugcat, false) {
 										ParentPosition = new(0, 8),
 										Parent = obj,
-										ForceSlugcatIcon = true,
 										LineColor = Microsoft.Xna.Framework.Color.Lime
 									});
+									obj.Children.Add(new MapText("GreenTokenText", Main.DefaultSmallMapFont, "[c:0f0]Slugcat[/c]"));
+									if (SpriteAtlases.Sprites.TryGetValue($"SlugcatCustom_{slugcat.Id}", out AtlasSprite? sprite))
+										obj.Children.Add(new SimpleIcon("GreenTokenSlugcat", sprite));
 								}
 
 								break;
@@ -307,7 +309,7 @@ namespace Cornifer.MapObjects
 
             int i = 0;
 
-            List<SlugcatIcon> icons = new();
+            List<SlugcatTokenIcon> icons = new();
             foreach (Slugcat slugcat in StaticData.Slugcats)
             {
                 bool available = SlugcatAvailability.Contains(slugcat.Id);
@@ -319,7 +321,7 @@ namespace Cornifer.MapObjects
                 currentAngle -= iconAngle;
 
                 offset.Floor();
-                SlugcatIcon icon = new($"Availability_{slugcat.Id}", slugcat, !available)
+                SlugcatTokenIcon icon = new($"Availability_{slugcat.Id}", slugcat, !available)
                 {
                     ParentPosition = offset
                 };

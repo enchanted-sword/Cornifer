@@ -9,7 +9,7 @@ namespace Cornifer.UI.Elements
     public class UIDiamondPlacementDisplay : UIElement
     {
         public DiamondPlacement? Placement;
-        public List<SlugcatIcon>? Icons;
+        public List<SlugcatTokenIcon>? Icons;
 
         public override void Recalculate()
         {

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Cornifer.MapObjects
 {
-    public class SlugcatIcon : SelectableIcon
+    public class SlugcatTokenIcon : SelectableIcon
     {
         public readonly Slugcat Slugcat;
 
@@ -33,7 +33,7 @@ namespace Cornifer.MapObjects
             Hollow ? HollowDiamondSprite : DiamondSprite 
             : IconSprite;
 
-        public SlugcatIcon(string name, Slugcat slugcat, bool hollow)
+        public SlugcatTokenIcon(string name, Slugcat slugcat, bool hollow)
         {
             Name = name;
             Slugcat = slugcat;

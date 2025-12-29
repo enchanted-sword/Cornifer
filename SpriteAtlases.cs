@@ -270,7 +270,11 @@ namespace Cornifer
                 name = "Slugcat_" + slugcat;
                 frame = new(i * 20, 26, 20, 19);
                 Sprites[name] = new(name, Content.SlugcatIcons, frame, Color.White, false);
-            }
+
+				name = "SlugcatCustom_" + slugcat;
+				frame = new(i * 24, 45, 24, 24);
+				Sprites[name] = new(name, Content.SlugcatIcons, frame, Color.White, false);
+			}
         }
 
         public static AtlasSprite? GetSpriteOrNull(string name)
