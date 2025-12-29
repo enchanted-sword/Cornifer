@@ -240,8 +240,17 @@ namespace Cornifer
                 r += (byte)(r << 4);
                 g += (byte)(g << 4);
                 b += (byte)(b << 4);
-            }
-            else if (text.Length == 6)
+            } else if (text.Length == 4) {
+				r = ParseHexChar(text[0]);
+				g = ParseHexChar(text[1]);
+				b = ParseHexChar(text[2]);
+				a = ParseHexChar(text[3]);
+
+				r += (byte)(r << 4);
+				g += (byte)(g << 4);
+				b += (byte)(b << 4);
+				a += (byte)(a << 4);
+			} else if (text.Length == 6)
             {
                 r = (byte)((ParseHexChar(text[0]) << 4) + ParseHexChar(text[1]));
                 g = (byte)((ParseHexChar(text[2]) << 4) + ParseHexChar(text[3]));
