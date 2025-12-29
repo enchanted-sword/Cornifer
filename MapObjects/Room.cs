@@ -37,6 +37,7 @@ namespace Cornifer.MapObjects
 
 		public Vector2? WarpPos;
 		public string? WarpTarget;
+		public string WarpTargetRoom = "";
 		public bool RippleWarp;
 		public PlacedObject? SpinningTopObj;
 
@@ -581,6 +582,7 @@ namespace Cornifer.MapObjects
 										isWarpRoom = true;
 										WarpPos = new(obj.RoomPos.X, TileSize.Y - obj.RoomPos.Y);
 										WarpTarget = obj.TargetRegion;
+										WarpTargetRoom = obj.TargetRoom;
 										RippleWarp = obj.IsRippleWarp ?? false;
 
 										if (obj.Type == "SpinningTopSpot") objects.Add(obj);
@@ -752,7 +754,12 @@ namespace Cornifer.MapObjects
 						};
 					}
 
-					ColorRef warpColor = ColorDatabase.GetRegionColor(WarpTarget, null);
+					string subregion = Region.GetRoomSubregion(WarpTargetRoom!);
+					string? fromRegion;
+					if (subregion != "") fromRegion = subregion;
+					else fromRegion = RWAssets.GetRegionDisplayName(WarpTarget, Main.SelectedSlugcat);
+
+					ColorRef warpColor = ColorDatabase.GetRegionColor(WarpTarget, subregion);
 
 					if ((WarpTarget == "WAUA" || WarpTarget == "WRSA" || RippleWarp) && !isDESERT6 && SpriteAtlases.Sprites.TryGetValue("Object_RippleWarpPoint", out var rippleWarpIcon))
 						Children.Add(new SimpleIcon("RippleWarpPointIcon", rippleWarpIcon) {
@@ -763,7 +770,7 @@ namespace Cornifer.MapObjects
 							ParentPosAlign = align
 						});
 
-					if (!isDESERT6) Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"To [c:{warpColor.GetKeyOrColorString()}]{RWAssets.GetRegionDisplayName(WarpTarget, null)}[/c]") {
+					if (!isDESERT6) Children.Add(new MapText("WarpTargetText", Main.DefaultBigMapFont, $"To [c:{warpColor.GetKeyOrColorString()}]{fromRegion}[/c]") {
 						ParentPosAlign = align
 					});
 				}
@@ -789,7 +796,7 @@ namespace Cornifer.MapObjects
 				Children.Add(new SimpleIcon("WarpPointIcon", echoWarpIcon) {
 					ParentPosAlign = align
 				});
-				Children.Add(new MapText("WarpTargetText", Main.DefaultSmallMapFont, $"From [c:{warpColor.GetKeyOrColorString()}]{fromRegion}[/c]") {
+				Children.Add(new MapText("WarpTargetText", Main.DefaultBigMapFont, $"From [c:{warpColor.GetKeyOrColorString()}]{fromRegion}[/c]") {
 					ParentPosAlign = align
 				});
 			}
