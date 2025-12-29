@@ -30,7 +30,7 @@
     <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
-	<PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
+	<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
 	<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
   </ItemGroup>
   <ItemGroup>
