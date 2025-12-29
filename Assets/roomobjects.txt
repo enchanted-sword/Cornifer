@@ -13,3 +13,4 @@ DM_AI : Icon MoonIcon GuidanceMoon ffeb04
 RM_CORE : Text CellText 05a5d9 : Rarefaction Cell
 RM_CORE : Icon CellIcon Object_EnergyCell
 LC_FINAL : Icon ScavKingIcon Kill_ScavengerKing
+WAUA_PEARL : Icon PearlReader Object_PearlPuter
