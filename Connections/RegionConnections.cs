@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Nodes;
+using static Cornifer.MapObjects.Room;
 
 namespace Cornifer.Connections
 {
@@ -104,9 +105,9 @@ namespace Cornifer.Connections
                 float lineBoundsOff = .5f * Main.WorldCamera.Scale;
 
                 if (HoveredConnection is not null
-                 && HoveredConnectionLine <= HoveredConnection.Points.Count
-                 && HoveredConnection.Active
-                 && (HoveredConnection.IsInRoomShortcut ? inRooms : betweenRooms))
+					&& HoveredConnectionLine <= HoveredConnection.Points.Count
+					&& HoveredConnection.Active
+					&& (HoveredConnection.IsInRoomShortcut ? inRooms : betweenRooms))
                 {
                     (Vec2 start, Vec2 end) = GetLinePoints(Main.WorldCamera, HoveredConnection, HoveredConnectionLine);
                     Rect lineRect = GetLineBounds(start, end, lineBoundsOff, out float lineAngle);
@@ -297,7 +298,7 @@ namespace Cornifer.Connections
                     return point is not null && !point.NoShadow.Value;
                 }
 
-                Color connectionColor = connection.Color;
+                Color connectionColor = IsDirectionallyValid(connection) ? connection.Color : Color.Red;
                 int totalLength = 0;
 
                 for (int i = 0; i <= connection.Points.Count; i++)
@@ -426,6 +427,9 @@ namespace Cornifer.Connections
                 if (!connection.Active || (connection.IsInRoomShortcut ? !inRooms : !betweenRooms))
                     continue;
 
+				if (IsUnspoiledConnection(connection)) connection.GuideColor = Color.White;
+				else connection.GuideColor = Color.Yellow;
+
                 for (int i = 0; i <= connection.Points.Count; i++)
                 {
                     (Vec2 start, Vec2 end) = GetLinePoints(renderer, connection, i);
@@ -469,9 +473,9 @@ namespace Cornifer.Connections
                         Main.SpriteBatch.DrawRect(end - new Vector2(3), new(5), Color.Black);
 
                     if (visible)
-                        Main.SpriteBatch.DrawLine(start, end, visible ? connection.GuideColor : Color.Red, 1);
+                        Main.SpriteBatch.DrawLine(start, end, connection.GuideColor, 1);
                     else
-                        Main.SpriteBatch.DrawDashLine(start, end, visible ? connection.GuideColor : connection.GuideColor * .6f, null, dashSize, null, 1);
+                        Main.SpriteBatch.DrawDashLine(start, end, connection.GuideColor * .6f, null, dashSize, null, 1);
 
                     if (smallStartPoint)
                         Main.SpriteBatch.DrawRect(start - new Vector2(2), new(3), connection.GuideColor);
@@ -531,6 +535,62 @@ namespace Cornifer.Connections
 
             return start.X == end.X || start.Y == end.Y;
         }
+
+		static bool IsDirectionallyValid(Connection connection) {
+			Point sourceDir = connection.Source.GetShortcutExitDirection(connection.SourcePoint);
+			Point destDir = connection.Destination.GetShortcutExitDirection(connection.DestinationPoint);
+
+			sourceDir.X = - sourceDir.X;
+			destDir.X = - destDir.X;
+
+			Vec2 sourceExitVec = (Vec2)(sourceDir.ToVector2());
+			Vec2 destExitVec = (Vec2)(destDir.ToVector2());
+
+			float targetSourceAngle = sourceExitVec.Angle.NormalizedRadians();
+			float targetDestAngle = destExitVec.Angle.NormalizedRadians();
+
+			Vec2 source = (Vec2)(connection.SourcePoint.ToVector2() + connection.Source.WorldPosition);
+			Vec2 dest = (Vec2)(connection.DestinationPoint.ToVector2() + connection.Destination.WorldPosition);
+			Vec2 afterSource;
+			Vec2 beforeDest;
+
+			if (connection.Points.Count > 0) {
+				afterSource = (Vec2)connection.Points[0].WorldPosition;
+				beforeDest = (Vec2)connection.Points[^1].WorldPosition;
+			} else {
+				afterSource = dest;
+				beforeDest = source;
+			}
+
+			Vec2 fromStart = afterSource - source;
+			Vec2 fromEnd = beforeDest - dest;
+
+			fromStart.Y = -fromStart.Y;
+			fromEnd.Y = -fromEnd.Y;
+
+			float sourceAngle = fromStart.Angle.NormalizedRadians();
+			float destAngle = fromEnd.Angle.NormalizedRadians();
+
+			float sourceDiff = Angle.NormalizeRadians(targetSourceAngle - sourceAngle);
+			float destDiff = Angle.NormalizeRadians(targetDestAngle - destAngle);
+
+			if (!Angle.IsAcute(sourceDiff) || !Angle.IsAcute(destDiff)) return false;
+
+			int sourceOffset = (int)Math.Round(Math.Sin(sourceDiff) * fromStart.Length);
+			int destOffset = (int)Math.Round(Math.Sin(destDiff) * fromEnd.Length);
+
+			return (sourceOffset == 0 && destOffset == 0);
+		}
+
+		static bool IsUnspoiledConnection(Connection connection)
+		{
+			Vec2 startPos = (Vec2)(connection.SourcePoint.ToVector2() + connection.Source.WorldPosition);
+			Vec2 endPos = (Vec2)(connection.DestinationPoint.ToVector2() + connection.Destination.WorldPosition);
+			int horizontalSpacing = (int)Math.Round(endPos.X - startPos.X) % 2;
+			int verticalSpacing = (int)Math.Round(endPos.Y - startPos.Y) % 2;
+
+			return (horizontalSpacing == 0 && verticalSpacing == 0);
+		}
 
         static (Vec2, Vec2) GetLinePoints(Renderer? transformer, Connection connection, int line)
         {

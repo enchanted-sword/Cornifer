@@ -19,6 +19,20 @@ namespace Cornifer.UI.Structures
         public Angle FromRad(float radians) => new(radians);
         public Angle FromDeg(float degrees) => new() { Degrees = degrees };
 
+		public static float PI2 = MathF.PI * 2f;
+		public static float NormalizeRadians(float radians) {
+			if (radians >= 0 && radians < PI2) return radians;
+			else if (radians > PI2) return radians - PI2;
+			else return radians + PI2;
+		}
+		public float NormalizedRadians() {
+			return NormalizeRadians(Radians);
+		}
+
+		public static bool IsAcute(float radians) {
+			return (radians < 0.5f * MathF.PI || radians > 1.5f * MathF.PI);
+		}
+
         public override bool Equals(object? obj)
         {
             return obj is Angle angle &&

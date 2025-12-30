@@ -1,9 +1,11 @@
-﻿using Cornifer.Json;
+﻿using Cornifer.Connections;
+using Cornifer.Json;
 using Cornifer.Renderers;
 using Cornifer.Structures;
 using Cornifer.UI.Elements;
 using Cornifer.UI.Helpers;
 using Cornifer.UI.Pages;
+using Cornifer.UI.Structures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -139,6 +141,16 @@ namespace Cornifer.MapObjects
 
 		private bool IsValidTilePos(Point testTilePos) {
 			return testTilePos.X >= 0 && testTilePos.Y >= 0 && testTilePos.X < TileSize.X && testTilePos.Y < TileSize.Y;
+		}
+
+		public Point GetShortcutExitDirection(Point shortcut) {
+			for (int i = 0; i < 4; i++) {
+				Point testTilePos = shortcut + StaticData.Directions[i];
+				if (!IsValidTilePos(testTilePos)) continue;
+				Tile tile = Tiles[testTilePos.X, testTilePos.Y];
+				if (tile.Terrain != Tile.TerrainType.Solid) return StaticData.Directions[i];
+			}
+			return new(0, 0);
 		}
 
         public Room()

@@ -28,7 +28,7 @@ namespace Cornifer.Connections
         public Color Color => IsInRoomShortcut ? Color.Lerp(Color.White, Source.Subregion.Value.BackgroundColor.Color, .3f) : Color.White;
         public string JsonKey => IsInRoomShortcut ? $"#{Source.Name}~{SourcePoint.X}~{SourcePoint.Y}" : $"{Source.Name}~{Destination.Name}";
 
-        public Color GuideColor => Color.White;
+        public Color GuideColor = Color.Magenta;
 
         public ObjectProperty<bool> AllowWhiteToRedPixel = new("whiteToRed", true);
 
