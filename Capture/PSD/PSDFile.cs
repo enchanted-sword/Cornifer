@@ -10,6 +10,7 @@ namespace Cornifer.Capture.PSD
         static readonly byte[] Magic8BPS = Encoding.ASCII.GetBytes("8BPS");
         static readonly byte[] Magic8BIM = Encoding.ASCII.GetBytes("8BIM");
         static readonly byte[] BlendNormal = Encoding.ASCII.GetBytes("norm");
+		static readonly byte[] UnicodeName = Encoding.ASCII.GetBytes("luni");
 
         public uint Width, Height;
         public List<Layer> Layers = new();
@@ -18,20 +19,18 @@ namespace Cornifer.Capture.PSD
         {
             BigEndianWriter writer = new(stream);
 
-            using (TaskProgress mainprog = new("Writing PSD", 5))
-            {
-                WriteHeader(writer);
-                mainprog.Progress = 1;
-                WriteColorModeData(writer);
-                mainprog.Progress = 2;
-                WriteImageResources(writer);
-                mainprog.Progress = 3;
-                WriteLayerMaskInfo(writer);
-                mainprog.Progress = 4;
-                WriteImageData(writer);
-                mainprog.Progress = 5;
-            }
-        }
+			using TaskProgress mainprog = new("Writing PSD", 5);
+			WriteHeader(writer);
+			mainprog.Progress = 1;
+			WriteColorModeData(writer);
+			mainprog.Progress = 2;
+			WriteImageResources(writer);
+			mainprog.Progress = 3;
+			WriteLayerMaskInfo(writer);
+			mainprog.Progress = 4;
+			WriteImageData(writer);
+			mainprog.Progress = 5;
+		}
 
         void WriteHeader(BigEndianWriter writer)
         {
@@ -58,96 +57,100 @@ namespace Cornifer.Capture.PSD
 
         void WriteLayerMaskInfo(BigEndianWriter writer)
         {
-            SizedWrite(writer, false, writer => // Layer and mask information
+            SizedWrite(writer, false, writer =>		// Layer and mask information
             {
-                SizedWrite(writer, true, writer => // Layer info
+                SizedWrite(writer, true, writer =>	// Layer info
                 {
-                    writer.Write((ushort)Layers.Count);
+                    writer.Write((ushort)Layers.Count);	// Typically 14									[2]
 
-                    using MemoryStream layersImageData = new();
-                    BigEndianWriter imgWriter = new(layersImageData);
+                    using MemoryStream channelImageStream = new();
+                    BigEndianWriter channelImageWriter = new(channelImageStream);
 
                     using MemoryStream rleTemp = new();
                     using RleStream rle = new(rleTemp);
 
-                    using (TaskProgress prog = new("Writing layers", Layers.Count))
+                    using (TaskProgress prog = new("Writing layer records", Layers.Count))
                     {
-                        foreach (Layer layer in Layers) // Layer records
+                        foreach (Layer layer in Layers) // Begin layer records
                         {
-                            writer.Write(layer.Y); // Top
-                            writer.Write(layer.X); // Left
-                            writer.Write(layer.Height + layer.Y); // Bottom
-                            writer.Write(layer.Width + layer.X); // Right
-                            writer.Write((ushort)4); // Number of channels
+                            writer.Write(layer.Y);                  // Top								[4]			
+							writer.Write(layer.X);                  // Left								[4]
+							writer.Write(layer.Height + layer.Y);   // Bottom							[4]
+							writer.Write(layer.Width + layer.X);	// Right							[4]
 
-                            int channelLength = WriteChannel(imgWriter, rleTemp, rle, layer, 0);
+                            writer.Write((ushort)4);				// Number of channels (4)			[2]
 
-                            writer.Write((ushort)0);                // Channel type: Red
-                            writer.Write((uint)channelLength);      // Channel data length
+                            int channelLength = WriteChannel(channelImageWriter, rleTemp, rle, layer, 0);
+                            writer.Write((ushort)0);                // Channel type: Red				[2]
+                            writer.Write((uint)channelLength);      // Channel data length				[4]
 
-                            channelLength = WriteChannel(imgWriter, rleTemp, rle, layer, 1);
+                            channelLength = WriteChannel(channelImageWriter, rleTemp, rle, layer, 1);
+                            writer.Write((ushort)1);                // Channel type: Green				[2]
+							writer.Write((uint)channelLength);      // Channel data length				[4]
 
-                            writer.Write((ushort)1);                // Channel type: Green
-                            writer.Write((uint)channelLength);      // Channel data length
+							channelLength = WriteChannel(channelImageWriter, rleTemp, rle, layer, 2);
+                            writer.Write((ushort)2);                // Channel type: Blue				[2]
+							writer.Write((uint)channelLength);      // Channel data length				[4]
 
-                            channelLength = WriteChannel(imgWriter, rleTemp, rle, layer, 2);
+							channelLength = WriteChannel(channelImageWriter, rleTemp, rle, layer, 3);
+                            writer.Write((short)-1);                // Channel type: Transparency mask	[2]
+							writer.Write((uint)channelLength);      // Channel data length				[4]
 
-                            writer.Write((ushort)2);                // Channel type: Blue
-                            writer.Write((uint)channelLength);      // Channel data length
+							writer.Write(Magic8BIM);                // Blend mode signature '8BIM'		[4]
+							writer.Write(BlendNormal);              // Blend mode key 'norm'			[4]
+							writer.Write(layer.Opacity);			// Opacity							[1]
+                            writer.Write((byte)0);					// Clipping (non-base)				[1]
+                            writer.Write(layer.Visible ? (byte)0x00 : (byte)0x02); // Visibility flag	[1]
+                            writer.Write((byte)0);					// Padding							[1]
 
-                            channelLength = WriteChannel(imgWriter, rleTemp, rle, layer, 3);
-
-                            writer.Write((short)-1);                // Channel type: Transparency
-                            writer.Write((uint)channelLength);      // Channel data length
-
-                            writer.Write(Magic8BIM);
-                            writer.Write(BlendNormal);
-                            writer.Write(layer.Opacity);
-                            writer.Write((byte)0);            // Clipping
-                            writer.Write(layer.Visible ? (byte)0x00 : (byte)0x02); // Flags. bit 1 = Invisible
-                            writer.Write((byte)0);            // Filler
-
-                            SizedWrite(writer, false, writer =>
+                            SizedWrite(writer, false, writer =>		// Extra data field
                             {
-                                writer.Write(0u);                 // Layer mask length
-                                writer.Write(0u);                 // Layer blending ranges length
+                                writer.Write(0u);					// Layer mask length (0)			[4]
 
-                                byte[] namebytes = Encoding.UTF8.GetBytes(layer.Name);
-                                writer.Write((byte)namebytes.Length);
+								writer.Write(40u);					// Layer mask length (0)			[4]
+								writer.Write(0xFFFF);				// Gray blend source				[4]
+								writer.Write(0xFFFF);				// Gray blend destination			[4]
+								for (int j = 0; j < 4; j++) {
+									writer.Write(0xFFFF);           // Channel j source range			[4]   
+									writer.Write(0xFFFF);           // Channel j destination range		[4]
+								}
+
+								byte[] namebytes = Encoding.UTF8.GetBytes(layer.Name);
+								writer.Write((byte)namebytes.Length); // first byte of UCSD string		[1]
                                 writer.Write(namebytes);
 
-                                while (writer.BaseStream.Position % 4 != 0)
-                                    writer.Write((byte)0);
+								while (writer.BaseStream.Position % 4 != 0)
+									writer.Write((byte)0);
 
-                                writer.Write((ushort)0);
+								writer.Write((ushort)0);
 
-                                //int pad = 4 - ((1 + namebytes.Length) % 4);
-                                //for (int i = 0; i < pad; i++)
-                                //    writer.Write((byte)0);
-                            });
+								/*int pad = 4 - ((1 + namebytes.Length) % 4);
+								for (int i = 0; i < pad; i++)
+								    writer.Write((byte)0);*/
+							});
+
+							// End layer record
 
                             prog.Progress += 1;
                         }
-
-                        //foreach (Layer layer in Layers) // Channel image data
-                        //{
-                        //    for (int c = 0; c < 4; c++)
-                        //    {
-                        //        // writer.Write((ushort)0); // No compression
-                        //        // for (int i = c; i < layer.Data.Length; i += 4)
-                        //        //     writer.Write(layer.Data[i]);
-                        //
-                        //        prog.Progress += .25f;
-                        //    }
-                        //}
                     }
 
-                    layersImageData.Position = 0;
-                    layersImageData.CopyTo(writer.BaseStream);
+                    channelImageStream.Position = 0;
+                    channelImageStream.CopyTo(writer.BaseStream);	// Copy channel image data to end of layer records
                 });
 
-                //writer.Write(0u); // Global layer mask data length
-            });
+                /*writer.Write(14u);		// Global layer mask data length (14)						[4]
+				writer.Write((ushort)0);    // Overlay colour space										[2]
+				writer.Write(0L);           // 4 * 2 byte colour components								[8]
+				writer.Write((ushort)0);    // Opacity (0)												[2]
+				writer.Write((byte)1);      // Kind (Colour protected)									[1]
+				writer.Write((byte)0);      // Filler													[1]
+
+				writer.Write(Magic8BIM);
+				writer.Write(UnicodeName);
+				writer.Write(1u);
+				writer.Write(0xFF00);*/
+			});
         }
 
         int WriteChannel(BigEndianWriter writer, MemoryStream temp, RleStream rle, Layer layer, int c)
@@ -190,14 +193,10 @@ namespace Cornifer.Capture.PSD
 
         void WriteImageData(BigEndianWriter writer)
         {
-            //writer.Write((ushort)0); // Compression: None
-            //for (int i = 0; i < Width * Height; i++)
-            //    writer.Write(0u);    // Empty preview
-
             using MemoryStream temp = new();
             RleStream rle = new(temp);
 
-            writer.Write((ushort)1);   // RLE compressed zeroes!
+            writer.Write((ushort)1);   // RLE compression
 
             temp.Position = 0;
             temp.SetLength(0);
