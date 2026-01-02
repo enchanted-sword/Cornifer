@@ -298,7 +298,7 @@ namespace Cornifer.Connections
                     return point is not null && !point.NoShadow.Value;
                 }
 
-                Color connectionColor = IsDirectionallyValid(connection) ? connection.Color : Color.Red;
+                Color connectionColor = IsDirectionallyValid(connection) && (connection.IsInRoomShortcut || IsValidMinLength(connection)) ? connection.Color : Color.Red;
                 int totalLength = 0;
 
                 for (int i = 0; i <= connection.Points.Count; i++)
@@ -590,6 +590,13 @@ namespace Cornifer.Connections
 
 			return (sourceOffset == 0 && destOffset == 0);
 		}
+
+		static bool IsValidMinLength(Connection connection) {
+			Vec2 startPos = (Vec2)(connection.SourcePoint.ToVector2() + connection.Source.WorldPosition);
+			Vec2 endPos = (Vec2)(connection.DestinationPoint.ToVector2() + connection.Destination.WorldPosition);
+			return (endPos - startPos).Length >= 5;
+		}
+
 		static bool IsUnspoiledConnection(Vec2 startPos, Vec2 endPos) {
 			int horizontalSpacing = (int)Math.Round(endPos.X - startPos.X) % 2;
 			int verticalSpacing = (int)Math.Round(endPos.Y - startPos.Y) % 2;
