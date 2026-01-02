@@ -316,7 +316,7 @@ namespace Cornifer.Connections
                     {
                         float angle = (end - start).Angle.Radians;
 
-                        Rectangle source = new Rectangle(totalLength, 0, length + 1, 1);
+                        Rectangle source = new(totalLength, 0, length + 1, 1);
                         Vector2 origin = new(.5f);
 
                         if (i == 0)
@@ -352,7 +352,7 @@ namespace Cornifer.Connections
                             ConnectionPoint? startPoint = i > 0 ? connection.Points[i - 1] : null;
                             ConnectionPoint? endPoint = i < connection.Points.Count ? connection.Points[i] : null;
 
-                            if (startPoint is not null && startPoint.SkipPixelAfter.Value)
+                            /*if (startPoint is not null && startPoint.SkipPixelAfter.Value)
                             {
                                 source.Width -= 1;
                                 origin.X -= 1;
@@ -364,10 +364,17 @@ namespace Cornifer.Connections
                             {
                                 source.Width -= 1;
                                 length -= 1;
-                            }
+                            }*/
+
+							if (!connection.IsInRoomShortcut && i < connection.Points.Count && !InterfaceState.AllowCurvedConnections.Value && !IsUnspoiledConnection(start,end)) {
+								source.Width -= 1;
+								origin.X -= i == 0 ? -1 : 1;
+
+								length += 1;
+							}
 
                             Main.SpriteBatch.Draw(connection.IsInRoomShortcut ? ShortcutTexture : ConnectionTexture, renderer.TransformVector(start), source, connectionColor, angle, origin, renderer.Scale, SpriteEffects.None, 0);
-                        }
+						}
                     }
                     totalLength += length;
                 }
@@ -427,7 +434,7 @@ namespace Cornifer.Connections
                 if (!connection.Active || (connection.IsInRoomShortcut ? !inRooms : !betweenRooms))
                     continue;
 
-				if (IsUnspoiledConnection(connection)) connection.GuideColor = Color.White;
+				if (connection.IsInRoomShortcut || IsUnspoiledConnection(connection)) connection.GuideColor = Color.White;
 				else connection.GuideColor = Color.Yellow;
 
                 for (int i = 0; i <= connection.Points.Count; i++)
@@ -462,6 +469,8 @@ namespace Cornifer.Connections
                     float dashSize = 8;
                     float shadeThickness = 3;
 
+					Color segmentColor = connection.IsInRoomShortcut || IsUnspoiledConnection(connection, i) ? Color.White : Color.Yellow;
+
                     if (visible)
                         Main.SpriteBatch.DrawLine(start, end, Color.Black, 3);
                     else
@@ -473,9 +482,9 @@ namespace Cornifer.Connections
                         Main.SpriteBatch.DrawRect(end - new Vector2(3), new(5), Color.Black);
 
                     if (visible)
-                        Main.SpriteBatch.DrawLine(start, end, connection.GuideColor, 1);
+                        Main.SpriteBatch.DrawLine(start, end, segmentColor, 1);
                     else
-                        Main.SpriteBatch.DrawDashLine(start, end, connection.GuideColor * .6f, null, dashSize, null, 1);
+                        Main.SpriteBatch.DrawDashLine(start, end, segmentColor * .6f, null, dashSize, null, 1);
 
                     if (smallStartPoint)
                         Main.SpriteBatch.DrawRect(start - new Vector2(2), new(3), connection.GuideColor);
@@ -581,15 +590,23 @@ namespace Cornifer.Connections
 
 			return (sourceOffset == 0 && destOffset == 0);
 		}
+		static bool IsUnspoiledConnection(Vec2 startPos, Vec2 endPos) {
+			int horizontalSpacing = (int)Math.Round(endPos.X - startPos.X) % 2;
+			int verticalSpacing = (int)Math.Round(endPos.Y - startPos.Y) % 2;
+
+			return (horizontalSpacing == 0 && verticalSpacing == 0);
+		}
 
 		static bool IsUnspoiledConnection(Connection connection)
 		{
 			Vec2 startPos = (Vec2)(connection.SourcePoint.ToVector2() + connection.Source.WorldPosition);
 			Vec2 endPos = (Vec2)(connection.DestinationPoint.ToVector2() + connection.Destination.WorldPosition);
-			int horizontalSpacing = (int)Math.Round(endPos.X - startPos.X) % 2;
-			int verticalSpacing = (int)Math.Round(endPos.Y - startPos.Y) % 2;
+			return IsUnspoiledConnection(startPos, endPos);
+		}
 
-			return (horizontalSpacing == 0 && verticalSpacing == 0);
+		static bool IsUnspoiledConnection(Connection connection, int line) {
+			(Vec2 startPos, Vec2 endPos) = GetLinePoints(null, connection, line);
+			return IsUnspoiledConnection(startPos, endPos);
 		}
 
         static (Vec2, Vec2) GetLinePoints(Renderer? transformer, Connection connection, int line)
@@ -614,7 +631,7 @@ namespace Cornifer.Connections
             return (start, end);
         }
 
-        static Rect GetLineBounds(Vec2 start, Vec2 end, float offset, out float angle)
+		static Rect GetLineBounds(Vec2 start, Vec2 end, float offset, out float angle)
         {
             float rectHeight = 20;
 

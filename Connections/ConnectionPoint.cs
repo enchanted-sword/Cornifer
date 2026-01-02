@@ -27,9 +27,9 @@ namespace Cornifer.Connections
 
         public Connection Connection = null!;
 
-        public ObjectProperty<bool> SkipPixelBefore = new("skipBefore", false);
-        public ObjectProperty<bool> SkipPixelAfter = new("skipAfter", false);
-        public ObjectProperty<bool> NoShadow = new("noShadow", false);
+        /*public ObjectProperty<bool> SkipPixelBefore = new("skipBefore", false);
+        public ObjectProperty<bool> SkipPixelAfter = new("skipAfter", false);*/
+        public ObjectProperty<bool> NoShadow = new("noShadow", true);
 
         public ConnectionPoint() 
         {
@@ -37,9 +37,6 @@ namespace Cornifer.Connections
         public ConnectionPoint(Connection connection)
         {
             Connection = connection;
-
-            if (connection.IsInRoomShortcut)
-                NoShadow.OriginalValue = true;
         }
 
         public JsonNode SaveJson()
@@ -48,16 +45,16 @@ namespace Cornifer.Connections
             {
                 ["x"] = ParentPosition.X,
                 ["y"] = ParentPosition.Y,
-            }.SaveProperty(SkipPixelBefore)
-            .SaveProperty(SkipPixelAfter)
+            }/*.SaveProperty(SkipPixelBefore)
+            .SaveProperty(SkipPixelAfter)*/
             .SaveProperty(NoShadow);
         }
 
         public void LoadJson(JsonNode node)
         {
             ParentPosition = JsonTypes.LoadVector2(node);
-            SkipPixelBefore.LoadFromJson(node);
-            SkipPixelAfter.LoadFromJson(node);
+            /*SkipPixelBefore.LoadFromJson(node);
+            SkipPixelAfter.LoadFromJson(node);*/
             NoShadow.LoadFromJson(node);
         }
 
@@ -65,7 +62,7 @@ namespace Cornifer.Connections
 
         protected override void BuildInnerConfig(UIList list)
         {
-            list.Elements.Add(new UIButton
+            /*list.Elements.Add(new UIButton
             {
                 Text = "Skip pixel before",
                 Height = 20,
@@ -88,7 +85,7 @@ namespace Cornifer.Connections
                 SelectedTextColor = Color.Black,
                 SelectedBackColor = Color.White,
 
-            }.OnEvent(UIElement.ClickEvent, (btn, _) => SkipPixelAfter.Value = btn.Selected));
+            }.OnEvent(UIElement.ClickEvent, (btn, _) => SkipPixelAfter.Value = btn.Selected));*/
             list.Elements.Add(new UIButton
             {
                 Text = "Disable shadow",

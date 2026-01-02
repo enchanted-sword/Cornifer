@@ -30,7 +30,7 @@ namespace Cornifer.UI.Pages
                 new UIList()
                 {
                     Top = 35,
-                    Height = new(-70, 1),
+                    Height = new(-90, 1),
                     ElementSpacing = 2,
 
                     Elements =
@@ -76,6 +76,20 @@ namespace Cornifer.UI.Pages
 							TextAlign = new(.5f)
 
 						}.BindConfig(InterfaceState.DrawAllShortcuts),
+
+						new UIButton
+						{
+							Height = 20,
+
+							Selectable = true,
+							Text = "Allow curved connections",
+
+							SelectedBackColor = Color.White,
+							SelectedTextColor = Color.Black,
+
+							TextAlign = new(.5f)
+
+						}.BindConfig(InterfaceState.AllowCurvedConnections),
 
 						new UIButton
                         {
@@ -124,13 +138,14 @@ namespace Cornifer.UI.Pages
 
                             BorderColor = new(100, 100, 100),
 
-                            Elements =
+
+							Elements =
                             {
                                 new UILabel
                                 {
                                     Height = 20,
                                     Text = $"Water transparency: {InterfaceState.WaterTransparency.Value*100:0}%",
-                                    TextAlign = new(0, .5f)
+                                    TextAlign = new(.5f)
                                 }.OnConfigChange(InterfaceState.WaterTransparency, (label, value) => label.Text = $"Water transparency: {value*100:0}%"),
                                 new UIScrollBar
                                 {
@@ -231,7 +246,7 @@ namespace Cornifer.UI.Pages
                                 {
                                     Height = 20,
                                     Text = $"Overlay transparency: {InterfaceState.OverlayTransparency.Value*100:0}%",
-                                    TextAlign = new(0, .5f)
+                                    TextAlign = new(.5f)
                                 }.OnConfigChange(InterfaceState.OverlayTransparency, (label, value) => label.Text = $"Overlay transparency: {value*100:0}%"),
                                 new UIScrollBar
                                 {
