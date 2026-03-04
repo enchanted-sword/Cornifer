@@ -163,7 +163,7 @@ namespace Cornifer
             { "UniqueDataPearl",  (new(39, 39,  11, 11), new(255, 255, 255, 255)) },
             { "Slugcat",          (new(51, 39,  20, 19), new(255, 255, 255, 255)) },
             { "ScavengerOutpost", (new(109,21,  11, 15), new(255, 255, 255, 255)) },
-            { "KarmaShrine",      (new(72, 45,  17, 17), new(255, 255, 255, 255)) },
+            { "KarmaShrine",      (new(0, 31,  9, 9), new(255, 255, 255, 255)) },
             { "MoonCloak",        (new(1,  49,  21, 25), new(255, 255, 255, 255)) },
 			{ "AncientShelterMarker", (new(91, 45,  21, 22), new(255, 255, 255, 255)) },
 
