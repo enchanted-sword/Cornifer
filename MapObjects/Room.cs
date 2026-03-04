@@ -992,9 +992,9 @@ namespace Cornifer.MapObjects
 									}
 								}
 								if (!isAirPocket) {
-									if ((invertedWater ? j <= waterLevel : j >= TileSize.Y - waterLevel)) {
+									if ((invertedWater ? (j <= TileSize.Y - waterLevel) : (j >= TileSize.Y - waterLevel))) {
 										color = Color.Lerp(waterColor, color, InterfaceState.WaterTransparency.Value);
-									} else if (waterFluxLevel > 0 && (invertedWater ? j <= waterFluxLevel : j >= TileSize.Y - waterFluxLevel)) {
+									} else if (waterFluxLevel > 0 && (invertedWater ? (j <= TileSize.Y - waterFluxLevel) : j >= TileSize.Y - waterFluxLevel)) {
 										color = Color.Lerp(waterColor, color, WaterFluxTransparency);
 									}
 								}
