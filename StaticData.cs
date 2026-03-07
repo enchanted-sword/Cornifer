@@ -108,6 +108,7 @@ namespace Cornifer
         };
 
 		public static readonly Dictionary<string, Vector2> VistaRooms = new();
+		public static readonly Dictionary<string, Color> BroadcastColors = new();
 
 		public static readonly HashSet<string> NonPickupObjectsWhitelist = new()
 		{
@@ -125,6 +126,7 @@ namespace Cornifer
 		public static void Init() {
 			InitSlugcats();
 			InitPearls();
+			InitBroadcasts();
 			InitVistas();
 			InitGateSymbols();
 		}
@@ -203,6 +205,27 @@ namespace Cornifer
 							PearlHighlightColors[entry.Key] = (Color)color;
 					}
 				}
+			}
+		}
+
+		private static void InitBroadcasts() {
+			string filename = Path.Combine(Main.MainDir, "Assets\\Settings\\BroadcastColors.json");
+
+			if (!File.Exists(filename)) return;
+
+			using FileStream fs = File.OpenRead(filename);
+			JsonObject? obj = JsonSerializer.Deserialize<JsonObject>(fs, new JsonSerializerOptions() { AllowTrailingCommas = true });
+
+			if (obj is null) return;
+
+			foreach (var entry in obj) {
+				if (obj.TryGet(entry.Key, out string? colorStr)) {
+					Color? color = ColorDatabase.ParseColor(colorStr);
+					if (color.HasValue)
+						BroadcastColors[entry.Key] = (Color)color;
+				}
+
+					
 			}
 		}
 
@@ -300,5 +323,12 @@ namespace Cornifer
 
             return color;
         }
+
+		public static Color GetBroadcastColor(string id) {
+			string test = id[(id.IndexOf("_")+1)..].Substring(0,2);
+			Color color = BroadcastColors.GetValueOrDefault(test, BroadcastColors[""]);
+
+			return color;
+		}
     }
 }

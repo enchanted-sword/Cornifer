@@ -171,8 +171,12 @@ namespace Cornifer.MapObjects
 						switch (objName) {
 							case "WhiteToken":
 								obj.RenderLayer.OriginalValue = Main.BroadcastsLayer;
-								if (SpriteAtlases.Sprites.TryGetValue("Symbol_Satellite", out AtlasSprite? sat))
-									obj.Children.Add(new SimpleIcon("SatelliteIcon", sat));
+								if (SpriteAtlases.Sprites.TryGetValue("Symbol_Satellite", out AtlasSprite? satelliteIcon)){
+									SimpleIcon satellite = new("BroadcastIcon", satelliteIcon, StaticData.GetBroadcastColor(subname)) {
+										ParentPosition = new(-7, -30)
+									};
+									obj.Children.Add(satellite);
+								}
 								break;
 
 							case "GreenToken":
