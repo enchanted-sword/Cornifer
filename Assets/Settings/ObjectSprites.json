@@ -85,7 +85,6 @@
 "JokeRifle": { "sprite": "Symbol_JokeRifle", "color": "A9A4B2" },
 
 "NeedleEgg": { "sprite": "needleEggSymbol", "color": "2D0D14" },
-"WhiteToken": { "sprite": "Symbol_Satellite", "color": "FFFFFF" },
 
 "HRGuard": { "sprite": "Object_KarmaFlower", "color": "FF0000" },
 "TempleGuard": { "sprite": "Object_KarmaFlower", "color": "FF0000" },

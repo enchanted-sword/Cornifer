@@ -105,7 +105,6 @@ namespace Cornifer
             {"JokeRifle", ("Symbol_JokeRifle", new(169, 164, 178))},
 
             {"NeedleEgg", ("needleEggSymbol", new(45, 13, 20))},
-            {"WhiteToken", ("Symbol_Satellite", new(255, 255, 255))},
 
             {"HRGuard", ("Object_KarmaFlower", new(255, 0, 0))},
             {"TempleGuard", ("Object_KarmaFlower", new(255, 0, 0))},
@@ -157,7 +156,7 @@ namespace Cornifer
             { "BlueToken",        (new(77, 84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "GoldToken",        (new(92, 84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "RedToken",         (new(77, 69,  13, 13), new(255, 255, 255, 0.75f)) },
-            { "DevToken",         (new(107,84,  13, 13), new(255, 255, 255, 0.75f)) },
+            { "WhiteToken",       (new(107,84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "GreenToken",       (new(92, 69,  13, 13), new(255, 255, 255, 0.75f)) },
             { "DataPearl",        (new(39, 39,  11, 11), new(255, 255, 255, 255)) },
             { "UniqueDataPearl",  (new(39, 39,  11, 11), new(255, 255, 255, 255)) },

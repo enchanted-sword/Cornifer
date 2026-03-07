@@ -171,12 +171,15 @@ namespace Cornifer.MapObjects
 						switch (objName) {
 							case "WhiteToken":
 								obj.RenderLayer.OriginalValue = Main.BroadcastsLayer;
+								if (SpriteAtlases.Sprites.TryGetValue("Symbol_Satellite", out AtlasSprite? sat))
+									obj.Children.Add(new SimpleIcon("SatelliteIcon", sat));
 								break;
 
 							case "GreenToken":
 								Slugcat? slugcat = StaticData.Slugcats.FirstOrDefault(s => s.Name == subname || s.Id == subname);
 
 								if (slugcat is not null) {
+									// obj.SlugcatAvailability = new() { slugcat.Name };
 									obj.Children.Add(new SlugcatTokenIcon("GreenToken", slugcat, false) {
 										ParentPosition = new(0, 8),
 										Parent = obj,
@@ -241,7 +244,10 @@ namespace Cornifer.MapObjects
 
 							obj.Color.OriginalValue.Color = StaticData.GetPearlColor(type);
 
-							if (type != "Misc" && type != "BroadcastMisc") {
+							// DataPearl and UniqueDataPearl are functionally identical and are used interchangably; however, for ease of map object filtering, we coerce them into misc and coloured pearl groups, respectively
+							if (type == "Misc" || type == "Misc2" || type == "BroadcastMisc" ) obj.Type = "DataPearl";
+							else {
+								obj.Type = "UniqueDataPearl"; 
 								obj.Children.Add(new MapText("PearlText", Main.DefaultSmallMapFont, $"[c:{obj.Color.Value.GetKeyOrColorString()}]Colored[/c] pearl"));
 								if (SpriteAtlases.Sprites.TryGetValue("ScholarA", out AtlasSprite? sprite))
 									obj.Children.Add(new SimpleIcon("PearlIcon", sprite) {
@@ -295,7 +301,7 @@ namespace Cornifer.MapObjects
 
         public void AddAvailabilityIcons()
         {
-            if (Type == "DevToken" || Type == "WhiteToken" || SlugcatAvailability.Count == 0)
+            if (Type == "DevToken" || Type == "WhiteToken" || Type == "GreenToken" || SlugcatAvailability.Count == 0)
                 return;
 
             HashSet<string> cats = new(StaticData.Slugcats.Where(s => s.Playable).Select(s => s.Id));
