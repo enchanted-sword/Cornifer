@@ -78,7 +78,7 @@ namespace Cornifer.UI.Modals
                     }
                 };
 
-                AtlasSprite? slugcatSprite = SpriteAtlases.GetSpriteOrNull($"Slugcat_{slugcat.Id}");
+                AtlasSprite? slugcatSprite = SpriteAtlases.GetSpriteOrNull($"SlugcatCustom_{slugcat.Id}");
                 if (slugcatSprite is not null)
                 {
                     panel.Elements.Add(new UIImage

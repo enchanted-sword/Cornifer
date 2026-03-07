@@ -855,7 +855,7 @@ namespace Cornifer.MapObjects
 
             if (BrokenForSlugcats.Count > 0)
             {
-                string text = "Broken for " + string.Join(' ', StaticData.Slugcats.Where(s => BrokenForSlugcats.Contains(s.Id)).Select(s => $"[ic:Slugcat_{s.Id}]"));
+                string text = "Broken for " + string.Join(' ', StaticData.Slugcats.Where(s => BrokenForSlugcats.Contains(s.Id)).Select(s => $"[ic:SlugcatCustom_{s.Id}]"));
                 Children.Add(new MapText("BrokenShelterText", Main.DefaultSmallMapFont, text));
             }
 
