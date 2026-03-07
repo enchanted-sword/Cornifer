@@ -611,7 +611,7 @@ namespace Cornifer
 
             foreach (var mod in Mods.OrderByDescending(x => x.LoadOrder))
             {
-                if (!mod.Active)
+                if (!mod.Active || mod.Id == "expedition")
                     continue;
 
                 string modDir = Path.Combine(mod.Path, path);
