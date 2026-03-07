@@ -151,7 +151,7 @@ namespace Cornifer
         static readonly Dictionary<string, (Rectangle Frame, Color Color)> ObjectSpriteFrames = new()
         {
             { "KarmaFlower",      (new(110,72,   7,  7), new(255, 255, 255, 0.65f)) },
-            { "SeedCob",          (new(40, 0,   35, 38), new(255, 255, 255, 255)) },
+            { "SeedCob",          (new(1, 79,   17, 41), new(255, 255, 255, 255)) },
             { "GhostSpot",        (new(0,  0,   23, 30), new(255, 255, 255, 255)) },
             { "BlueToken",        (new(77, 84,  13, 13), new(255, 255, 255, 0.75f)) },
             { "GoldToken",        (new(92, 84,  13, 13), new(255, 255, 255, 0.75f)) },
