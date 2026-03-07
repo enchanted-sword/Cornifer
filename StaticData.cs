@@ -103,7 +103,7 @@ namespace Cornifer
             ["Saint"] = new() { "SU", "HI", "UG", "CC", "GW", "VS", "CL", "SL", "SI", "LF", "SB", "HR" },
             ["Spear"] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "LM", "SI", "LF", "UW", "SS", "SB", "DM" },
             ["Gourmand"] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "SL", "SI", "LF", "UW", "SS", "SB", "OE" },
-			["Watcher"] = new() { "SU", "HI", "CC", "SH", "VS", "LF", "WARA", "WARB", "WARC", "WARD", "WARE", "WARF", "WARG", "WAUA", "WBLA", "WDSR", "WGWR", "WHIR", "WORA", "WPTA", "WRFA", "WRFB", "WRRA", "WRSA", "WSKA", "WSKB", "WSKC", "WSKD", "WSSR", "WSUR", "WTDA", "WTDB", "WVWA", "WVWB", "WMPA", "WPGA" },
+			["Watcher"] = new() { "SU", "HI", "CC", "SH", "LF", "WARA", "WARB", "WARC", "WARD", "WARE", "WARF", "WARG", "WAUA", "WBLA", "WDSR", "WGWR", "WHIR", "WORA", "WPTA", "WRFA", "WRFB", "WRRA", "WRSA", "WSKA", "WSKB", "WSKC", "WSKD", "WSSR", "WSUR", "WTDA", "WTDB", "WVWA", "WVWB", "WMPA", "WPGA" },
 			[""] = new() { "SU", "HI", "DS", "CC", "GW", "SH", "VS", "SL", "SI", "LF", "UW", "SS", "SB" },
         };
 
