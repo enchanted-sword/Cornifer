@@ -1172,7 +1172,13 @@ namespace Cornifer
                     return;
 
                 CurrentStatePath = newPath;
-            }
+
+				if (Region is not null) {
+					RPC.UpdateDescription("Mapping Rain World");
+
+					RPC.UpdateState($"Working on {RWAssets.GetRegionDisplayName(Region.Id, SelectedSlugcat)}{(SelectedSlugcat is null ? "" : $" ({SelectedSlugcat.Name})")}");
+				}
+			}
 
             using MemoryStream ms = new();
 
@@ -1187,12 +1193,6 @@ namespace Cornifer
             FileStream fs = File.Create(CurrentStatePath!);
             ms.Position = 0;
             ms.CopyTo(fs);
-
-			if (Region is not null) {
-				RPC.UpdateDescription("Mapping Rain World");
-				
-				RPC.UpdateState($"Working on {RWAssets.GetRegionDisplayName(Region.Id,SelectedSlugcat)}{(SelectedSlugcat is null ? "" : $" ({SelectedSlugcat.Name})")}");
-			}
 		}
         public static async Task SaveStateAs()
         {
