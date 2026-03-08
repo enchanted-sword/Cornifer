@@ -12,7 +12,6 @@ Use collapsed panels
 Text presets
 Dynamically position diamonds
 Color selection for shortcut types
-Warnings system (2 wide gaps in connections)
 Show available key combos (which were polled duting update call)
 Water color invlerp in color picker
 
