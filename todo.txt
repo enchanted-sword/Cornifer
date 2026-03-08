@@ -34,7 +34,6 @@ Better room selection - check if clicked pixel is transparent
 
 Paste image
 
-Switch slugcats after region load
 + properties.txt
 + room_settings.txt
 + world_xx.txt

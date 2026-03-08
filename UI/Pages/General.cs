@@ -2,9 +2,12 @@
 using Cornifer.UI.Elements;
 using Cornifer.UI.Modals;
 using Cornifer.UI.Structures;
+using Cornifer.Structures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cornifer.UI.Pages
@@ -27,9 +30,19 @@ namespace Cornifer.UI.Pages
                     TextAlign = new(.5f)
                 }.OnEvent(ClickEvent, async (_, _) => await SelectRegionClicked()),
 
-                new UIList()
+				new UIButton
+				{
+					Top = 35,
+
+					Height = 25,
+					Text = "Switch Slugcat",
+
+					TextAlign = new(.5f)
+				}.OnEvent(ClickEvent, async (_, _) => await SwitchSlugcatClicked()),
+
+				new UIList()
                 {
-                    Top = 35,
+                    Top = 70,
                     Height = new(-90, 1),
                     ElementSpacing = 2,
 
@@ -366,5 +379,25 @@ namespace Cornifer.UI.Pages
             await Main.LoadRegion(region.Value.Region);
             return true;
         }
+
+		public static async Task<bool> SwitchSlugcatClicked() {
+			SlugcatSelect.Result? slugcat = await SlugcatSelect.ShowDialog();
+
+			if (!slugcat.HasValue || Main.Region is null) return false;
+
+			string tempState = Path.Combine(Path.GetTempFileName());
+			await Main.SaveState(tempState); // save current state to a temp file
+
+			Main.SelectedSlugcat = slugcat.Value.Slugcat;
+			InterfaceState.DrawSlugcatIcons.Value = slugcat.Value.Slugcat is null;
+			RegionInfo? regionInfo = RWAssets.FindRegions(slugcat.Value.Slugcat)
+							.AsNullable().FirstOrDefault(i => i!.Value.Id.Equals(Main.Region.Id, StringComparison.InvariantCultureIgnoreCase));
+
+			if (regionInfo is null) return false;
+			
+			await Main.LoadRegion((RegionInfo)regionInfo);
+			Main.SwitchSlugcat(tempState);
+			return true;
+		}
     }
 }

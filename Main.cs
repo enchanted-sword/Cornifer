@@ -1021,7 +1021,7 @@ namespace Cornifer
             if (!TestJsonState(node))
                 return;
 
-            if (Region is not null)
+			if (Region is not null)
             {
                 Region.UnbindRooms();
             }
@@ -1162,9 +1162,24 @@ namespace Cornifer
                 return;
             }
         }
-        public static async Task SaveState()
+
+		public static void SwitchSlugcat(string tempState) {
+			if (TryCatchReleaseException(() => {
+				using FileStream fs = File.OpenRead(tempState);
+
+				JsonNode? node = JsonSerializer.Deserialize<JsonNode>(fs);
+				if (node is not null && TestJsonState(node)) {
+					LoadJson(node, true);
+				}
+			}, "Exception has been thrown while switching slugcats")) {
+				return;
+			}
+		}
+
+        public static async Task SaveState(string? path = null)
         {
-            if (CurrentStatePath is null)
+			if (path is not null) CurrentStatePath = path;
+			if (CurrentStatePath is null)
             {
                 string? newPath = await Platform.SaveFileDialog("Save map state", "Cornifer map files|*.cornimap");
 
