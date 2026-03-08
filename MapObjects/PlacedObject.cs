@@ -175,6 +175,7 @@ namespace Cornifer.MapObjects
 									SimpleIcon satellite = new("BroadcastIcon", satelliteIcon, StaticData.GetBroadcastColor(subname)) {
 										ParentPosition = new(-7, -30)
 									};
+									satellite.BorderSize.OriginalValue = 1;
 									obj.Children.Add(satellite);
 								}
 								break;
