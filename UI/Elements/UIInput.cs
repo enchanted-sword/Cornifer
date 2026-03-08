@@ -450,6 +450,7 @@ namespace Cornifer.UI.Elements
 
             if (!Active && (Lines.Count == 0 || Lines.Count == 1 && Lines[0].Length == 0)) 
             {
+				if (HintLines.Count == 0) HintLines.Add(new(""));
                 if (HintLineWidths.Length < HintLines.Count)
                     HintLineWidths = new float[HintLines.Count];
 
