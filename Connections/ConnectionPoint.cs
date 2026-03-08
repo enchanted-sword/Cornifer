@@ -1,4 +1,5 @@
-﻿using Cornifer.Json;
+﻿using Cornifer.Input;
+using Cornifer.Json;
 using Cornifer.MapObjects;
 using Cornifer.Renderers;
 using Cornifer.Structures;
@@ -59,6 +60,11 @@ namespace Cornifer.Connections
         }
 
         protected override void DrawSelf(Renderer renderer) { }
+
+		protected override bool OpaqueAtPos(Vector2 pos) {
+			if (InputHandler.FinePointer.Pressed) return (WorldPosition - pos).Length() < 1;
+			return base.OpaqueAtPos(pos);
+		}
 
 		protected override void BuildInnerConfig(UIList list)
         {
