@@ -60,7 +60,7 @@ namespace Cornifer.UI.Pages
                 new UILabel
                 {
                     Height = 20,
-                    Text = "Select one object on the map to configure",
+                    Text = "Select an object on the map to configure",
                     TextAlign = new(.5f),
                     Visible = ConfigurableObject is null && Main.SelectedObjects.Count != 1,
                 }.Assign(out NoConfigObjectLabel),

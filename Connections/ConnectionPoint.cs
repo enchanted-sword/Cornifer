@@ -60,7 +60,7 @@ namespace Cornifer.Connections
 
         protected override void DrawSelf(Renderer renderer) { }
 
-        protected override void BuildInnerConfig(UIList list)
+		protected override void BuildInnerConfig(UIList list)
         {
             /*list.Elements.Add(new UIButton
             {

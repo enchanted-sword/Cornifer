@@ -37,5 +37,5 @@ namespace Cornifer.MapObjects
             DrawIcon(renderer);
         }
         public abstract void DrawIcon(Renderer renderer);
-    }
+	}
 }

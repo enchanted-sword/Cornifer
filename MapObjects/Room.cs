@@ -1306,6 +1306,21 @@ namespace Cornifer.MapObjects
             if (base.Name is not null)
                 Main.SpriteBatch.DrawStringAligned(Content.Consolas10, base.Name, renderer.TransformVector(WorldPosition + new Vector2(TileSize.X / 2, .5f)), Color.Yellow, new(.5f, 0), Color.Black);
         }
+
+		protected override bool IntersectedByRect(Vector2 tl, Vector2 br) {
+			return WorldPosition.X < br.X
+				&& tl.X < WorldPosition.X + Size.X
+				&& WorldPosition.Y < br.Y
+				&& tl.Y < WorldPosition.Y + Size.Y;
+		}
+		protected override bool OpaqueAtPos(Vector2 pos) {
+			if (!Loaded) return false;
+
+			Vector2 roomPos = Vector2.Round(pos - WorldPosition);
+			if (roomPos.X < 0 || roomPos.X >= TileSize.X || roomPos.Y < 0 || roomPos.Y >= TileSize.Y) return false;
+			if (!InterfaceState.DisableRoomCropping.Value && CutOutSolidTiles is not null) return !CutOutSolidTiles[(int)roomPos.X, (int)roomPos.Y];
+			else return true;
+		}
         protected override void BuildInnerConfig(UIList list)
         {
             if (Region is not null)

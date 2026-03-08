@@ -18,7 +18,7 @@ namespace Cornifer.MapObjects
 {
     public abstract class MapObject
     {
-        static Regex RandomNameSuffixRegex = new(@"_([0-9A-Fa-f]+)", RegexOptions.Compiled);
+		public static readonly Regex RandomNameSuffixRegex = new(@"_([0-9A-Fa-f]+)", RegexOptions.Compiled);
 
         static ShadeRenderer? ShadeTextureRenderer;
         internal static RenderTarget2D? ShadeRenderTarget;
@@ -561,6 +561,15 @@ namespace Cornifer.MapObjects
                 ArrayPool<bool>.Shared.Return(shadePattern);
         }
 
+		protected virtual bool OpaqueAtPos(Vector2 pos) { return true;  }
+
+		protected virtual bool IntersectedByRect(Vector2 tl, Vector2 br) {
+			return VisualPosition.X < br.X
+				&& tl.X < VisualPosition.X + VisualSize.X
+				&& VisualPosition.Y < br.Y
+				&& tl.Y < VisualPosition.Y + VisualSize.Y;
+		}
+
         public static MapObject? FindSelectableAtPos(IEnumerable<MapObject> objects, Vector2 pos, bool searchChildren)
         {
             foreach (MapObject obj in objects.SmartReverse())
@@ -575,7 +584,7 @@ namespace Cornifer.MapObjects
                         return child;
                 }
 
-                if (obj.ContainsPoint(pos))
+                if (obj.ContainsPoint(pos) && obj.OpaqueAtPos(pos))
                     return obj;
             }
             return null;

@@ -729,10 +729,41 @@ namespace Cornifer
                     if (InputHandler.AddToSelection.Released && InputHandler.SubFromSelection.Released)
                         SelectedObjects.Clear();
 
-                    if (InputHandler.SubFromSelection.Pressed)
-                        SelectedObjects.ExceptWith(MapObject.FindIntersectingSelectables(SelectedObjects, tl, br, true));
-                    else
-                        SelectedObjects.UnionWith(MapObject.FindIntersectingSelectables(WorldObjectLists, tl, br, true));
+					// Because of how the selection logic works, we still arrive here if we're clicking without dragging outside of a room's physical bounds but inside its MapObject visual bounds
+					// Thus, we want to use the smart selection logic instead of just going by intersecting visual rectangles
+					if (tl == br) { 
+						// Clicked on already selected object
+						MapObject? underMouse = MapObject.FindSelectableAtPos(SelectedObjects, mouseWorld, false);
+						if (underMouse is not null) {
+							if (InputHandler.SubFromSelection.Pressed) {
+								SelectedObjects.Remove(underMouse);
+								return;
+							}
+
+							Undo.PreventNextUndoMerge();
+							Dragging = true;
+							OldDragPos = mouseWorld;
+							return;
+						}
+
+						// Clicked on not selected object
+						MapObject? obj = MapObject.FindSelectableAtPos(WorldObjectLists, mouseWorld, true);
+						if (obj is not null) {
+							if (InputHandler.AddToSelection.Released)
+								SelectedObjects.Clear();
+
+							SelectedObjects.Add(obj);
+							Undo.PreventNextUndoMerge();
+							Dragging = true;
+							OldDragPos = mouseWorld;
+							return;
+						}
+					} else {
+						if (InputHandler.SubFromSelection.Pressed)
+							SelectedObjects.ExceptWith(MapObject.FindIntersectingSelectables(SelectedObjects, tl, br, true));
+						else
+							SelectedObjects.UnionWith(MapObject.FindIntersectingSelectables(WorldObjectLists, tl, br, true));
+					}
                 }
             }
             else
