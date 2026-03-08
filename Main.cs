@@ -858,10 +858,11 @@ namespace Cornifer
             }
 
 			string modName = info.Mod.Name;
-			if (modName == "Rain World") RPC.UpdateDescription("Mapping Rain World");
-			else RPC.UpdateDescription(string.Format(CultureInfo.InvariantCulture, "Mapping Rain World - {0}", modName));
 
-				RPC.UpdateState(string.Format(CultureInfo.InvariantCulture, "Working on {0} ({1})", info.Displayname, info.Id));
+			if (modName == "Rain World") RPC.UpdateDescription("Mapping Rain World");
+			else RPC.UpdateDescription($"Mapping Rain World - {modName}");
+
+			RPC.UpdateState($"Working on {info.Displayname}{(SelectedSlugcat is null ? "" : $" ({SelectedSlugcat.Name})")}");
 
             TaskCompletionSource completion = new();
             ThreadPool.QueueUserWorkItem((_) =>
@@ -1119,10 +1120,10 @@ namespace Cornifer
                 if (node is not null && TestJsonState(node))
                 {
                     int choice = await MessageBox.Show(
-                        "Select state loading mode\n" +
-                        "Full will load region from the state\n" +
-                        "Shallow will load region from the game (if state has region data), then load changes from the state\n" +
-                        "Overlay will overlay state with current region (if loaded)", new[]
+                        "Select state loading mode:\n\n" +
+                        "Full will load the region from the state\n\n" +
+                        "Shallow will load the region from the game (if the state has region data), then load changes from the state\n\n" +
+                        "Overlay will overlay the state with the current region, provided the current region is the same as the that of the state", new[]
                         {
                             ("Full", 0),
                             ("Shallow", 1),
@@ -1186,7 +1187,13 @@ namespace Cornifer
             FileStream fs = File.Create(CurrentStatePath!);
             ms.Position = 0;
             ms.CopyTo(fs);
-        }
+
+			if (Region is not null) {
+				RPC.UpdateDescription("Mapping Rain World");
+				
+				RPC.UpdateState($"Working on {RWAssets.GetRegionDisplayName(Region.Id,SelectedSlugcat)}{(SelectedSlugcat is null ? "" : $" ({SelectedSlugcat.Name})")}");
+			}
+		}
         public static async Task SaveStateAs()
         {
             string? newPath = await Platform.SaveFileDialog("Save map state as", "Cornifer map files|*.cornimap");

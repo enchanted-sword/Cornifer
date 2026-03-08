@@ -675,7 +675,7 @@ namespace Cornifer
                 {
                     string? slugcatDisplayName = ResolveFile($"world/{id}/displayname-{worldSlugcat}.txt");
                     if (slugcatDisplayName is not null)
-                        displayname = slugcatDisplayName;
+                        displayname = File.ReadAllText(slugcatDisplayName);
                 }
 
                 yield return new RegionInfo($"world/{id}", $"world/{id}-rooms", id, displayname, mod);

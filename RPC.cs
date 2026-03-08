@@ -13,7 +13,7 @@ namespace Cornifer
 			State = "Browsing Regions"
 		};
 
-		public static DiscordRpcClient Client;
+		public static DiscordRpcClient Client = new("1365462705099509913");
 
 		//Called when your application first starts.
 		//For example, just before your main loop, on OnEnable for unity.
@@ -23,7 +23,6 @@ namespace Cornifer
 			NOTE:   If you are using Unity3D, you must use the full constructor and define
 					 the pipe connection.
 			*/
-			Client = new("1365462705099509913");
 
 			//Set the logger
 			Client.Logger = new ConsoleLogger() { Level = LogLevel.Warning };
