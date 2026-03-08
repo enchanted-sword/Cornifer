@@ -177,6 +177,15 @@ namespace Cornifer.MapObjects
 									};
 									satellite.BorderSize.OriginalValue = 1;
 									obj.Children.Add(satellite);
+
+									if (subname.Contains("Broadcast")) {
+										SimpleIcon satellitePebbles = new("BroadcastIcon", satelliteIcon, new(127, 127, 127)) {
+											ParentPosition = new(7, -30)
+										};
+										satellite.ParentPosition = new(-14, -30);
+										satellitePebbles.BorderSize.OriginalValue = 1;
+										obj.Children.Add(satellitePebbles);
+									}
 								}
 								break;
 

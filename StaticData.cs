@@ -325,7 +325,7 @@ namespace Cornifer
         }
 
 		public static Color GetBroadcastColor(string id) {
-			string test = id[(id.IndexOf("_")+1)..].Substring(0,2);
+			string test = id[(id.IndexOf("_") + 1)..][..2];
 			Color color = BroadcastColors.GetValueOrDefault(test, BroadcastColors[""]);
 
 			return color;
