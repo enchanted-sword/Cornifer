@@ -173,9 +173,10 @@ namespace Cornifer.MapObjects
 								obj.RenderLayer.OriginalValue = Main.BroadcastsLayer;
 								if (SpriteAtlases.Sprites.TryGetValue("Symbol_Satellite", out AtlasSprite? satelliteIcon)){
 									SimpleIcon satellite = new("BroadcastIcon", satelliteIcon, StaticData.GetBroadcastColor(subname)) {
-										ParentPosition = new(-7, -30)
+										ParentPosition = new(-7, -30),
 									};
 									satellite.BorderSize.OriginalValue = 1;
+									satellite.RenderLayer.OriginalValue = Main.BroadcastsLayer;
 									obj.Children.Add(satellite);
 
 									if (subname.Contains("Broadcast")) {
@@ -184,6 +185,7 @@ namespace Cornifer.MapObjects
 										};
 										satellite.ParentPosition = new(-14, -30);
 										satellitePebbles.BorderSize.OriginalValue = 1;
+										satellitePebbles.RenderLayer.OriginalValue = Main.BroadcastsLayer;
 										obj.Children.Add(satellitePebbles);
 									}
 								}
