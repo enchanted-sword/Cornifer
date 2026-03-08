@@ -290,10 +290,11 @@ namespace Cornifer
                 LoadErrors.Clear();
 
             float keyMoveMultiplier = 1;
-            if (InputHandler.MoveMultiplier.Pressed)
-                keyMoveMultiplier = 10;
+			if (InputHandler.MoveMultiplier2.Pressed && InputHandler.MoveMultiplier10.Pressed) keyMoveMultiplier = 20;
+            else if (InputHandler.MoveMultiplier10.Pressed) keyMoveMultiplier = 10;
+			else if (InputHandler.MoveMultiplier2.Pressed) keyMoveMultiplier = 2;
 
-            if (active && !Interface.Active)
+			if (active && !Interface.Active)
             {
                 if (InputHandler.ModsDebug.JustPressed)
                     DebugMetric = DebugMetric == EnabledDebugMetric.Mods ? EnabledDebugMetric.None : EnabledDebugMetric.Mods;

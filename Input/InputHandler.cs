@@ -33,8 +33,9 @@ namespace Cornifer.Input
         public static Keybind ModsDebug = new("", Keys.F7);
         public static Keybind ClearErrors = new("Clear errors", Keys.Escape);
 
-        public static Keybind MoveMultiplier = new("Move multiplier", ModifierKeys.Shift);
-        public static Keybind MoveUp = new("Move up", Keys.Up);
+        public static Keybind MoveMultiplier10 = new("10x Move multiplier", ModifierKeys.Shift);
+		public static Keybind MoveMultiplier2 = new("2x Move multiplier", ModifierKeys.Control);
+		public static Keybind MoveUp = new("Move up", Keys.Up);
         public static Keybind MoveDown = new("Move down", Keys.Down);
         public static Keybind MoveLeft = new("Move left", Keys.Left);
         public static Keybind MoveRight = new("Move right", Keys.Right);
