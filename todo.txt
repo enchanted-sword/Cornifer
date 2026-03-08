@@ -26,7 +26,6 @@ Add vista point icons when rules are resolved, TravellerA 150 trans
 Optimize image rendering:
     RE and use ZIP in PSD
 Fix hack with "To Region" by making a property to manually load/save position data
-Better room selection - check if clicked pixel is transparent
 
 
 --- ---
