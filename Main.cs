@@ -331,6 +331,11 @@ namespace Cornifer
                     }
                 }
 
+				if (InputHandler.ToggleBorders.JustPressed) {
+					InterfaceState.DrawBorders.Value = !InterfaceState.DrawBorders.Value;
+					InterfaceState.DrawBorders.UpdateElement();
+				}
+
                 if (InputHandler.CopyImage.JustPressed && SelectedObjects.Count > 0)
                 {
                     Platform.SetClipboardImage(ImageBorder.Validate(Capture.Capture.CaptureObjects(SelectedObjects.Contains), out _, Capture.Capture.BorderSize));

@@ -42,6 +42,7 @@ namespace Cornifer.Input
         public static Keybind DeleteObject = new("Delete object", new KeybindInput[] { Keys.Delete }, new KeybindInput[] { Keys.Back });
         public static Keybind DeleteConnection = new("Delete connection point", new KeybindInput[] { Keys.Delete }, new KeybindInput[] { Keys.Back });
         public static Keybind NewConnectionPoint = new("Create connection point", MouseKeys.LeftButton);
+		public static Keybind ToggleBorders = new("Toggle border visibility", Keys.B);
 
         public static Keybind Pan = new("Pan", MouseKeys.RightButton);
         public static Keybind Drag = new("Drag", MouseKeys.LeftButton);
