@@ -937,14 +937,12 @@ namespace Cornifer.MapObjects
 				Effect? waterFluxMin = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMinLevel");
 				Effect? waterFluxMax = Effects.FirstOrDefault(ef => ef.Name == "WaterFluxMaxLevel");
 
-
 				if (waterFluxMin is not null && waterFluxMax is not null) {
-					// float waterMid = 1 - (waterFluxMax.Amount + waterFluxMin.Amount) / 2 * (22f / 20f);
-					// waterLevel = (int)(waterMid * TileSize.Y) + 2;
-					float waterMax = waterFluxMax.Amount / (22f / 20f);
-					float waterMin = waterFluxMin.Amount / (22f / 20f);
-					waterFluxLevel = (int)(waterMax * TileSize.Y) + 2;
-					waterLevel = (int)(waterMin * TileSize.Y) + 2;
+					float waterMax = waterFluxMax.Amount * (22f / 20f); // WaterFluxController.fluxWaterLevel
+					float waterMin = waterFluxMin.Amount * (22f / 20f);
+					
+					waterFluxLevel = (int)(waterMax * TileSize.Y);
+					waterLevel = (int)(waterMin * TileSize.Y);
 				} else if (WaterCycleTop is not null && WaterCycleBottom is not null) {
 					waterFluxLevel = (int)WaterCycleTop;
 					waterLevel = (int)WaterCycleBottom;
